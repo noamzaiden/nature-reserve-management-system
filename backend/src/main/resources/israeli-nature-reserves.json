@@ -1,0 +1,332 @@
+[
+  {
+    "officialName": "Tel Dan Nature Reserve",
+    "region": "Upper Galilee",
+    "aliases": ["Tel Dan", "Dan Nature Reserve"],
+    "area": {
+      "minLatitude": 33.2380,
+      "maxLatitude": 33.2620,
+      "minLongitude": 35.6420,
+      "maxLongitude": 35.6740
+    }
+  },
+  {
+    "officialName": "Banias Nature Reserve",
+    "region": "Golan",
+    "aliases": ["Banias", "Nahal Hermon Nature Reserve", "Hermon Stream Nature Reserve"],
+    "area": {
+      "minLatitude": 33.2380,
+      "maxLatitude": 33.2760,
+      "minLongitude": 35.6860,
+      "maxLongitude": 35.7340
+    }
+  },
+  {
+    "officialName": "Hula Nature Reserve",
+    "region": "Galilee",
+    "aliases": ["Hula", "Hula Reserve"],
+    "area": {
+      "minLatitude": 33.0600,
+      "maxLatitude": 33.1200,
+      "minLongitude": 35.5900,
+      "maxLongitude": 35.6600
+    }
+  },
+  {
+    "officialName": "Ein Gedi Nature Reserve",
+    "region": "Dead Sea",
+    "aliases": ["Ein Gedi", "Ein Gedi Reserve"],
+    "area": {
+      "minLatitude": 31.4100,
+      "maxLatitude": 31.5100,
+      "minLongitude": 35.3500,
+      "maxLongitude": 35.4600
+    }
+  },
+  {
+    "officialName": "Gamla Nature Reserve",
+    "region": "Golan",
+    "aliases": ["Gamla"],
+    "area": {
+      "minLatitude": 32.8740,
+      "maxLatitude": 32.9320,
+      "minLongitude": 35.6170,
+      "maxLongitude": 35.7080
+    }
+  },
+  {
+    "officialName": "Ein Afek Nature Reserve",
+    "region": "Coastal Plain",
+    "aliases": ["Ein Afek"],
+    "area": {
+      "minLatitude": 32.8380,
+      "maxLatitude": 32.8570,
+      "minLongitude": 35.0780,
+      "maxLongitude": 35.1160
+    }
+  },
+  {
+    "officialName": "Amud Stream Nature Reserve",
+    "region": "Galilee",
+    "aliases": ["Amud Stream", "Nahal Amud Nature Reserve"],
+    "area": {
+      "minLatitude": 32.9180,
+      "maxLatitude": 33.0330,
+      "minLongitude": 35.4480,
+      "maxLongitude": 35.5660
+    }
+  },
+  {
+    "officialName": "Coral Beach Nature Reserve",
+    "region": "Eilat",
+    "aliases": ["Coral Beach", "Eilat Coral Beach Nature Reserve"],
+    "area": {
+      "minLatitude": 29.5000,
+      "maxLatitude": 29.5250,
+      "minLongitude": 34.9150,
+      "maxLongitude": 34.9490
+    }
+  },
+  {
+    "officialName": "Mount Meron Nature Reserve",
+    "region": "Upper Galilee",
+    "aliases": ["Mount Meron", "Meron Nature Reserve"],
+    "area": {
+      "minLatitude": 32.9620,
+      "maxLatitude": 33.0500,
+      "minLongitude": 35.3730,
+      "maxLongitude": 35.4720
+    }
+  },
+  {
+    "officialName": "Yehudia Forest Nature Reserve",
+    "region": "Golan",
+    "aliases": ["Yehudia Forest", "Yehudiya Nature Reserve"],
+    "area": {
+      "minLatitude": 32.9310,
+      "maxLatitude": 33.0490,
+      "minLongitude": 35.6590,
+      "maxLongitude": 35.8100
+    }
+  },
+  {
+    "officialName": "Mount Carmel Nature Reserve",
+    "region": "North",
+    "aliases": ["Mount Carmel", "Carmel Reserve", "Carmel Nature Reserve"],
+    "area": {
+      "minLatitude": 32.6500,
+      "maxLatitude": 32.8100,
+      "minLongitude": 34.9200,
+      "maxLongitude": 35.0800
+    }
+  },
+  {
+    "officialName": "Nahal Ayun Nature Reserve",
+    "region": "Upper Galilee",
+    "aliases": ["Nahal Ayun", "Ayun Stream Nature Reserve", "Tel Hai Falls"],
+    "area": {
+      "minLatitude": 33.1900,
+      "maxLatitude": 33.2540,
+      "minLongitude": 35.5550,
+      "maxLongitude": 35.6350
+    }
+  },
+  {
+    "officialName": "Einot Tzukim Nature Reserve",
+    "region": "Dead Sea",
+    "aliases": ["Einot Tzukim", "Enot Tsukim", "Ein Feshkha Nature Reserve"],
+    "area": {
+      "minLatitude": 31.7860,
+      "maxLatitude": 31.8420,
+      "minLongitude": 35.4550,
+      "maxLongitude": 35.5150
+    }
+  },
+  {
+    "officialName": "Ein Prat Nature Reserve",
+    "region": "Judean Desert",
+    "aliases": ["Ein Prat", "Wadi Qelt Nature Reserve", "Prat Stream Nature Reserve"],
+    "area": {
+      "minLatitude": 31.8350,
+      "maxLatitude": 31.8850,
+      "minLongitude": 35.3150,
+      "maxLongitude": 35.3900
+    }
+  },
+  {
+    "officialName": "Nahal Me'arot Nature Reserve",
+    "region": "Carmel",
+    "aliases": ["Nahal Me'arot", "Carmel Caves Nature Reserve", "Me'arot Stream Nature Reserve"],
+    "area": {
+      "minLatitude": 32.6550,
+      "maxLatitude": 32.6920,
+      "minLongitude": 34.9450,
+      "maxLongitude": 35.0050
+    }
+  },
+  {
+    "officialName": "Nahal Snir Nature Reserve",
+    "region": "Upper Galilee",
+    "aliases": ["Nahal Snir", "Snir Stream Nature Reserve", "Hasbani Nature Reserve"],
+    "area": {
+      "minLatitude": 33.2060,
+      "maxLatitude": 33.2570,
+      "minLongitude": 35.5850,
+      "maxLongitude": 35.6470
+    }
+  },
+  {
+    "officialName": "Eilat Mountains Nature Reserve",
+    "region": "Eilat",
+    "aliases": ["Eilat Mountains", "Harim Reserve Eilat", "Eilat Mountains Reserve"],
+    "area": {
+      "minLatitude": 29.5450,
+      "maxLatitude": 29.7900,
+      "minLongitude": 34.8200,
+      "maxLongitude": 35.0250
+    }
+  },
+  {
+    "officialName": "Hai-Bar Yotvata Nature Reserve",
+    "region": "Arava",
+    "aliases": ["Hai-Bar Yotvata", "Yotvata Nature Reserve", "Hai Bar Yotvata"],
+    "area": {
+      "minLatitude": 29.8480,
+      "maxLatitude": 29.9360,
+      "minLongitude": 35.0200,
+      "maxLongitude": 35.1220
+    }
+  },
+  {
+    "officialName": "Rosh HaNikra Nature Reserve",
+    "region": "Western Galilee",
+    "aliases": ["Rosh HaNikra", "Rosh Hanikra Nature Reserve"],
+    "area": {
+      "minLatitude": 33.0750,
+      "maxLatitude": 33.1050,
+      "minLongitude": 35.0920,
+      "maxLongitude": 35.1250
+    }
+  },
+  {
+    "officialName": "Achziv Nature Reserve",
+    "region": "Western Galilee",
+    "aliases": ["Achziv", "Akhziv Nature Reserve"],
+    "area": {
+      "minLatitude": 33.0320,
+      "maxLatitude": 33.0700,
+      "minLongitude": 35.0830,
+      "maxLongitude": 35.1200
+    }
+  },
+  {
+    "officialName": "Majrase Nature Reserve",
+    "region": "Golan",
+    "aliases": ["Majrase", "Beit Tsaida Nature Reserve", "Beteiha Nature Reserve"],
+    "area": {
+      "minLatitude": 32.8730,
+      "maxLatitude": 32.9150,
+      "minLongitude": 35.6180,
+      "maxLongitude": 35.6840
+    }
+  },
+  {
+    "officialName": "Meshushim Pool Nature Reserve",
+    "region": "Golan",
+    "aliases": ["Meshushim Pool", "Hexagon Pool Nature Reserve", "Brechat HaMeshushim"],
+    "area": {
+      "minLatitude": 32.9090,
+      "maxLatitude": 32.9570,
+      "minLongitude": 35.6990,
+      "maxLongitude": 35.7580
+    }
+  },
+  {
+    "officialName": "Nahal Tavor Nature Reserve",
+    "region": "Lower Galilee",
+    "aliases": ["Nahal Tavor", "Tabor Stream Nature Reserve"],
+    "area": {
+      "minLatitude": 32.6420,
+      "maxLatitude": 32.7260,
+      "minLongitude": 35.3910,
+      "maxLongitude": 35.5020
+    }
+  },
+  {
+    "officialName": "Mount Arbel Nature Reserve",
+    "region": "Galilee",
+    "aliases": ["Mount Arbel", "Arbel Nature Reserve", "Har Arbel"],
+    "area": {
+      "minLatitude": 32.8110,
+      "maxLatitude": 32.8460,
+      "minLongitude": 35.4860,
+      "maxLongitude": 35.5310
+    }
+  },
+  {
+    "officialName": "Hamat Gader Nature Reserve",
+    "region": "Jordan Valley",
+    "aliases": ["Hamat Gader", "Hamat Gader Reserve"],
+    "area": {
+      "minLatitude": 32.6790,
+      "maxLatitude": 32.7150,
+      "minLongitude": 35.6460,
+      "maxLongitude": 35.6890
+    }
+  },
+  {
+    "officialName": "Nahal Og Nature Reserve",
+    "region": "Judean Desert",
+    "aliases": ["Nahal Og", "Og Stream Nature Reserve"],
+    "area": {
+      "minLatitude": 31.7900,
+      "maxLatitude": 31.8420,
+      "minLongitude": 35.3000,
+      "maxLongitude": 35.3810
+    }
+  },
+  {
+    "officialName": "Makhtesh Ramon Nature Reserve",
+    "region": "Negev",
+    "aliases": ["Makhtesh Ramon", "Ramon Crater Nature Reserve", "Mitzpe Ramon Nature Reserve"],
+    "area": {
+      "minLatitude": 30.5150,
+      "maxLatitude": 30.7450,
+      "minLongitude": 34.6900,
+      "maxLongitude": 34.9550
+    }
+  },
+  {
+    "officialName": "Ein Avdat Nature Reserve",
+    "region": "Negev",
+    "aliases": ["Ein Avdat", "En Avdat Nature Reserve", "Avdat Canyon Nature Reserve"],
+    "area": {
+      "minLatitude": 30.8070,
+      "maxLatitude": 30.8550,
+      "minLongitude": 34.7620,
+      "maxLongitude": 34.8240
+    }
+  },
+  {
+    "officialName": "Hai-Bar Carmel Nature Reserve",
+    "region": "Carmel",
+    "aliases": ["Hai-Bar Carmel", "Carmel Hai-Bar Nature Reserve"],
+    "area": {
+      "minLatitude": 32.6800,
+      "maxLatitude": 32.7250,
+      "minLongitude": 35.0000,
+      "maxLongitude": 35.0550
+    }
+  },
+  {
+    "officialName": "Palmachim Beach Nature Reserve",
+    "region": "Coastal Plain",
+    "aliases": ["Palmachim Beach", "Palmachim Nature Reserve"],
+    "area": {
+      "minLatitude": 31.9090,
+      "maxLatitude": 31.9560,
+      "minLongitude": 34.6800,
+      "maxLongitude": 34.7360
+    }
+  }
+]

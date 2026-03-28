@@ -1,0 +1,49 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# Frontend
+node_modules/
+web-app/dist/
+
+# Local runtime artifacts
+*.log
+*.live.log
+.tmp-*.png
+mobile-app/local.properties
+mobile-app/.gradle/
+uploads/
+.chrono-repo/
+.fresh-repo/
+.linear-repo/
+mobile-app/app/src/main/java/com/reserve/mobile/SELECT id.sql

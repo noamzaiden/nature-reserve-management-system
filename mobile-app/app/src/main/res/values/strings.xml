@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Reserve Traveler</string>
+    <string name="app_heading">Reserve Traveler Alerts</string>
+    <string name="app_subheading">See published reserve updates and send live reports to reserve managers.</string>
+    <string name="refresh_events">Refresh updates</string>
+    <string name="report_heading">Report something happening now</string>
+    <string name="report_subheading">Your report goes to the reserve manager first. It will only appear publicly if they approve and publish it.</string>
+    <string name="reporter_name">Your name (optional)</string>
+    <string name="event_description">What did you see?</string>
+    <string name="attach_media">Add photos or videos</string>
+    <string name="submit_report">Send report</string>
+    <string name="reserve_prompt">Choose a reserve</string>
+    <string name="event_count_default">Choose a reserve to see updates.</string>
+    <string name="selected_media_none">No photos or videos selected yet.</string>
+    <string name="empty_events">No public traveler updates are published for this reserve right now.</string>
+    <string name="priority_high">High priority</string>
+    <string name="priority_medium">Medium priority</string>
+    <string name="priority_low">Low priority</string>
+</resources>
