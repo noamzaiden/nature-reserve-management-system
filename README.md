@@ -118,4 +118,3 @@ web-app/
 ## Notes
 
 - Traveler media uploads are stored locally during development and are ignored by git.
-- This repository is intended as a portfolio project and academic final project deliverable.
