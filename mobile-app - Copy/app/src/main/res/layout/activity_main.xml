@@ -143,17 +143,6 @@
                     android:textColor="#496D54"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
-                <ImageButton
-                    android:id="@+id/weather_toggle_button"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_map_round_button_inactive"
-                    android:contentDescription="@string/weather_toggle_off"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_weather_sun_cloud"
-                    android:tint="#496D54" />
             </LinearLayout>
 
             <View
@@ -367,6 +356,16 @@
             app:cornerRadius="18dp"
             app:strokeColor="#A4BCA8" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/weather_toggle_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textAllCaps="false"
+            android:textColor="#41624A"
+            app:cornerRadius="18dp"
+            app:strokeColor="#A4BCA8" />
     </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

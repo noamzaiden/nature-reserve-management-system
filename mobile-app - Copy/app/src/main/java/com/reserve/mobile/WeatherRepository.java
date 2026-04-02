@@ -13,8 +13,7 @@ import java.nio.charset.StandardCharsets;
 public class WeatherRepository {
 
     public boolean hasApiKey() {
-        String key = ApiConfig.OPEN_WEATHER_API_KEY;
-        return key != null && !key.trim().isEmpty() && !key.startsWith("YOUR_");
+        return ApiConfig.OPEN_WEATHER_API_KEY != null && !ApiConfig.OPEN_WEATHER_API_KEY.isEmpty();
     }
 
     public WeatherInfo loadCurrentWeather(double latitude, double longitude) throws Exception {
@@ -22,7 +21,11 @@ public class WeatherRepository {
             throw new IllegalStateException("OpenWeather API key missing");
         }
 
-        String urlText = buildWeatherUrl(latitude, longitude);
+        String urlText = ApiConfig.OPEN_WEATHER_API_BASE
+                + "?lat=" + latitude
+                + "&lon=" + longitude
+                + "&units=metric"
+                + "&appid=" + ApiConfig.OPEN_WEATHER_API_KEY;
 
         HttpURLConnection connection = (HttpURLConnection) new URL(urlText).openConnection();
         connection.setRequestMethod("GET");
@@ -34,47 +37,32 @@ public class WeatherRepository {
                 throw new IllegalStateException("Weather request failed with status " + responseCode);
             }
 
-            String responseText = readResponseText(connection);
+            String responseText;
+            try (InputStream input = new BufferedInputStream(connection.getInputStream());
+                 ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                }
+                responseText = new String(output.toByteArray(), StandardCharsets.UTF_8);
+            }
 
             JSONObject response = new JSONObject(responseText);
             JSONObject mainObject = response.optJSONObject("main");
             JSONArray weatherArray = response.optJSONArray("weather");
 
             double temperature = mainObject == null ? Double.NaN : mainObject.optDouble("temp", Double.NaN);
-            String condition = parseCondition(weatherArray);
+            String condition = "Unknown";
+            if (weatherArray != null && weatherArray.length() > 0) {
+                JSONObject firstWeather = weatherArray.getJSONObject(0);
+                condition = firstWeather.optString("description", firstWeather.optString("main", "Unknown"));
+            }
 
             return new WeatherInfo(temperature, capitalizeWords(condition));
         } finally {
             connection.disconnect();
         }
-    }
-
-    private String buildWeatherUrl(double latitude, double longitude) {
-        return ApiConfig.OPEN_WEATHER_API_BASE
-                + "?lat=" + latitude
-                + "&lon=" + longitude
-                + "&units=metric"
-                + "&appid=" + ApiConfig.OPEN_WEATHER_API_KEY;
-    }
-
-    private String readResponseText(HttpURLConnection connection) throws Exception {
-        try (InputStream input = new BufferedInputStream(connection.getInputStream());
-             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
-            }
-            return new String(output.toByteArray(), StandardCharsets.UTF_8);
-        }
-    }
-
-    private String parseCondition(JSONArray weatherArray) throws Exception {
-        if (weatherArray == null || weatherArray.length() == 0) {
-            return "Unknown";
-        }
-        JSONObject firstWeather = weatherArray.getJSONObject(0);
-        return firstWeather.optString("description", firstWeather.optString("main", "Unknown"));
     }
 
     private String capitalizeWords(String text) {

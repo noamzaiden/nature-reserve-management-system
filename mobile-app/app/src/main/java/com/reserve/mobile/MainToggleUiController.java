@@ -41,7 +41,11 @@ final class MainToggleUiController {
     }
 
     private void updateWeatherToggleIcon(Context context, ImageButton button, boolean showWeather) {
+        button.setBackgroundResource(showWeather
+                ? R.drawable.bg_map_round_button_active
+                : R.drawable.bg_map_round_button_inactive);
         button.setImageTintList(ColorStateList.valueOf(showWeather ? WEATHER_ICON_ACTIVE : WEATHER_ICON_INACTIVE));
+        button.setAlpha(showWeather ? 1f : 0.8f);
         button.setContentDescription(context.getString(showWeather
                 ? R.string.weather_toggle_on
                 : R.string.weather_toggle_off));

@@ -13,10 +13,7 @@ Android client for travelers who want to view reserve hazards on a map, detect w
 ## Run
 
 1. Open `mobile-app` in Android Studio.
-2. Add API keys to `mobile-app/gradle.properties`:
-   - `MAPS_API_KEY=...`
-   - `OPEN_WEATHER_API_KEY=...`
-   You can also put them in your user Gradle properties (`%USERPROFILE%\\.gradle\\gradle.properties`) to keep local secrets out of project files.
+2. Add a Google Maps Android API key to `mobile-app/gradle.properties` as `MAPS_API_KEY=...`.
 3. Start an emulator.
 4. Run the `app` configuration.
 

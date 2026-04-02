@@ -26,11 +26,9 @@
     <string name="server_status_offline">Server: offline</string>
     <string name="display_weather_on">Display weather on</string>
     <string name="display_weather_off">Display weather off</string>
-    <string name="weather_toggle_on">Weather toggle: on</string>
-    <string name="weather_toggle_off">Weather toggle: off</string>
     <string name="weather_waiting_location">Weather: waiting for location...</string>
     <string name="weather_loading">Weather: loading...</string>
-    <string name="weather_missing_key">Weather: add OPEN_WEATHER_API_KEY in gradle.properties</string>
+    <string name="weather_missing_key">Weather: add the OpenWeather key in ApiConfig.java</string>
     <string name="weather_unavailable">Weather: unavailable right now</string>
     <string name="weather_ready">Weather: %1$.1f&#176;C, %2$s</string>
     <string name="my_location">Back to my location</string>
