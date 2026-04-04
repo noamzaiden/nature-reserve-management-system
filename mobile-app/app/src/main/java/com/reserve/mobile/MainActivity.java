@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -37,6 +38,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.material.button.MaterialButton;
 import java.io.File;
@@ -47,8 +50,10 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private static final long HAZARD_POLL_INTERVAL_MS = 15000L;
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final List<ReserveOption> reserves = new ArrayList<>();
+    private final List<Reserve> reserves = new ArrayList<>();
     private final List<PublicEvent> allHazards = new ArrayList<>();
     private final List<Uri> selectedMediaUris = new ArrayList<>();
     private final ReserveRepository reserveRepository = new ReserveRepository();
@@ -57,11 +62,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Spinner reserveSpinner;
     private Spinner reportTypeSpinner;
-    private TextView reserveNameText;
     private TextView locationHintText;
     private TextView statusText;
     private TextView eventCountText;
-    private TextView weatherText;
+    private TextView weatherNowText;
+    private TextView weatherHourlyText;
     private TextView selectedMediaText;
     private TextView reportLocationText;
     private TextView serverStatusText;
@@ -70,15 +75,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button attachMediaButton;
     private Button capturePhotoButton;
     private Button submitReportButton;
+    private MaterialButton manualLocationButton;
     private TextView northUpButton;
     private MaterialButton reportToggleButton;
     private MaterialButton poiToggleButton;
     private MaterialButton hazardToggleButton;
     private ImageButton weatherToggleButton;
+    private ImageButton weatherExpandButton;
     private DrawerLayout drawerLayout;
     private ImageButton menuButton;
     private ImageButton myLocationButton;
     private View reportPanel;
+    private View bottomSpacer;
+    private View weatherOverlay;
+    private View weatherHourlyPanel;
 
     private ActivityResultLauncher<String[]> mediaPickerLauncher;
     private ActivityResultLauncher<Uri> takePictureLauncher;
@@ -90,14 +100,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ReserveMapHelper reserveMapHelper;
     private MainWeatherController weatherController;
     private LatLng currentUserLatLng;
-    private ReserveOption currentReserve;
+    private Reserve currentReserve;
     private boolean reportPanelVisible = false;
     private boolean followUserCamera = true;
     private boolean hasCenteredOnUser = false;
     private boolean showWeather = false;
+    private boolean selectingManualReportLocation = false;
+    private boolean pollingHazards = false;
+    private boolean hazardRefreshInFlight = false;
     private Uri pendingCameraPhotoUri;
+    private LatLng manualReportLatLng;
+    private Marker manualReportMarker;
+
+    private final Handler pollingHandler = new Handler(Looper.getMainLooper());
+    private final Runnable hazardPollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!pollingHazards) {
+                return;
+            }
+            if (!reserves.isEmpty()) {
+                loadPublishedHazards();
+            }
+            pollingHandler.postDelayed(this, HAZARD_POLL_INTERVAL_MS);
+        }
+    };
 
     @Override
+    // Initializes screen state, listeners, map, and first backend load.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -122,15 +152,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         loadReserves();
     }
 
+    // Finds and caches all views from the activity layout.
     private void bindViews() {
         // Keep all findViewById calls in one place.
         reserveSpinner = findViewById(R.id.reserve_spinner);
         reportTypeSpinner = findViewById(R.id.report_type_spinner);
-        reserveNameText = findViewById(R.id.reserve_name_text);
         locationHintText = findViewById(R.id.location_hint_text);
         statusText = findViewById(R.id.status_text);
         eventCountText = findViewById(R.id.event_count_text);
-        weatherText = findViewById(R.id.weather_text);
+        weatherNowText = findViewById(R.id.weather_now_text);
+        weatherHourlyText = findViewById(R.id.weather_hourly_text);
         selectedMediaText = findViewById(R.id.selected_media_text);
         reportLocationText = findViewById(R.id.report_location_text);
         serverStatusText = findViewById(R.id.server_status_text);
@@ -139,17 +170,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         attachMediaButton = findViewById(R.id.attach_media_button);
         capturePhotoButton = findViewById(R.id.capture_photo_button);
         submitReportButton = findViewById(R.id.submit_report_button);
+        manualLocationButton = findViewById(R.id.manual_location_button);
         northUpButton = findViewById(R.id.north_up_button);
         reportToggleButton = findViewById(R.id.report_toggle_button);
         poiToggleButton = findViewById(R.id.poi_toggle_button);
         hazardToggleButton = findViewById(R.id.hazard_toggle_button);
         weatherToggleButton = findViewById(R.id.weather_toggle_button);
+        weatherExpandButton = findViewById(R.id.weather_expand_button);
         drawerLayout = findViewById(R.id.drawer_layout);
         menuButton = findViewById(R.id.menu_button);
         myLocationButton = findViewById(R.id.my_location_button);
         reportPanel = findViewById(R.id.report_panel);
+        bottomSpacer = findViewById(R.id.bottom_spacer);
+        weatherOverlay = findViewById(R.id.weather_overlay);
+        weatherHourlyPanel = findViewById(R.id.weather_hourly_panel);
     }
 
+    // Prepares the report type spinner options.
     private void configureTypeSpinner() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
@@ -160,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         reportTypeSpinner.setAdapter(adapter);
     }
 
+    // Registers media picker and camera activity result callbacks.
     private void configureMediaPicker() {
         mediaPickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.OpenMultipleDocuments(),
@@ -185,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
     }
 
+    // Registers location permission request callback.
     private void configureLocationPermissionLauncher() {
         locationPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
@@ -201,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
     }
 
+    // Wires all button click listeners in grouped setup methods.
     private void configureButtons() {
         // Group listeners by feature so this method stays short.
         configureReportButtons();
@@ -208,13 +248,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         configureLayerButtons();
     }
 
+    // Connects report panel actions (attach, camera, submit, panel toggle).
     private void configureReportButtons() {
         attachMediaButton.setOnClickListener(view -> mediaPickerLauncher.launch(new String[]{"image/*", "video/*"}));
         capturePhotoButton.setOnClickListener(view -> launchCameraCapture());
         submitReportButton.setOnClickListener(view -> submitTravelerReport());
+        manualLocationButton.setOnClickListener(view -> startManualLocationSelection());
         reportToggleButton.setOnClickListener(view -> toggleReportPanel());
     }
 
+    // Connects menu, my-location, and north-up map control buttons.
     private void configureDrawerAndMapButtons() {
         menuButton.setOnClickListener(view -> drawerLayout.openDrawer(GravityCompat.START));
         myLocationButton.setOnClickListener(view -> {
@@ -224,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         northUpButton.setOnClickListener(view -> resetMapOrientation());
     }
 
+    // Connects map layer toggle controls (POI, hazards, weather).
     private void configureLayerButtons() {
         poiToggleButton.setOnClickListener(view -> {
             reserveMapHelper.setShowPois(!reserveMapHelper.isShowingPois());
@@ -237,8 +281,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             updateReserveSummary();
         });
         weatherToggleButton.setOnClickListener(view -> toggleWeather());
+        weatherExpandButton.setOnClickListener(view -> {
+            weatherController.toggleExpanded();
+            refreshWeather(false);
+        });
     }
 
+    // Gets map fragment and requests async map initialization.
     private void configureMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         if (mapFragment != null) {
@@ -247,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    // Called when GoogleMap is ready; enables map features and tracking.
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
         // We use custom controls, so disable default map chrome we do not need.
@@ -258,22 +308,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 followUserCamera = false;
             }
         });
+        googleMap.setOnMapClickListener(this::handleMapClickForManualLocation);
         reserveMapHelper.attachMap(map);
         refreshMapContent();
         startLocationTracking();
-        setStatusText(getString(R.string.status_map_ready));
+        setStatusText("");
     }
 
+    // Loads reserve list from backend and updates UI state.
     private void loadReserves() {
         executorService.execute(() -> {
             try {
-                List<ReserveOption> loadedReserves = reserveRepository.loadReserves();
+                List<Reserve> loadedReserves = reserveRepository.loadReserves();
                 runOnUiThread(() -> {
                     // UI updates must run on the main thread.
                     updateServerStatus(true);
                     reserves.clear();
                     reserves.addAll(loadedReserves);
-                    ArrayAdapter<ReserveOption> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, reserves);
+                    ArrayAdapter<Reserve> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, reserves);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     reserveSpinner.setAdapter(adapter);
                     refreshMapContent();
@@ -290,7 +342,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    // Loads published hazards from backend and refreshes map/UI.
     private void loadPublishedHazards() {
+        if (hazardRefreshInFlight) {
+            return;
+        }
+        hazardRefreshInFlight = true;
         executorService.execute(() -> {
             try {
                 List<PublicEvent> loadedHazards = reserveRepository.loadPublishedHazards(reserves);
@@ -301,36 +358,89 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     allHazards.addAll(loadedHazards);
                     refreshMapContent();
                     updateReserveSummary();
-                    setStatusText(getString(R.string.status_map_ready));
+                    setStatusText("");
+                    hazardRefreshInFlight = false;
+                    startHazardPolling();
                 });
             } catch (Exception exception) {
                 runOnUiThread(() -> {
                     updateServerStatus(false);
                     setStatusText(getString(R.string.status_hazard_load_failed));
+                    hazardRefreshInFlight = false;
                 });
             }
         });
     }
 
+    // Shows or hides the report panel and updates its toggle label.
     private void toggleReportPanel() {
         reportPanelVisible = !reportPanelVisible;
         reportPanel.setVisibility(reportPanelVisible ? View.VISIBLE : View.GONE);
+        bottomSpacer.setVisibility(reportPanelVisible ? View.GONE : View.VISIBLE);
         reportToggleButton.setText(reportPanelVisible ? R.string.hide_report_button : R.string.report_event_button);
         if (reportPanelVisible && currentReserve == null) {
             Toast.makeText(this, R.string.report_pick_location, Toast.LENGTH_SHORT).show();
         }
     }
 
+    // Starts map-tap mode so user can manually place report coordinates.
+    private void startManualLocationSelection() {
+        selectingManualReportLocation = true;
+        manualLocationButton.setText(R.string.report_manual_location_waiting);
+        Toast.makeText(this, R.string.report_manual_location_hint, Toast.LENGTH_SHORT).show();
+    }
+
+    // Saves the map tap as manual report location when selection mode is active.
+    private void handleMapClickForManualLocation(LatLng latLng) {
+        if (!selectingManualReportLocation) {
+            return;
+        }
+        selectingManualReportLocation = false;
+        manualReportLatLng = latLng;
+        manualLocationButton.setText(R.string.report_pick_map_location);
+
+        if (googleMap != null) {
+            if (manualReportMarker == null) {
+                manualReportMarker = googleMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(getString(R.string.report_manual_marker_title)));
+            } else {
+                manualReportMarker.setPosition(latLng);
+            }
+        }
+
+        updateReportLocationText();
+        Toast.makeText(this, R.string.report_manual_location_saved, Toast.LENGTH_SHORT).show();
+    }
+
+    // Starts periodic hazard refresh so map stays updated automatically.
+    private void startHazardPolling() {
+        if (pollingHazards) {
+            return;
+        }
+        pollingHazards = true;
+        pollingHandler.postDelayed(hazardPollRunnable, HAZARD_POLL_INTERVAL_MS);
+    }
+
+    // Stops periodic hazard refresh when screen is no longer active.
+    private void stopHazardPolling() {
+        pollingHazards = false;
+        pollingHandler.removeCallbacks(hazardPollRunnable);
+    }
+
+    // Toggles weather mode and refreshes weather UI/data.
     private void toggleWeather() {
         showWeather = !showWeather;
         updateToggleLabels();
         refreshWeather(showWeather);
     }
 
+    // Redraws map layers using current data and toggle states.
     private void refreshMapContent() {
         reserveMapHelper.refresh(reserves, allHazards, currentReserve, hasLocationPermission());
     }
 
+    // Refreshes text/styles of all layer toggle buttons.
     private void updateToggleLabels() {
         toggleUiController.updateLabels(
                 this,
@@ -342,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
     }
 
+    // Recomputes reserve status text and hazard counters for current location.
     private void updateReserveSummary() {
         // Figure out whether the user is currently inside a known reserve.
         currentReserve = currentUserLatLng == null ? null : ReserveUtils.findReserveForLocation(reserves, currentUserLatLng);
@@ -364,8 +475,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         finalizeSummaryRefresh();
     }
 
+    // Renders UI state when user location is not available yet.
     private void renderNoLocationSummary(boolean showHazards) {
-        reserveNameText.setText(R.string.map_heading);
         locationHintText.setText(hasLocationPermission()
                 ? R.string.location_unavailable
                 : R.string.status_location_permission_needed);
@@ -373,27 +484,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         finalizeSummaryRefresh();
     }
 
-    private void renderInsideReserveSummary(ReserveOption reserve) {
-        reserveNameText.setText(reserve.getDisplayName());
+    // Renders UI state when user is inside a known reserve.
+    private void renderInsideReserveSummary(Reserve reserve) {
         locationHintText.setText(getString(R.string.inside_reserve, reserve.getDisplayName()));
         selectReserveInSpinner(reserve.getId());
     }
 
+    // Renders UI state when user is outside known reserves.
     private void renderOutsideReserveSummary() {
-        reserveNameText.setText(R.string.map_heading);
-        ReserveOption nearestReserve = ReserveUtils.findNearestReserve(reserves, currentUserLatLng);
-        locationHintText.setText(nearestReserve == null
-                ? getString(R.string.outside_reserve)
-                : getString(R.string.nearest_reserve, nearestReserve.getDisplayName()));
+        locationHintText.setText(R.string.outside_reserve);
     }
 
+    // Runs shared UI refresh steps after summary text updates.
     private void finalizeSummaryRefresh() {
         updateReportLocationText();
         refreshMapContent();
         refreshWeather(false);
     }
 
-    private String hazardCountTextForReserve(ReserveOption reserve) {
+    // Builds hazard-count message for one reserve or all reserves.
+    private String hazardCountTextForReserve(Reserve reserve) {
         int count = ReserveUtils.countVisibleHazards(allHazards, reserve);
         if (reserve == null) {
             return count == 0 ? getString(R.string.no_hazards_total) : getString(R.string.hazard_count_total, count);
@@ -401,6 +511,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return count == 0 ? getString(R.string.no_hazards_inside) : getString(R.string.hazard_count_inside, count);
     }
 
+    // Selects the matching reserve item in spinner by id.
     private void selectReserveInSpinner(long reserveId) {
         for (int index = 0; index < reserves.size(); index++) {
             if (reserves.get(index).getId() == reserveId && reserveSpinner.getSelectedItemPosition() != index) {
@@ -410,6 +521,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    // Starts continuous location updates (requests permission if needed).
     private void startLocationTracking() {
         if (!hasLocationPermission()) {
             // Ask for either fine or coarse location, then retry from callback.
@@ -424,6 +536,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Reuse one callback so we do not register multiple listeners.
             locationCallback = new LocationCallback() {
                 @Override
+                // Handles each new GPS update and refreshes reserve summary.
                 public void onLocationResult(@NonNull LocationResult locationResult) {
                     Location location = locationResult.getLastLocation();
                     if (location == null) {
@@ -456,12 +569,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @SuppressLint("MissingPermission")
+    // Enables map my-location layer when permission and map are ready.
     private void enableMyLocationLayer() {
         if (googleMap != null && hasLocationPermission()) {
             googleMap.setMyLocationEnabled(true);
         }
     }
 
+    // Moves/animates camera to current user position.
     private void moveCameraToUser(boolean animated) {
         if (googleMap == null || currentUserLatLng == null) {
             Toast.makeText(this, R.string.location_unavailable, Toast.LENGTH_SHORT).show();
@@ -481,6 +596,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    // Resets map camera bearing/tilt back to north-up flat view.
     private void resetMapOrientation() {
         if (googleMap == null) {
             return;
@@ -491,6 +607,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ));
     }
 
+    // Creates camera output Uri and launches picture capture.
     private void launchCameraCapture() {
         try {
             pendingCameraPhotoUri = createCameraImageUri();
@@ -501,6 +618,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    // Creates a FileProvider Uri for a new report photo file.
     private Uri createCameraImageUri() throws Exception {
         File picturesDir = new File(getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES), "reports");
         if (!picturesDir.exists() && !picturesDir.mkdirs()) {
@@ -510,8 +628,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
     }
 
+    // Validates form, captures fresh location, and uploads traveler report.
     private void submitTravelerReport() {
-        ReserveOption selectedReserve = getSelectedReserve();
+        Reserve selectedReserve = getSelectedReserve();
         if (selectedReserve == null) {
             Toast.makeText(this, R.string.report_requires_reserve, Toast.LENGTH_SHORT).show();
             return;
@@ -521,6 +640,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, R.string.report_requires_description, Toast.LENGTH_SHORT).show();
             return;
         }
+        if (manualReportLatLng != null) {
+            currentUserLatLng = manualReportLatLng;
+            updateReserveSummary();
+            uploadTravelerReport(selectedReserve);
+            return;
+        }
+
         if (!hasLocationPermission()) {
             Toast.makeText(this, R.string.report_requires_location, Toast.LENGTH_SHORT).show();
             startLocationTracking();
@@ -540,37 +666,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     currentUserLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                     updateReserveSummary();
-                    setBusyState(true, getString(R.string.status_report_sending));
-                    executorService.execute(() -> {
-                        try {
-                            // Build payload from current form values and selected media.
-                            TravelerReportData reportData = new TravelerReportData(
-                                    selectedReserve.getId(),
-                                    reportTypeSpinner.getSelectedItem().toString(),
-                                    reporterNameInput.getText().toString().trim(),
-                                    reportDescriptionInput.getText().toString().trim(),
-                                    currentUserLatLng.latitude,
-                                    currentUserLatLng.longitude,
-                                    selectedMediaUris
-                            );
-                            reserveRepository.submitTravelerReport(getContentResolver(), reportData);
-                            runOnUiThread(() -> {
-                                updateServerStatus(true);
-                                reporterNameInput.setText("");
-                                reportDescriptionInput.setText("");
-                                selectedMediaUris.clear();
-                                updateSelectedMediaText();
-                                Toast.makeText(this, R.string.report_sent_toast, Toast.LENGTH_LONG).show();
-                                setBusyState(false, getString(R.string.status_report_sent));
-                                loadPublishedHazards();
-                            });
-                        } catch (Exception exception) {
-                            runOnUiThread(() -> {
-                                updateServerStatus(false);
-                                setBusyState(false, getString(R.string.status_report_failed));
-                            });
-                        }
-                    });
+                    uploadTravelerReport(selectedReserve);
                 })
                 .addOnFailureListener(exception -> {
                     setBusyState(false, getString(R.string.status_location_waiting));
@@ -579,12 +675,67 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
     }
 
+    // Uploads report using either GPS or manually picked coordinates.
+    private void uploadTravelerReport(Reserve selectedReserve) {
+        setBusyState(true, getString(R.string.status_report_sending));
+        executorService.execute(() -> {
+            try {
+                // Build payload from current form values and selected media.
+                TravelerReportData reportData = new TravelerReportData(
+                        selectedReserve.getId(),
+                        reportTypeSpinner.getSelectedItem().toString(),
+                        reporterNameInput.getText().toString().trim(),
+                        reportDescriptionInput.getText().toString().trim(),
+                        currentUserLatLng.latitude,
+                        currentUserLatLng.longitude,
+                        selectedMediaUris
+                );
+                reserveRepository.submitTravelerReport(getContentResolver(), reportData);
+                runOnUiThread(() -> {
+                    updateServerStatus(true);
+                    reporterNameInput.setText("");
+                    reportDescriptionInput.setText("");
+                    selectedMediaUris.clear();
+                    updateSelectedMediaText();
+                    clearManualReportLocation();
+                    // Auto-close the report panel after a successful submission.
+                    reportPanelVisible = false;
+                    reportPanel.setVisibility(View.GONE);
+                    bottomSpacer.setVisibility(View.VISIBLE);
+                    reportToggleButton.setText(R.string.report_event_button);
+                    Toast.makeText(this, R.string.report_sent_toast, Toast.LENGTH_LONG).show();
+                    setBusyState(false, getString(R.string.status_report_sent));
+                    loadPublishedHazards();
+                });
+            } catch (Exception exception) {
+                runOnUiThread(() -> {
+                    updateServerStatus(false);
+                    setBusyState(false, getString(R.string.status_report_failed));
+                });
+            }
+        });
+    }
+
+    // Clears manual report pin/location so next report starts with a clean state.
+    private void clearManualReportLocation() {
+        selectingManualReportLocation = false;
+        manualReportLatLng = null;
+        if (manualReportMarker != null) {
+            manualReportMarker.remove();
+            manualReportMarker = null;
+        }
+        manualLocationButton.setText(R.string.report_pick_map_location);
+        updateReportLocationText();
+    }
+
+    // Disables/enables interactive controls while background work runs.
     private void setBusyState(boolean busy, String message) {
         setStatusText(message);
         boolean enabled = !busy;
         setEnabled(attachMediaButton, enabled);
         setEnabled(capturePhotoButton, enabled);
         setEnabled(submitReportButton, enabled);
+        setEnabled(manualLocationButton, enabled);
         setEnabled(reserveSpinner, enabled);
         setEnabled(reportTypeSpinner, enabled);
         setEnabled(reportToggleButton, enabled);
@@ -596,14 +747,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setEnabled(northUpButton, enabled);
     }
 
+    // Small helper to set enabled state for any view.
     private void setEnabled(View view, boolean enabled) {
         view.setEnabled(enabled);
     }
 
+    // Updates the main status line text in header card.
     private void setStatusText(String message) {
         statusText.setText(message);
     }
 
+    // Updates drawer server status text and color.
     private void updateServerStatus(Boolean online) {
         if (online == null) {
             serverStatusText.setText(R.string.server_status_checking);
@@ -620,11 +774,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    // Delegates weather UI/data refresh to weather controller.
     private void refreshWeather(boolean forceRefresh) {
-        weatherController.refreshWeather(showWeather, forceRefresh, currentUserLatLng, weatherText);
+        weatherController.refreshWeather(
+                showWeather,
+                forceRefresh,
+                currentUserLatLng,
+                weatherOverlay,
+                weatherNowText,
+                weatherHourlyPanel,
+                weatherHourlyText,
+                weatherExpandButton
+        );
     }
 
+    // Updates report panel with latest location coordinates.
     private void updateReportLocationText() {
+        if (manualReportLatLng != null) {
+            reportLocationText.setText(getString(
+                    R.string.report_location_ready,
+                    manualReportLatLng.latitude,
+                    manualReportLatLng.longitude
+            ));
+            return;
+        }
         if (currentUserLatLng == null) {
             reportLocationText.setText(R.string.report_location_waiting);
             return;
@@ -636,25 +809,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ));
     }
 
-    private ReserveOption getSelectedReserve() {
+    // Returns currently selected reserve from spinner.
+    private Reserve getSelectedReserve() {
         int position = reserveSpinner.getSelectedItemPosition();
         return position >= 0 && position < reserves.size() ? reserves.get(position) : null;
     }
 
+    // Shows currently selected attachment count in report panel.
     private void updateSelectedMediaText() {
         selectedMediaText.setText(selectedMediaUris.isEmpty()
                 ? getString(R.string.selected_media_none)
                 : selectedMediaUris.size() + " attachment(s) selected");
     }
 
+    // Checks whether either fine or coarse location permission is granted.
     private boolean hasLocationPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
+    // Cleans up listeners and background executor when activity is destroyed.
     protected void onDestroy() {
         super.onDestroy();
+        stopHazardPolling();
         if (locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }

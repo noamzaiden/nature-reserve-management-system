@@ -8,11 +8,13 @@ import java.util.List;
 
 public final class ReserveUtils {
 
+    // Utility class: no instances.
     private ReserveUtils() {
     }
 
-    public static ReserveOption findReserveForLocation(List<ReserveOption> reserves, LatLng latLng) {
-        for (ReserveOption reserve : reserves) {
+    // Finds the reserve that contains the given location.
+    public static Reserve findReserveForLocation(List<Reserve> reserves, LatLng latLng) {
+        for (Reserve reserve : reserves) {
             AreaBounds areaBounds = reserve.getAreaBounds();
             if (areaBounds != null && areaBounds.contains(latLng.latitude, latLng.longitude)) {
                 return reserve;
@@ -21,12 +23,13 @@ public final class ReserveUtils {
         return null;
     }
 
-    public static ReserveOption findNearestReserve(List<ReserveOption> reserves, LatLng latLng) {
-        ReserveOption nearest = null;
+    // Finds the nearest reserve center to the given location.
+    public static Reserve findNearestReserve(List<Reserve> reserves, LatLng latLng) {
+        Reserve nearest = null;
         float nearestDistance = Float.MAX_VALUE;
         float[] results = new float[1];
 
-        for (ReserveOption reserve : reserves) {
+        for (Reserve reserve : reserves) {
             if (!reserve.hasCenterPoint()) {
                 continue;
             }
@@ -48,7 +51,8 @@ public final class ReserveUtils {
         return nearest;
     }
 
-    public static int countVisibleHazards(List<PublicEvent> hazards, ReserveOption reserve) {
+    // Counts hazards visible for a specific reserve or for all reserves when null.
+    public static int countVisibleHazards(List<PublicEvent> hazards, Reserve reserve) {
         int count = 0;
         for (PublicEvent event : hazards) {
             if (!event.hasCoordinates()) {

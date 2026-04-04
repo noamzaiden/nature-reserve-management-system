@@ -16,6 +16,7 @@ final class MainToggleUiController {
     private static final int WEATHER_ICON_ACTIVE = Color.parseColor("#2F6E4A");
     private static final int WEATHER_ICON_INACTIVE = Color.parseColor("#496D54");
 
+    // Updates labels and styles for POI, hazard, and weather toggles.
     void updateLabels(
             Context context,
             ReserveMapHelper reserveMapHelper,
@@ -35,11 +36,13 @@ final class MainToggleUiController {
         updateWeatherToggleIcon(context, weatherToggleButton, showWeather);
     }
 
+    // Applies active/inactive colors to side menu toggle buttons.
     private void applyToggleStyle(MaterialButton button, boolean enabled) {
         button.setBackgroundTintList(ColorStateList.valueOf(enabled ? TOGGLE_ACTIVE_FILL : TOGGLE_INACTIVE_FILL));
         button.setStrokeColor(ColorStateList.valueOf(enabled ? TOGGLE_ACTIVE_STROKE : TOGGLE_INACTIVE_STROKE));
     }
 
+    // Updates weather map button icon style and accessibility text.
     private void updateWeatherToggleIcon(Context context, ImageButton button, boolean showWeather) {
         button.setBackgroundResource(showWeather
                 ? R.drawable.bg_map_round_button_active

@@ -25,36 +25,43 @@ public class ReserveMapHelper {
     private boolean showingPois = true;
     private boolean showingHazards = true;
 
+    // Creates helper that owns map rendering state for layers.
     public ReserveMapHelper(Context context) {
         this.context = context;
     }
 
+    // Attaches the GoogleMap instance and applies initial camera/style.
     public void attachMap(GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM));
         applyMapStyle();
     }
 
+    // Returns whether reserve center POI markers are visible.
     public boolean isShowingPois() {
         return showingPois;
     }
 
+    // Enables/disables POI markers and corresponding map style.
     public void setShowPois(boolean showingPois) {
         this.showingPois = showingPois;
         applyMapStyle();
     }
 
+    // Returns whether hazard markers are visible.
     public boolean isShowingHazards() {
         return showingHazards;
     }
 
+    // Enables/disables hazard marker rendering.
     public void setShowHazards(boolean showingHazards) {
         this.showingHazards = showingHazards;
     }
 
     @SuppressLint("MissingPermission")
-    public void refresh(List<ReserveOption> reserves, List<PublicEvent> hazards,
-                        ReserveOption currentReserve, boolean hasLocationPermission) {
+    // Clears and redraws all map layers (bounds, POIs, hazards).
+    public void refresh(List<Reserve> reserves, List<PublicEvent> hazards,
+                        Reserve currentReserve, boolean hasLocationPermission) {
         if (googleMap == null) {
             return;
         }
@@ -66,9 +73,8 @@ public class ReserveMapHelper {
             googleMap.setMyLocationEnabled(true);
         }
 
-        for (ReserveOption reserve : reserves) {
+        for (Reserve reserve : reserves) {
             drawReserveBounds(reserve, currentReserve);
-            drawReserveMarker(reserve);
         }
 
         if (showingHazards) {
@@ -78,7 +84,8 @@ public class ReserveMapHelper {
         }
     }
 
-    private void drawReserveBounds(ReserveOption reserve, ReserveOption currentReserve) {
+    // Draws one reserve boundary polygon and highlights current reserve.
+    private void drawReserveBounds(Reserve reserve, Reserve currentReserve) {
         AreaBounds areaBounds = reserve.getAreaBounds();
         if (areaBounds == null || googleMap == null) {
             return;
@@ -99,18 +106,8 @@ public class ReserveMapHelper {
                 .fillColor(fillColor));
     }
 
-    private void drawReserveMarker(ReserveOption reserve) {
-        if (!showingPois || !reserve.hasCenterPoint() || googleMap == null) {
-            return;
-        }
 
-        googleMap.addMarker(new MarkerOptions()
-                .position(reserve.centerLatLng())
-                .title(reserve.getDisplayName())
-                .snippet(context.getString(R.string.poi_marker_snippet))
-                .icon(BitmapDescriptorFactory.defaultMarker(95f)));
-    }
-
+    // Draws one hazard marker with color based on priority.
     private void drawHazardMarker(PublicEvent hazard) {
         if (!hazard.hasCoordinates() || googleMap == null) {
             return;
@@ -127,6 +124,7 @@ public class ReserveMapHelper {
                 .icon(BitmapDescriptorFactory.defaultMarker(priorityHue(hazard.getPriority()))));
     }
 
+    // Applies map style resource depending on POI toggle.
     private void applyMapStyle() {
         if (googleMap == null) {
             return;
@@ -138,6 +136,7 @@ public class ReserveMapHelper {
         ));
     }
 
+    // Maps priority text to default Google marker hue.
     private float priorityHue(String priority) {
         if ("HIGH".equalsIgnoreCase(priority)) {
             return BitmapDescriptorFactory.HUE_RED;

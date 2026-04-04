@@ -18,9 +18,10 @@ import java.util.List;
 
 public class ReserveRepository {
 
-    public List<ReserveOption> loadReserves() throws Exception {
+    // Downloads reserves list and maps JSON into Reserve objects.
+    public List<Reserve> loadReserves() throws Exception {
         JSONArray response = new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + "/reserves"));
-        List<ReserveOption> reserves = new ArrayList<>();
+        List<Reserve> reserves = new ArrayList<>();
 
         for (int index = 0; index < response.length(); index++) {
             JSONObject reserve = response.getJSONObject(index);
@@ -36,7 +37,7 @@ public class ReserveRepository {
                 );
             }
 
-            reserves.add(new ReserveOption(
+            reserves.add(new Reserve(
                     reserve.getLong("id"),
                     reserve.optString("name", "Unknown reserve"),
                     reserve.optString("displayName", reserve.optString("name", "Unknown reserve")),
@@ -49,10 +50,11 @@ public class ReserveRepository {
         return reserves;
     }
 
-    public List<PublicEvent> loadPublishedHazards(List<ReserveOption> reserves) throws Exception {
+    // Downloads published events for each reserve and returns combined hazards.
+    public List<PublicEvent> loadPublishedHazards(List<Reserve> reserves) throws Exception {
         List<PublicEvent> hazards = new ArrayList<>();
 
-        for (ReserveOption reserve : reserves) {
+        for (Reserve reserve : reserves) {
             JSONArray response = new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + "/events?reserveId=" + reserve.getId()));
             for (int index = 0; index < response.length(); index++) {
                 JSONObject event = response.getJSONObject(index);
@@ -70,6 +72,7 @@ public class ReserveRepository {
         return hazards;
     }
 
+    // Uploads one traveler report as multipart/form-data with optional attachments.
     public void submitTravelerReport(ContentResolver resolver, TravelerReportData reportData) throws Exception {
         String boundary = "----ReserveTraveler" + System.currentTimeMillis();
         HttpURLConnection connection = (HttpURLConnection) new URL(ApiConfig.BACKEND_API_BASE + "/reports").openConnection();
@@ -100,6 +103,7 @@ public class ReserveRepository {
         }
     }
 
+    // Writes a plain text multipart field into request body.
     private void writeFormField(DataOutputStream output, String boundary, String name, String value) throws Exception {
         output.writeBytes("--" + boundary + "\r\n");
         output.writeBytes("Content-Disposition: form-data; name=\"" + name + "\"\r\n\r\n");
@@ -107,6 +111,7 @@ public class ReserveRepository {
         output.writeBytes("\r\n");
     }
 
+    // Writes one selected file as multipart attachment.
     private void writeFileField(ContentResolver resolver, DataOutputStream output,
                                 String boundary, Uri uri) throws Exception {
         String mimeType = resolver.getType(uri);
@@ -131,8 +136,9 @@ public class ReserveRepository {
         output.writeBytes("\r\n");
     }
 
-    private String readJsonFromGet(String urlText) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(urlText).openConnection();
+    // Runs a GET request and returns response JSON text.
+    private String readJsonFromGet(String url) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Accept", "application/json");
 
