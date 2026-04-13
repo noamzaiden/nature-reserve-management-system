@@ -5,7 +5,7 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TravelerReportData {
+public final class TravelerReportData {
 
     private final long reserveId;
     private final String type;

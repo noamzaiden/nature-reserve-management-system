@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -24,27 +23,7 @@ public class ReserveRepository {
         List<Reserve> reserves = new ArrayList<>();
 
         for (int index = 0; index < response.length(); index++) {
-            JSONObject reserve = response.getJSONObject(index);
-            JSONObject area = reserve.optJSONObject("area");
-
-            AreaBounds areaBounds = null;
-            if (area != null) {
-                areaBounds = new AreaBounds(
-                        area.optDouble("minLatitude"),
-                        area.optDouble("maxLatitude"),
-                        area.optDouble("minLongitude"),
-                        area.optDouble("maxLongitude")
-                );
-            }
-
-            reserves.add(new Reserve(
-                    reserve.getLong("id"),
-                    reserve.optString("name", "Unknown reserve"),
-                    reserve.optString("displayName", reserve.optString("name", "Unknown reserve")),
-                    reserve.optDouble("centerLatitude", Double.NaN),
-                    reserve.optDouble("centerLongitude", Double.NaN),
-                    areaBounds
-            ));
+            reserves.add(parseReserve(response.getJSONObject(index)));
         }
 
         return reserves;
@@ -57,19 +36,49 @@ public class ReserveRepository {
         for (Reserve reserve : reserves) {
             JSONArray response = new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + "/events?reserveId=" + reserve.getId()));
             for (int index = 0; index < response.length(); index++) {
-                JSONObject event = response.getJSONObject(index);
-                hazards.add(new PublicEvent(
-                        reserve.getId(),
-                        event.optString("type", "OTHER"),
-                        event.optString("priority", "LOW"),
-                        event.optString("description", ""),
-                        event.optDouble("latitude", Double.NaN),
-                        event.optDouble("longitude", Double.NaN)
-                ));
+                hazards.add(parsePublicEvent(reserve.getId(), response.getJSONObject(index)));
             }
         }
 
         return hazards;
+    }
+
+    // Maps one reserve JSON object into app model.
+    private Reserve parseReserve(JSONObject reserve) throws Exception {
+        String fallbackName = reserve.optString("name", "Unknown reserve");
+        return new Reserve(
+                reserve.getLong("id"),
+                fallbackName,
+                reserve.optString("displayName", fallbackName),
+                reserve.optDouble("centerLatitude", Double.NaN),
+                reserve.optDouble("centerLongitude", Double.NaN),
+                parseAreaBounds(reserve.optJSONObject("area"))
+        );
+    }
+
+    // Maps optional reserve area object to AreaBounds.
+    private AreaBounds parseAreaBounds(JSONObject area) {
+        if (area == null) {
+            return null;
+        }
+        return new AreaBounds(
+                area.optDouble("minLatitude"),
+                area.optDouble("maxLatitude"),
+                area.optDouble("minLongitude"),
+                area.optDouble("maxLongitude")
+        );
+    }
+
+    // Maps one event JSON object into PublicEvent.
+    private PublicEvent parsePublicEvent(long reserveId, JSONObject event) {
+        return new PublicEvent(
+                reserveId,
+                event.optString("type", "OTHER"),
+                event.optString("priority", "LOW"),
+                event.optString("description", ""),
+                event.optDouble("latitude", Double.NaN),
+                event.optDouble("longitude", Double.NaN)
+        );
     }
 
     // Uploads one traveler report as multipart/form-data with optional attachments.
@@ -138,25 +147,11 @@ public class ReserveRepository {
 
     // Runs a GET request and returns response JSON text.
     private String readJsonFromGet(String url) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "application/json");
+        HttpURLConnection connection = HttpUtils.openJsonGetConnection(url);
 
         try {
-            int responseCode = connection.getResponseCode();
-            if (responseCode < 200 || responseCode >= 300) {
-                throw new IllegalStateException("GET failed with status " + responseCode);
-            }
-
-            try (InputStream input = new BufferedInputStream(connection.getInputStream());
-                 ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = input.read(buffer)) != -1) {
-                    output.write(buffer, 0, bytesRead);
-                }
-                return new String(output.toByteArray(), StandardCharsets.UTF_8);
-            }
+            HttpUtils.requireSuccessResponse(connection, "GET failed with status");
+            return HttpUtils.readResponseText(connection);
         } finally {
             connection.disconnect();
         }

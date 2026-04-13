@@ -2,7 +2,7 @@ package com.reserve.mobile;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class PublicEvent {
+public final class PublicEvent {
 
     private final long reserveId;
     private final String type;

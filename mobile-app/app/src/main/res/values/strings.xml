@@ -46,7 +46,7 @@
     <string name="hazards_on">Hazards on</string>
     <string name="hazards_off">Hazards off</string>
     <string name="report_heading">Report something happening now</string>
-    <string name="report_subheading">Student-project style reporting: the event uses your current phone location, and you can attach a fresh photo from the camera.</string>
+    <string name="report_subheading">Report events using your current phone location, and attach a photo from the camera if needed.</string>
     <string name="reporter_name">Your name (optional)</string>
     <string name="event_description">What did you see?</string>
     <string name="attach_media">Choose media</string>

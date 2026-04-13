@@ -1,8 +1,6 @@
 package com.reserve.mobile;
 
-import com.google.android.gms.maps.model.LatLng;
-
-public class Reserve {
+public final class Reserve {
 
     private final long id;
     private final String displayName;
@@ -50,10 +48,6 @@ public class Reserve {
         return !Double.isNaN(centerLatitude) && !Double.isNaN(centerLongitude);
     }
 
-    // Converts center values into Google Maps LatLng.
-    public LatLng centerLatLng() {
-        return new LatLng(centerLatitude, centerLongitude);
-    }
 
     // Spinner uses this text when rendering list items.
     @Override

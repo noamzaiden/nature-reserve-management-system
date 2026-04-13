@@ -90,24 +90,34 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <ImageButton
-                android:id="@+id/menu_button"
-                android:layout_width="@dimen/map_round_button_size"
-                android:layout_height="@dimen/map_round_button_size"
-                android:layout_gravity="start"
-                android:layout_marginTop="@dimen/menu_button_margin_top"
-                android:background="@drawable/bg_map_round_button"
-                android:contentDescription="@string/open_menu"
-                android:padding="12dp"
-                android:src="@drawable/ic_menu_hamburger"
-                android:tint="#466B51" />
-
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:layout_marginTop="@dimen/control_stack_margin_top"
                 android:gravity="start"
                 android:orientation="vertical">
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="@dimen/map_round_button_size"
+                    android:layout_height="@dimen/map_round_button_size"
+                    android:layout_gravity="start"
+                    android:background="@drawable/bg_map_round_button"
+                    android:contentDescription="@string/open_menu"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_menu_hamburger"
+                    android:tint="#466B51" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/my_location_button"
@@ -119,11 +129,15 @@
                     android:src="@android:drawable/ic_menu_mylocation"
                     android:tint="#496D54" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/north_up_button"
                     android:layout_width="@dimen/map_round_button_size"
                     android:layout_height="@dimen/map_round_button_size"
-                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_map_round_button"
                     android:contentDescription="@string/north_up"
                     android:gravity="center"
@@ -135,16 +149,25 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
                 <ImageButton
                     android:id="@+id/weather_toggle_button"
                     android:layout_width="@dimen/map_round_button_size"
                     android:layout_height="@dimen/map_round_button_size"
-                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_map_round_button_inactive"
                     android:contentDescription="@string/weather_toggle_off"
                     android:padding="12dp"
                     android:src="@drawable/ic_weather_sun_cloud"
                     android:tint="#496D54" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <View

@@ -19,6 +19,10 @@ public class ReserveMapHelper {
 
     private static final LatLng DEFAULT_MAP_CENTER = new LatLng(31.4117, 35.0818);
     private static final float DEFAULT_MAP_ZOOM = 7f;
+    private static final int ACTIVE_RESERVE_STROKE = Color.parseColor("#537B5D");
+    private static final int INACTIVE_RESERVE_STROKE = Color.parseColor("#8CA991");
+    private static final int ACTIVE_RESERVE_FILL = Color.parseColor("#505F8D67");
+    private static final int INACTIVE_RESERVE_FILL = Color.parseColor("#268CA991");
 
     private final Context context;
     private GoogleMap googleMap;
@@ -73,14 +77,24 @@ public class ReserveMapHelper {
             googleMap.setMyLocationEnabled(true);
         }
 
+        drawReserveBoundsForAll(reserves, currentReserve);
+        drawHazardsIfEnabled(hazards);
+    }
+
+    // Draws all reserve polygons with current reserve highlight.
+    private void drawReserveBoundsForAll(List<Reserve> reserves, Reserve currentReserve) {
         for (Reserve reserve : reserves) {
             drawReserveBounds(reserve, currentReserve);
         }
+    }
 
-        if (showingHazards) {
-            for (PublicEvent hazard : hazards) {
-                drawHazardMarker(hazard);
-            }
+    // Draws hazard markers only when layer is enabled.
+    private void drawHazardsIfEnabled(List<PublicEvent> hazards) {
+        if (!showingHazards) {
+            return;
+        }
+        for (PublicEvent hazard : hazards) {
+            drawHazardMarker(hazard);
         }
     }
 
@@ -91,8 +105,8 @@ public class ReserveMapHelper {
             return;
         }
 
-        int strokeColor = reserve == currentReserve ? Color.parseColor("#537B5D") : Color.parseColor("#8CA991");
-        int fillColor = reserve == currentReserve ? Color.parseColor("#505F8D67") : Color.parseColor("#268CA991");
+        int strokeColor = reserve == currentReserve ? ACTIVE_RESERVE_STROKE : INACTIVE_RESERVE_STROKE;
+        int fillColor = reserve == currentReserve ? ACTIVE_RESERVE_FILL : INACTIVE_RESERVE_FILL;
 
         googleMap.addPolygon(new PolygonOptions()
                 .add(

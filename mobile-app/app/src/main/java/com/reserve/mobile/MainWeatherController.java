@@ -15,6 +15,10 @@ import java.util.concurrent.ExecutorService;
 
 final class MainWeatherController {
 
+    private static final long WEATHER_CACHE_MAX_AGE_MS = 30L * 60L * 1000L;
+    private static final float WEATHER_RELOAD_DISTANCE_METERS = 1000f;
+    private static final int HOURLY_FORECAST_HOURS = 6;
+
     private final Activity activity;
     private final WeatherRepository weatherRepository;
     private final ExecutorService executorService;
@@ -53,25 +57,15 @@ final class MainWeatherController {
             return;
         }
 
-        weatherOverlay.setVisibility(View.VISIBLE);
-        weatherHourlyPanel.setVisibility(expanded ? View.VISIBLE : View.GONE);
-        weatherExpandButton.setImageResource(expanded
-                ? android.R.drawable.arrow_up_float
-                : android.R.drawable.arrow_down_float);
+        showWeatherPanel(weatherOverlay, weatherHourlyPanel, weatherExpandButton);
 
         if (currentUserLatLng == null) {
-            weatherNowText.setText(R.string.weather_waiting_location);
-            if (expanded) {
-                weatherHourlyText.setText(R.string.weather_hourly_waiting_location);
-            }
+            showWaitingForLocation(weatherNowText, weatherHourlyText);
             return;
         }
 
         if (!weatherRepository.hasApiKey()) {
-            weatherNowText.setText(R.string.weather_missing_key);
-            if (expanded) {
-                weatherHourlyText.setText(R.string.weather_hourly_unavailable);
-            }
+            showMissingApiKey(weatherNowText, weatherHourlyText);
             return;
         }
 
@@ -85,42 +79,76 @@ final class MainWeatherController {
             return;
         }
 
-        weatherNowText.setText(R.string.weather_loading);
-        if (expanded) {
-            weatherHourlyText.setText(R.string.weather_hourly_loading);
-        }
+        showLoading(weatherNowText, weatherHourlyText);
 
-        LatLng requestLocation = currentUserLatLng;
         executorService.execute(() -> {
             try {
                 WeatherInfo loadedWeather = needCurrentLoad
-                        ? weatherRepository.loadCurrentWeather(requestLocation.latitude, requestLocation.longitude)
+                        ? weatherRepository.loadCurrentWeather(currentUserLatLng.latitude, currentUserLatLng.longitude)
                         : currentWeather;
                 List<WeatherHourlyInfo> loadedHourly = needHourlyLoad
-                        ? weatherRepository.loadHourlyWeather(requestLocation.latitude, requestLocation.longitude, 6)
+                        ? weatherRepository.loadHourlyWeather(
+                        currentUserLatLng.latitude,
+                        currentUserLatLng.longitude,
+                        HOURLY_FORECAST_HOURS
+                )
                         : currentHourly;
 
                 activity.runOnUiThread(() -> {
                     currentWeather = loadedWeather;
                     currentHourly = loadedHourly;
-                    lastWeatherLatLng = requestLocation;
+                    lastWeatherLatLng = currentUserLatLng;
                     lastWeatherLoadedAt = System.currentTimeMillis();
-                    if (showWeather) {
-                        renderCurrentWeather(weatherNowText);
-                        renderHourlyWeather(weatherHourlyText);
-                    }
+                    renderCurrentWeather(weatherNowText);
+                    renderHourlyWeather(weatherHourlyText);
                 });
             } catch (Exception exception) {
                 activity.runOnUiThread(() -> {
-                    if (showWeather) {
-                        weatherNowText.setText(R.string.weather_unavailable);
-                        if (expanded) {
-                            weatherHourlyText.setText(R.string.weather_hourly_unavailable);
-                        }
-                    }
+                    showUnavailable(weatherNowText, weatherHourlyText);
                 });
             }
         });
+    }
+
+    // Makes weather panel visible and updates expand/collapse icon.
+    private void showWeatherPanel(View weatherOverlay, View weatherHourlyPanel, ImageButton weatherExpandButton) {
+        weatherOverlay.setVisibility(View.VISIBLE);
+        weatherHourlyPanel.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        weatherExpandButton.setImageResource(expanded
+                ? android.R.drawable.arrow_up_float
+                : android.R.drawable.arrow_down_float);
+    }
+
+    // Shows placeholder state while waiting for GPS location.
+    private void showWaitingForLocation(TextView weatherNowText, TextView weatherHourlyText) {
+        weatherNowText.setText(R.string.weather_waiting_location);
+        if (expanded) {
+            weatherHourlyText.setText(R.string.weather_hourly_waiting_location);
+        }
+    }
+
+    // Shows message for missing weather API key.
+    private void showMissingApiKey(TextView weatherNowText, TextView weatherHourlyText) {
+        weatherNowText.setText(R.string.weather_missing_key);
+        if (expanded) {
+            weatherHourlyText.setText(R.string.weather_hourly_unavailable);
+        }
+    }
+
+    // Shows loading text while weather data is being fetched.
+    private void showLoading(TextView weatherNowText, TextView weatherHourlyText) {
+        weatherNowText.setText(R.string.weather_loading);
+        if (expanded) {
+            weatherHourlyText.setText(R.string.weather_hourly_loading);
+        }
+    }
+
+    // Shows fallback text when weather fetch fails.
+    private void showUnavailable(TextView weatherNowText, TextView weatherHourlyText) {
+        weatherNowText.setText(R.string.weather_unavailable);
+        if (expanded) {
+            weatherHourlyText.setText(R.string.weather_hourly_unavailable);
+        }
     }
 
     // Writes current weather line into compact overlay.
@@ -170,7 +198,7 @@ final class MainWeatherController {
         }
 
         long age = System.currentTimeMillis() - lastWeatherLoadedAt;
-        if (age > 10 * 60 * 1000) {
+        if (age > WEATHER_CACHE_MAX_AGE_MS) {
             return true;
         }
 
@@ -182,7 +210,7 @@ final class MainWeatherController {
                 nowLocation.longitude,
                 results
         );
-        return results[0] > 1000;
+        return results[0] > WEATHER_RELOAD_DISTANCE_METERS;
     }
 }
 

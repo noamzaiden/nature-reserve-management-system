@@ -3,18 +3,16 @@ package com.reserve.mobile;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherRepository {
 
-    // Checks whether a usable OpenWeather API key is configured.
+    private static final String UNKNOWN_TEXT = "Unknown";
+    private static final String SOON_TEXT = "Soon";
+
+    // Checks if an OpenWeather API key exists
     public boolean hasApiKey() {
         String key = ApiConfig.OPEN_WEATHER_API_KEY;
         return key != null && !key.trim().isEmpty() && !key.startsWith("YOUR_");
@@ -28,17 +26,11 @@ public class WeatherRepository {
 
         String urlText = buildWeatherUrl(latitude, longitude);
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(urlText).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "application/json");
+        HttpURLConnection connection = HttpUtils.openJsonGetConnection(urlText);
 
         try {
-            int responseCode = connection.getResponseCode();
-            if (responseCode < 200 || responseCode >= 300) {
-                throw new IllegalStateException("Weather request failed with status " + responseCode);
-            }
-
-            String responseText = readResponseText(connection);
+            HttpUtils.requireSuccessResponse(connection, "Weather request failed with status");
+            String responseText = HttpUtils.readResponseText(connection);
 
             JSONObject response = new JSONObject(responseText);
             JSONObject mainObject = response.optJSONObject("main");
@@ -59,17 +51,11 @@ public class WeatherRepository {
             throw new IllegalStateException("OpenWeather API key missing");
         }
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(buildForecastUrl(latitude, longitude)).openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "application/json");
+        HttpURLConnection connection = HttpUtils.openJsonGetConnection(buildForecastUrl(latitude, longitude));
 
         try {
-            int responseCode = connection.getResponseCode();
-            if (responseCode < 200 || responseCode >= 300) {
-                throw new IllegalStateException("Weather forecast request failed with status " + responseCode);
-            }
-
-            JSONObject response = new JSONObject(readResponseText(connection));
+            HttpUtils.requireSuccessResponse(connection, "Weather forecast request failed with status");
+            JSONObject response = new JSONObject(HttpUtils.readResponseText(connection));
             JSONArray list = response.optJSONArray("list");
             List<WeatherHourlyInfo> hourly = new ArrayList<>();
             if (list == null) {
@@ -120,26 +106,13 @@ public class WeatherRepository {
                 + "&appid=" + ApiConfig.OPEN_WEATHER_API_KEY;
     }
 
-    // Reads HTTP response body text from the weather request.
-    private String readResponseText(HttpURLConnection connection) throws Exception {
-        try (InputStream input = new BufferedInputStream(connection.getInputStream());
-             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
-            }
-            return new String(output.toByteArray(), StandardCharsets.UTF_8);
-        }
-    }
-
     // Pulls the first weather condition description from the JSON array.
     private String parseCondition(JSONArray weatherArray) throws Exception {
         if (weatherArray == null || weatherArray.length() == 0) {
-            return "Unknown";
+            return UNKNOWN_TEXT;
         }
         JSONObject firstWeather = weatherArray.getJSONObject(0);
-        return firstWeather.optString("description", firstWeather.optString("main", "Unknown"));
+        return firstWeather.optString("description", firstWeather.optString("main", UNKNOWN_TEXT));
     }
 
     // Extracts HH:mm from OpenWeather dt_txt, falls back to "Soon".
@@ -147,13 +120,13 @@ public class WeatherRepository {
         if (rawDateTime != null && rawDateTime.length() >= 16) {
             return rawDateTime.substring(11, 16);
         }
-        return "Soon";
+        return SOON_TEXT;
     }
 
     // Formats condition words with uppercase initials for display.
     private String capitalizeWords(String text) {
         if (text == null || text.isEmpty()) {
-            return "Unknown";
+            return UNKNOWN_TEXT;
         }
 
         String[] parts = text.split(" ");

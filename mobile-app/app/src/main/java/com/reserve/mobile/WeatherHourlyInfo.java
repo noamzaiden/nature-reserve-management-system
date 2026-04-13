@@ -1,6 +1,6 @@
 package com.reserve.mobile;
 
-public class WeatherHourlyInfo {
+public final class WeatherHourlyInfo {
 
     private final String hourLabel;
     private final double temperatureCelsius;

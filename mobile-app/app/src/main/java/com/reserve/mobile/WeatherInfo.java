@@ -1,6 +1,6 @@
 package com.reserve.mobile;
 
-public class WeatherInfo {
+public final class WeatherInfo {
 
     private final double temperatureCelsius;
     private final String condition;

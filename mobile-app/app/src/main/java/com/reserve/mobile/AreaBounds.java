@@ -1,6 +1,7 @@
 package com.reserve.mobile;
 
-public class AreaBounds {
+// Defines a simple rectangular area using min/max coordinates.
+public final class AreaBounds {
 
     private final double minLatitude;
     private final double maxLatitude;
