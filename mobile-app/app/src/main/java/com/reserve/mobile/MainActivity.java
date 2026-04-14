@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Uri pendingCameraPhotoUri;
 
     @Override
-    // Initializes screen state, listeners, map, and first backend load.
+    // Initializes the ui states
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
         reportUiHelper = new MainReportUiHelper();
 
-        // Small setup pipeline so startup order is easy to follow.
+        // call setup methods
         bindViews();
         configureTypeSpinner();
         configureMediaPicker();
@@ -142,9 +142,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         loadReserves();
     }
 
-    // Finds and caches all views from the activity layout.
+
     private void bindViews() {
-        // Keep all findViewById calls in one place.
+
         reserveSpinner = findViewById(R.id.reserve_spinner);
         reportTypeSpinner = findViewById(R.id.report_type_spinner);
         locationHintText = findViewById(R.id.location_hint_text);
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
     }
 
-    // Registers location permission request callback.
+
     private void configureLocationPermissionLauncher() {
         locationPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
@@ -230,15 +230,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
     }
 
-    // Wires all button click listeners in grouped setup methods.
+
     private void configureButtons() {
-        // Group listeners by feature so this method stays short.
+
         configureReportButtons();
         configureDrawerAndMapButtons();
         configureLayerButtons();
     }
 
-    // Connects report panel actions (attach, camera, submit, panel toggle).
+    // sets up event report panel
     private void configureReportButtons() {
         attachMediaButton.setOnClickListener(view -> mediaPickerLauncher.launch(REPORT_MEDIA_MIME_TYPES));
         capturePhotoButton.setOnClickListener(view -> launchCameraCapture());
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         reportToggleButton.setOnClickListener(view -> toggleReportPanel());
     }
 
-    // Connects menu, my-location, and north-up map control buttons.
+    // Cnects menu, my-location, and north-up map control buttons.on
     private void configureDrawerAndMapButtons() {
         menuButton.setOnClickListener(view -> drawerLayout.openDrawer(GravityCompat.START));
         myLocationButton.setOnClickListener(view -> {
@@ -261,14 +261,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void configureLayerButtons() {
         poiToggleButton.setOnClickListener(view -> {
             reserveMapHelper.setShowPois(!reserveMapHelper.isShowingPois());
-            refreshMapContent();
-            updateToggleLabels();
+            onMapLayerChanged(false);
         });
         hazardToggleButton.setOnClickListener(view -> {
             reserveMapHelper.setShowHazards(!reserveMapHelper.isShowingHazards());
-            refreshMapContent();
-            updateToggleLabels();
-            updateReserveSummary();
+            onMapLayerChanged(true);
         });
         weatherToggleButton.setOnClickListener(view -> toggleWeather());
         weatherExpandButton.setOnClickListener(view -> {
@@ -310,19 +307,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         executorService.execute(() -> {
             try {
                 List<Reserve> loadedReserves = reserveRepository.loadReserves();
-                runOnUiThread(() -> {
-                    // UI updates must run on the main thread.
-                    updateServerStatus(true);
-                    reserves.clear();
-                    reserves.addAll(loadedReserves);
-                    ArrayAdapter<Reserve> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, reserves);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    reserveSpinner.setAdapter(adapter);
-                    refreshMapContent();
-                    updateReserveSummary();
-                    setStatusText(getString(R.string.status_loading_hazards));
-                    loadPublishedHazards();
-                });
+                runOnUiThread(() -> onReservesLoaded(loadedReserves));
             } catch (Exception exception) {
                 runOnUiThread(() -> {
                     updateServerStatus(false);
@@ -341,17 +326,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         executorService.execute(() -> {
             try {
                 List<PublicEvent> loadedHazards = reserveRepository.loadPublishedHazards(reserves);
-                runOnUiThread(() -> {
-                    // Replace the full list so map refresh always uses latest server state.
-                    updateServerStatus(true);
-                    allHazards.clear();
-                    allHazards.addAll(loadedHazards);
-                    refreshMapContent();
-                    updateReserveSummary();
-                    setStatusText("");
-                    hazardRefreshInFlight = false;
-                    startHazardPolling();
-                });
+                runOnUiThread(() -> onHazardsLoaded(loadedHazards));
             } catch (Exception exception) {
                 runOnUiThread(() -> {
                     updateServerStatus(false);
@@ -412,6 +387,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Redraws map layers using current data and toggle states.
     private void refreshMapContent() {
         reserveMapHelper.refresh(reserves, allHazards, currentReserve, hasLocationPermission());
+    }
+
+    // Refreshes map and summary after one of the layer toggles changes.
+    private void onMapLayerChanged(boolean updateSummary) {
+        refreshMapContent();
+        updateToggleLabels();
+        if (updateSummary) {
+            updateReserveSummary();
+        }
+    }
+
+    // Applies reserve data to the spinner and starts hazard loading.
+    private void onReservesLoaded(List<Reserve> loadedReserves) {
+        updateServerStatus(true);
+        reserves.clear();
+        reserves.addAll(loadedReserves);
+        ArrayAdapter<Reserve> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, reserves);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        reserveSpinner.setAdapter(adapter);
+        refreshMapContent();
+        updateReserveSummary();
+        setStatusText(getString(R.string.status_loading_hazards));
+        loadPublishedHazards();
+    }
+
+    // Replaces the hazard list with the newest backend data.
+    private void onHazardsLoaded(List<PublicEvent> loadedHazards) {
+        updateServerStatus(true);
+        allHazards.clear();
+        allHazards.addAll(loadedHazards);
+        refreshMapContent();
+        updateReserveSummary();
+        setStatusText("");
+        hazardRefreshInFlight = false;
+        startHazardPolling();
     }
 
     // Refreshes text/styles of all layer toggle buttons.
@@ -494,6 +504,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    @SuppressLint("MissingPermission")
     // Starts continuous location updates (requests permission if needed).
     private void startLocationTracking() {
         if (!hasLocationPermission()) {
@@ -592,7 +603,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // Creates a FileProvider Uri for a new report photo file.
-    private Uri createCameraImageUri() throws Exception {
+    private Uri createCameraImageUri() {
         File picturesDir = new File(getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES), "reports");
         if (!picturesDir.exists() && !picturesDir.mkdirs()) {
             throw new IllegalStateException("Could not create report picture directory");
@@ -602,6 +613,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // Validates form, captures fresh location, and uploads traveler report.
+    @SuppressLint("MissingPermission")
     private void submitTravelerReport() {
         Reserve selectedReserve = getSelectedReserve();
         if (selectedReserve == null) {

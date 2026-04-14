@@ -24,8 +24,8 @@ final class MainWeatherController {
     private final ExecutorService executorService;
 
     private LatLng lastWeatherLatLng;
-    private WeatherInfo currentWeather;
-    private List<WeatherHourlyInfo> currentHourly = new ArrayList<>();
+    private WeatherCurrent currentWeather;
+    private List<WeatherHourlyForecast> currentHourly = new ArrayList<>();
     private long lastWeatherLoadedAt;
     private boolean expanded;
 
@@ -60,12 +60,16 @@ final class MainWeatherController {
         showWeatherPanel(weatherOverlay, weatherHourlyPanel, weatherExpandButton);
 
         if (currentUserLatLng == null) {
-            showWaitingForLocation(weatherNowText, weatherHourlyText);
+            showStatus(weatherNowText, weatherHourlyText,
+                    R.string.weather_waiting_location,
+                    R.string.weather_hourly_waiting_location);
             return;
         }
 
         if (!weatherRepository.hasApiKey()) {
-            showMissingApiKey(weatherNowText, weatherHourlyText);
+            showStatus(weatherNowText, weatherHourlyText,
+                    R.string.weather_missing_key,
+                    R.string.weather_hourly_unavailable);
             return;
         }
 
@@ -79,14 +83,16 @@ final class MainWeatherController {
             return;
         }
 
-        showLoading(weatherNowText, weatherHourlyText);
+        showStatus(weatherNowText, weatherHourlyText,
+                R.string.weather_loading,
+                R.string.weather_hourly_loading);
 
         executorService.execute(() -> {
             try {
-                WeatherInfo loadedWeather = needCurrentLoad
+                WeatherCurrent loadedWeather = needCurrentLoad
                         ? weatherRepository.loadCurrentWeather(currentUserLatLng.latitude, currentUserLatLng.longitude)
                         : currentWeather;
-                List<WeatherHourlyInfo> loadedHourly = needHourlyLoad
+                List<WeatherHourlyForecast> loadedHourly = needHourlyLoad
                         ? weatherRepository.loadHourlyWeather(
                         currentUserLatLng.latitude,
                         currentUserLatLng.longitude,
@@ -104,7 +110,9 @@ final class MainWeatherController {
                 });
             } catch (Exception exception) {
                 activity.runOnUiThread(() -> {
-                    showUnavailable(weatherNowText, weatherHourlyText);
+                    showStatus(weatherNowText, weatherHourlyText,
+                            R.string.weather_unavailable,
+                            R.string.weather_hourly_unavailable);
                 });
             }
         });
@@ -119,35 +127,11 @@ final class MainWeatherController {
                 : android.R.drawable.arrow_down_float);
     }
 
-    // Shows placeholder state while waiting for GPS location.
-    private void showWaitingForLocation(TextView weatherNowText, TextView weatherHourlyText) {
-        weatherNowText.setText(R.string.weather_waiting_location);
+    // Writes the small weather status texts in one place.
+    private void showStatus(TextView weatherNowText, TextView weatherHourlyText, int nowTextResId, int hourlyTextResId) {
+        weatherNowText.setText(nowTextResId);
         if (expanded) {
-            weatherHourlyText.setText(R.string.weather_hourly_waiting_location);
-        }
-    }
-
-    // Shows message for missing weather API key.
-    private void showMissingApiKey(TextView weatherNowText, TextView weatherHourlyText) {
-        weatherNowText.setText(R.string.weather_missing_key);
-        if (expanded) {
-            weatherHourlyText.setText(R.string.weather_hourly_unavailable);
-        }
-    }
-
-    // Shows loading text while weather data is being fetched.
-    private void showLoading(TextView weatherNowText, TextView weatherHourlyText) {
-        weatherNowText.setText(R.string.weather_loading);
-        if (expanded) {
-            weatherHourlyText.setText(R.string.weather_hourly_loading);
-        }
-    }
-
-    // Shows fallback text when weather fetch fails.
-    private void showUnavailable(TextView weatherNowText, TextView weatherHourlyText) {
-        weatherNowText.setText(R.string.weather_unavailable);
-        if (expanded) {
-            weatherHourlyText.setText(R.string.weather_hourly_unavailable);
+            weatherHourlyText.setText(hourlyTextResId);
         }
     }
 
@@ -176,7 +160,7 @@ final class MainWeatherController {
 
         StringBuilder builder = new StringBuilder();
         for (int index = 0; index < currentHourly.size(); index++) {
-            WeatherHourlyInfo hourly = currentHourly.get(index);
+            WeatherHourlyForecast hourly = currentHourly.get(index);
             if (index > 0) {
                 builder.append('\n');
             }
@@ -197,8 +181,7 @@ final class MainWeatherController {
             return true;
         }
 
-        long age = System.currentTimeMillis() - lastWeatherLoadedAt;
-        if (age > WEATHER_CACHE_MAX_AGE_MS) {
+        if (System.currentTimeMillis() - lastWeatherLoadedAt > WEATHER_CACHE_MAX_AGE_MS) {
             return true;
         }
 

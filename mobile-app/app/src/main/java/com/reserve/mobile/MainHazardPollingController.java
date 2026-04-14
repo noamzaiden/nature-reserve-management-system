@@ -3,19 +3,13 @@ package com.reserve.mobile;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.util.function.BooleanSupplier;
+
 final class MainHazardPollingController {
 
-    interface ShouldPollCallback {
-        boolean shouldPollNow();
-    }
-
-    interface PollActionCallback {
-        void runPollAction();
-    }
-
     private final long pollIntervalMs;
-    private final ShouldPollCallback shouldPollCallback;
-    private final PollActionCallback pollActionCallback;
+    private final BooleanSupplier shouldPollNow;
+    private final Runnable pollAction;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private boolean running;
@@ -26,8 +20,8 @@ final class MainHazardPollingController {
             if (!running) {
                 return;
             }
-            if (shouldPollCallback.shouldPollNow()) {
-                pollActionCallback.runPollAction();
+            if (shouldPollNow.getAsBoolean()) {
+                pollAction.run();
             }
             handler.postDelayed(this, pollIntervalMs);
         }
@@ -35,11 +29,11 @@ final class MainHazardPollingController {
 
     // Keeps periodic hazard polling logic out of MainActivity.
     MainHazardPollingController(long pollIntervalMs,
-                                ShouldPollCallback shouldPollCallback,
-                                PollActionCallback pollActionCallback) {
+                                BooleanSupplier shouldPollNow,
+                                Runnable pollAction) {
         this.pollIntervalMs = pollIntervalMs;
-        this.shouldPollCallback = shouldPollCallback;
-        this.pollActionCallback = pollActionCallback;
+        this.shouldPollNow = shouldPollNow;
+        this.pollAction = pollAction;
     }
 
     // Starts polling loop if it is not already running.

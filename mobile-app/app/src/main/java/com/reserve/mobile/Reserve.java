@@ -18,32 +18,27 @@ public final class Reserve {
         this.areaBounds = areaBounds;
     }
 
-    // Returns unique reserve id from backend.
     public long getId() {
         return id;
     }
 
-    // Returns the user-facing reserve name.
     public String getDisplayName() {
         return displayName;
     }
 
-    // Returns center latitude used for nearest-distance checks.
     public double getCenterLatitude() {
         return centerLatitude;
     }
 
-    // Returns center longitude used for nearest-distance checks.
     public double getCenterLongitude() {
         return centerLongitude;
     }
 
-    // Returns rectangular reserve boundaries, if available.
     public AreaBounds getAreaBounds() {
         return areaBounds;
     }
 
-    // Tells whether reserve has a valid center coordinate.
+
     public boolean hasCenterPoint() {
         return !Double.isNaN(centerLatitude) && !Double.isNaN(centerLongitude);
     }

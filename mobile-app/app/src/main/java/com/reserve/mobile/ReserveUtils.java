@@ -26,10 +26,7 @@ public final class ReserveUtils {
     public static int countVisibleHazards(List<PublicEvent> hazards, Reserve reserve) {
         int count = 0;
         for (PublicEvent event : hazards) {
-            if (!event.hasCoordinates()) {
-                continue;
-            }
-            if (reserve == null || event.getReserveId() == reserve.getId()) {
+            if (event.hasCoordinates() && (reserve == null || event.getReserveId() == reserve.getId())) {
                 count++;
             }
         }

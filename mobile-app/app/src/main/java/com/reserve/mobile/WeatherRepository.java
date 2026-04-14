@@ -19,72 +19,42 @@ public class WeatherRepository {
     }
 
     // Loads current weather from OpenWeather for a given location.
-    public WeatherInfo loadCurrentWeather(double latitude, double longitude) throws Exception {
+    public WeatherCurrent loadCurrentWeather(double latitude, double longitude) throws Exception {
         if (!hasApiKey()) {
             throw new IllegalStateException("OpenWeather API key missing");
         }
 
-        String urlText = buildWeatherUrl(latitude, longitude);
-
-        HttpURLConnection connection = HttpUtils.openJsonGetConnection(urlText);
-
-        try {
-            HttpUtils.requireSuccessResponse(connection, "Weather request failed with status");
-            String responseText = HttpUtils.readResponseText(connection);
-
-            JSONObject response = new JSONObject(responseText);
-            JSONObject mainObject = response.optJSONObject("main");
-            JSONArray weatherArray = response.optJSONArray("weather");
-
-            double temperature = mainObject == null ? Double.NaN : mainObject.optDouble("temp", Double.NaN);
-            String condition = parseCondition(weatherArray);
-
-            return new WeatherInfo(temperature, capitalizeWords(condition));
-        } finally {
-            connection.disconnect();
-        }
+        JSONObject response = readJson(buildWeatherUrl(latitude, longitude), "Weather request failed with status");
+        return new WeatherCurrent(
+                readTemperature(response.optJSONObject("main")),
+                capitalizeWords(parseCondition(response.optJSONArray("weather")))
+        );
     }
 
-    // Loads upcoming hourly forecast points (OpenWeather 3-hour intervals).
-    public List<WeatherHourlyInfo> loadHourlyWeather(double latitude, double longitude, int maxItems) throws Exception {
+    // Loads upcoming hourly forecast points
+    public List<WeatherHourlyForecast> loadHourlyWeather(double latitude, double longitude, int maxItems) throws Exception {
         if (!hasApiKey()) {
             throw new IllegalStateException("OpenWeather API key missing");
         }
 
-        HttpURLConnection connection = HttpUtils.openJsonGetConnection(buildForecastUrl(latitude, longitude));
-
-        try {
-            HttpUtils.requireSuccessResponse(connection, "Weather forecast request failed with status");
-            JSONObject response = new JSONObject(HttpUtils.readResponseText(connection));
-            JSONArray list = response.optJSONArray("list");
-            List<WeatherHourlyInfo> hourly = new ArrayList<>();
-            if (list == null) {
-                return hourly;
-            }
-
-            int count = Math.min(Math.max(maxItems, 0), list.length());
-            for (int index = 0; index < count; index++) {
-                JSONObject item = list.optJSONObject(index);
-                if (item == null) {
-                    continue;
-                }
-
-                JSONObject mainObject = item.optJSONObject("main");
-                JSONArray weatherArray = item.optJSONArray("weather");
-
-                double temperature = mainObject == null ? Double.NaN : mainObject.optDouble("temp", Double.NaN);
-                String condition = capitalizeWords(parseCondition(weatherArray));
-                String hourLabel = extractHourLabel(item.optString("dt_txt", ""));
-
-                hourly.add(new WeatherHourlyInfo(hourLabel, temperature, condition));
-            }
+        JSONArray list = readJson(buildForecastUrl(latitude, longitude), "Weather forecast request failed with status")
+                .optJSONArray("list");
+        List<WeatherHourlyForecast> hourly = new ArrayList<>();
+        if (list == null) {
             return hourly;
-        } finally {
-            connection.disconnect();
         }
+
+        int count = Math.min(Math.max(maxItems, 0), list.length());
+        for (int index = 0; index < count; index++) {
+            JSONObject item = list.optJSONObject(index);
+            if (item != null) {
+                hourly.add(buildHourlyInfo(item));
+            }
+        }
+        return hourly;
     }
 
-    // Builds the full OpenWeather URL with metric units.
+    // Builds the full OpenWeather URL with metric units
     private String buildWeatherUrl(double latitude, double longitude) {
         return ApiConfig.OPEN_WEATHER_API_BASE
                 + "?lat=" + latitude
@@ -93,7 +63,7 @@ public class WeatherRepository {
                 + "&appid=" + ApiConfig.OPEN_WEATHER_API_KEY;
     }
 
-    // Builds a forecast URL by reusing configured base endpoint.
+
     private String buildForecastUrl(double latitude, double longitude) {
         String forecastBase = ApiConfig.OPEN_WEATHER_API_BASE;
         if (forecastBase.endsWith("/weather")) {
@@ -113,6 +83,31 @@ public class WeatherRepository {
         }
         JSONObject firstWeather = weatherArray.getJSONObject(0);
         return firstWeather.optString("description", firstWeather.optString("main", UNKNOWN_TEXT));
+    }
+
+    // Reads the temperature from the OpenWeather main object.
+    private double readTemperature(JSONObject mainObject) {
+        return mainObject == null ? Double.NaN : mainObject.optDouble("temp", Double.NaN);
+    }
+
+    // Builds one hourly forecast item from a JSON object.
+    private WeatherHourlyForecast buildHourlyInfo(JSONObject item) throws Exception {
+        return new WeatherHourlyForecast(
+                extractHourLabel(item.optString("dt_txt", "")),
+                readTemperature(item.optJSONObject("main")),
+                capitalizeWords(parseCondition(item.optJSONArray("weather")))
+        );
+    }
+
+    // Reads and validates one JSON response from the given URL.
+    private JSONObject readJson(String url, String errorPrefix) throws Exception {
+        HttpURLConnection connection = HttpUtils.openJsonGetConnection(url);
+        try {
+            HttpUtils.requireSuccessResponse(connection, errorPrefix);
+            return new JSONObject(HttpUtils.readResponseText(connection));
+        } finally {
+            connection.disconnect();
+        }
     }
 
     // Extracts HH:mm from OpenWeather dt_txt, falls back to "Soon".

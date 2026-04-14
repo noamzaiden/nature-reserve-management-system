@@ -19,14 +19,7 @@ public class ReserveRepository {
 
     // Downloads reserves list and maps JSON into Reserve objects.
     public List<Reserve> loadReserves() throws Exception {
-        JSONArray response = new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + "/reserves"));
-        List<Reserve> reserves = new ArrayList<>();
-
-        for (int index = 0; index < response.length(); index++) {
-            reserves.add(parseReserve(response.getJSONObject(index)));
-        }
-
-        return reserves;
+        return parseReserves(loadJsonArray("/reserves"));
     }
 
     // Downloads published events for each reserve and returns combined hazards.
@@ -34,10 +27,7 @@ public class ReserveRepository {
         List<PublicEvent> hazards = new ArrayList<>();
 
         for (Reserve reserve : reserves) {
-            JSONArray response = new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + "/events?reserveId=" + reserve.getId()));
-            for (int index = 0; index < response.length(); index++) {
-                hazards.add(parsePublicEvent(reserve.getId(), response.getJSONObject(index)));
-            }
+            hazards.addAll(parseHazardsForReserve(reserve));
         }
 
         return hazards;
@@ -45,18 +35,37 @@ public class ReserveRepository {
 
     // Maps one reserve JSON object into app model.
     private Reserve parseReserve(JSONObject reserve) throws Exception {
-        String fallbackName = reserve.optString("name", "Unknown reserve");
+        String name = reserve.optString("name", "Unknown reserve");
         return new Reserve(
                 reserve.getLong("id"),
-                fallbackName,
-                reserve.optString("displayName", fallbackName),
+                name,
+                reserve.optString("displayName", name),
                 reserve.optDouble("centerLatitude", Double.NaN),
                 reserve.optDouble("centerLongitude", Double.NaN),
                 parseAreaBounds(reserve.optJSONObject("area"))
         );
     }
 
-    // Maps optional reserve area object to AreaBounds.
+    // Turns a reserve JSON array into a list of Reserve objects.
+    private List<Reserve> parseReserves(JSONArray response) throws Exception {
+        List<Reserve> reserves = new ArrayList<>();
+        for (int index = 0; index < response.length(); index++) {
+            reserves.add(parseReserve(response.getJSONObject(index)));
+        }
+        return reserves;
+    }
+
+    // Loads hazards for one reserve and maps them into PublicEvent objects.
+    private List<PublicEvent> parseHazardsForReserve(Reserve reserve) throws Exception {
+        JSONArray response = loadJsonArray("/events?reserveId=" + reserve.getId());
+        List<PublicEvent> hazards = new ArrayList<>();
+        for (int index = 0; index < response.length(); index++) {
+            hazards.add(parsePublicEvent(reserve.getId(), response.getJSONObject(index)));
+        }
+        return hazards;
+    }
+
+
     private AreaBounds parseAreaBounds(JSONObject area) {
         if (area == null) {
             return null;
@@ -143,6 +152,11 @@ public class ReserveRepository {
         }
 
         output.writeBytes("\r\n");
+    }
+
+    // Runs a GET request and returns response JSON text.
+    private JSONArray loadJsonArray(String path) throws Exception {
+        return new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + path));
     }
 
     // Runs a GET request and returns response JSON text.

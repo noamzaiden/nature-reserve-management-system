@@ -24,7 +24,7 @@ public final class TravelerReportData {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.attachmentUris = new ArrayList<>(attachmentUris);
+        this.attachmentUris = attachmentUris == null ? new ArrayList<>() : new ArrayList<>(attachmentUris);
     }
 
     // Returns selected reserve id.

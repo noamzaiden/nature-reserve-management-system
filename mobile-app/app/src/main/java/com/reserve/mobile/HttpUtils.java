@@ -12,7 +12,7 @@ final class HttpUtils {
     private HttpUtils() {
     }
 
-    // Opens a basic JSON GET connection with a common Accept header.
+
     static HttpURLConnection openJsonGetConnection(String urlText) throws Exception {
         HttpURLConnection connection = (HttpURLConnection) new URL(urlText).openConnection();
         connection.setRequestMethod("GET");
