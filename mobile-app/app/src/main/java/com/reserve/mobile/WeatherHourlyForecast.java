@@ -1,13 +1,13 @@
 package com.reserve.mobile;
 
-public final class WeatherHourlyInfo {
+public final class WeatherHourlyForecast {
 
     private final String hourLabel;
     private final double temperatureCelsius;
     private final String condition;
 
     // Stores one upcoming hourly weather point for compact UI display.
-    public WeatherHourlyInfo(String hourLabel, double temperatureCelsius, String condition) {
+    public WeatherHourlyForecast(String hourLabel, double temperatureCelsius, String condition) {
         this.hourLabel = hourLabel;
         this.temperatureCelsius = temperatureCelsius;
         this.condition = condition;
@@ -28,4 +28,6 @@ public final class WeatherHourlyInfo {
         return condition;
     }
 }
+
+
 
