@@ -5,7 +5,7 @@ import android.os.Looper;
 
 import java.util.function.BooleanSupplier;
 
-final class MainHazardPollingController {
+final class EventPollingController {
 
     private final long pollIntervalMs;
     private final BooleanSupplier shouldPollNow;
@@ -28,9 +28,9 @@ final class MainHazardPollingController {
     };
 
     // Keeps periodic hazard polling logic out of MainActivity.
-    MainHazardPollingController(long pollIntervalMs,
-                                BooleanSupplier shouldPollNow,
-                                Runnable pollAction) {
+    EventPollingController(long pollIntervalMs,
+                           BooleanSupplier shouldPollNow,
+                           Runnable pollAction) {
         this.pollIntervalMs = pollIntervalMs;
         this.shouldPollNow = shouldPollNow;
         this.pollAction = pollAction;

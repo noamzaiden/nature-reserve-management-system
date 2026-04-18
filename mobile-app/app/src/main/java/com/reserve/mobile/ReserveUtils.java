@@ -23,9 +23,9 @@ public final class ReserveUtils {
 
 
     // Counts hazards visible for a specific reserve or for all reserves when null.
-    public static int countVisibleHazards(List<PublicEvent> hazards, Reserve reserve) {
+    public static int countVisibleHazards(List<Event> hazards, Reserve reserve) {
         int count = 0;
-        for (PublicEvent event : hazards) {
+        for (Event event : hazards) {
             if (event.hasCoordinates() && (reserve == null || event.getReserveId() == reserve.getId())) {
                 count++;
             }

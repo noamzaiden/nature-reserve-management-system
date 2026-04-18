@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 
-final class MainReportUiController {
+final class EventReportUiController {
 
     private boolean reportPanelVisible;
     private boolean selectingManualLocation;

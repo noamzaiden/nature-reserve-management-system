@@ -1,0 +1,288 @@
+<mxfile host="app.diagrams.net" modified="2026-04-18T12:20:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="runtime-architecture" name="Runtime Architecture">
+    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p1-title" value="&lt;b&gt;Mobile App Runtime Architecture&lt;/b&gt;&lt;br/&gt;Page 1 of 2" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=20;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="700" y="20" width="800" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-platform" value="&lt;b&gt;Android / Google Play Services&lt;/b&gt;&lt;br/&gt;AppCompatActivity, GoogleMap, SupportMapFragment,&lt;br/&gt;FusedLocationProviderClient, ActivityResult APIs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="880" y="80" width="340" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-main" value="&lt;b&gt;MainActivity&lt;/b&gt;&lt;br/&gt;screen coordinator and state owner" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#5E8B67;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="880" y="250" width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-mapHelper" value="&lt;b&gt;MapController&lt;/b&gt;&lt;br/&gt;draws reserves, hazards, and map style" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="260" y="120" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-hazardController" value="&lt;b&gt;EventPollingController&lt;/b&gt;&lt;br/&gt;periodic hazard refresh loop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="260" y="250" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-reportHelper" value="&lt;b&gt;MainReportUiController&lt;/b&gt;&lt;br/&gt;report panel and manual map pin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="260" y="380" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-reserveUtils" value="&lt;b&gt;ReserveUtils&lt;/b&gt;&lt;br/&gt;current-reserve lookup and hazard counting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE5CD;strokeColor=#D79B00;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="260" y="510" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-weatherController" value="&lt;b&gt;WeatherUiController&lt;/b&gt;&lt;br/&gt;weather overlay, cache, and rendering" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="120" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-toggleController" value="&lt;b&gt;MapToggleUiController&lt;/b&gt;&lt;br/&gt;toggle labels and visual states" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="250" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-reserveRepository" value="&lt;b&gt;ReserveNetworkRepository&lt;/b&gt;&lt;br/&gt;backend GETs and multipart report upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#1D3557;" vertex="1" parent="1">
+          <mxGeometry x="880" y="470" width="340" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-weatherRepository" value="&lt;b&gt;WeatherRepository&lt;/b&gt;&lt;br/&gt;OpenWeather requests and JSON parsing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#1D3557;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="470" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-apiConfig" value="&lt;b&gt;ApiConfig&lt;/b&gt;&lt;br/&gt;BuildConfig-backed URLs and API keys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE5CD;strokeColor=#D79B00;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="650" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-httpUtils" value="&lt;b&gt;HttpUtils&lt;/b&gt;&lt;br/&gt;shared GET/response helpers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE5CD;strokeColor=#D79B00;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="1410" y="650" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-backendApi" value="&lt;b&gt;Backend API&lt;/b&gt;&lt;br/&gt;/reserves, /events, /reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="880" y="840" width="340" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-openWeather" value="&lt;b&gt;OpenWeather API&lt;/b&gt;&lt;br/&gt;/weather and /forecast" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="840" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e1" value="uses platform APIs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5E8B67;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-platform">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e2" value="delegates map rendering" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5E8B67;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-mapHelper">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="285" />
+              <mxPoint x="720" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e3" value="starts / stops" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5E8B67;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-hazardController">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e4" value="manages report UI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5E8B67;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-reportHelper">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e5" value="computes summary data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-reserveUtils">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e6" value="delegates weather" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5E8B67;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-weatherController">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1380" y="285" />
+              <mxPoint x="1380" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e7" value="updates button state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5E8B67;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-toggleController">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e8" value="loads + uploads" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-main" target="p1-reserveRepository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e9" value="refreshes weather data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-weatherController" target="p1-weatherRepository">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1920" y="160" />
+              <mxPoint x="1920" y="515" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e10" value="reads map layer state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7EA27F;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-toggleController" target="p1-mapHelper">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1700" y="75" />
+              <mxPoint x="410" y="75" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e11" value="uses config" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-reserveRepository" target="p1-apiConfig">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e12" value="uses GET helper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-reserveRepository" target="p1-httpUtils">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1360" y="515" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e13" value="GET / POST" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;fontColor=#333333;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-reserveRepository" target="p1-backendApi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e14" value="uses config" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-weatherRepository" target="p1-apiConfig">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1500" y="605" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p1-e15" value="uses GET helper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-weatherRepository" target="p1-httpUtils">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-e16" value="GET /weather, /forecast" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#666666;fontColor=#333333;endArrow=block;endFill=1;" edge="1" parent="1" source="p1-weatherRepository" target="p1-openWeather">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="model-relations" name="Model Relations">
+    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p2-title" value="&lt;b&gt;Mobile App Model and Data Relations&lt;/b&gt;&lt;br/&gt;Page 2 of 2" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=20;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="650" y="20" width="900" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-leftBg" value="&lt;b&gt;Reserve and Reporting Domain&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FBF7;strokeColor=#C7D9C8;fontColor=#264F39;verticalAlign=top;spacingTop=10;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="60" y="90" width="1020" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-rightBg" value="&lt;b&gt;Weather Domain&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FBF7;strokeColor=#C7D9C8;fontColor=#264F39;verticalAlign=top;spacingTop=10;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="90" width="1020" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-reserveRepository" value="&lt;b&gt;ReserveNetworkRepository&lt;/b&gt;&lt;br/&gt;creates reserve and hazard models,&lt;br/&gt;consumes report payload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#1D3557;" vertex="1" parent="1">
+          <mxGeometry x="120" y="150" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-mapHelper" value="&lt;b&gt;MapController&lt;/b&gt;&lt;br/&gt;reads reserve and hazard models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="120" y="330" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-reserveUtils" value="&lt;b&gt;ReserveUtils&lt;/b&gt;&lt;br/&gt;reads reserve geometry and hazards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE5CD;strokeColor=#D79B00;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="120" y="510" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-reserve" value="&lt;b&gt;Reserve&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="470" y="240" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-areaBounds" value="&lt;b&gt;AreaBounds&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="470" y="420" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-publicEvent" value="&lt;b&gt;Event&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="470" y="600" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-travelerReport" value="&lt;b&gt;TravelerReportData&lt;/b&gt;&lt;br/&gt;report payload with attachment URIs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="800" y="330" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-weatherController" value="&lt;b&gt;WeatherUiController&lt;/b&gt;&lt;br/&gt;renders cached weather models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF4E6;strokeColor=#7EA27F;fontColor=#264F39;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="250" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-weatherRepository" value="&lt;b&gt;WeatherRepository&lt;/b&gt;&lt;br/&gt;creates weather models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#1D3557;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="250" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-weatherCurrent" value="&lt;b&gt;WeatherCurrent&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="500" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-weatherHourly" value="&lt;b&gt;WeatherHourlyForecast&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#6B4E16;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="490" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-e1" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveRepository" target="p2-reserve">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="195" />
+              <mxPoint x="430" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e2" value="builds nested area" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveRepository" target="p2-areaBounds">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="195" />
+              <mxPoint x="430" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e3" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveRepository" target="p2-publicEvent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="195" />
+              <mxPoint x="430" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e4" value="consumes for upload" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveRepository" target="p2-travelerReport">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-e5" value="reads" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7EA27F;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-mapHelper" target="p2-reserve">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="370" />
+              <mxPoint x="430" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e6" value="uses geometry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7EA27F;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-mapHelper" target="p2-areaBounds">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="370" />
+              <mxPoint x="430" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e7" value="draws markers" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7EA27F;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-mapHelper" target="p2-publicEvent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="370" />
+              <mxPoint x="430" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e8" value="reads" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveUtils" target="p2-reserve">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="550" />
+              <mxPoint x="430" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e9" value="checks contains()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveUtils" target="p2-areaBounds">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="550" />
+              <mxPoint x="430" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e10" value="counts hazards" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;fontColor=#6B4E16;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-reserveUtils" target="p2-publicEvent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="550" />
+              <mxPoint x="430" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e11" value="loads" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-weatherController" target="p2-weatherRepository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-e12" value="renders" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7EA27F;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-weatherController" target="p2-weatherCurrent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-e13" value="renders list" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7EA27F;fontColor=#264F39;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-weatherController" target="p2-weatherHourly">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1540" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e14" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-weatherRepository" target="p2-weatherCurrent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1730" y="440" />
+              <mxPoint x="1340" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p2-e15" value="creates list" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6C8EBF;fontColor=#1D3557;endArrow=block;endFill=1;" edge="1" parent="1" source="p2-weatherRepository" target="p2-weatherHourly">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

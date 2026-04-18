@@ -15,7 +15,7 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import java.util.List;
 import java.util.Locale;
 
-public class ReserveMapHelper {
+public class MapController {
 
     private static final LatLng DEFAULT_MAP_CENTER = new LatLng(31.4117, 35.0818);
     private static final float DEFAULT_MAP_ZOOM = 7f;
@@ -30,7 +30,7 @@ public class ReserveMapHelper {
     private boolean showingHazards = true;
 
     // Creates helper that owns map rendering state for layers.
-    public ReserveMapHelper(Context context) {
+    public MapController(Context context) {
         this.context = context;
     }
 
@@ -64,7 +64,7 @@ public class ReserveMapHelper {
 
     @SuppressLint("MissingPermission")
     // Clears and redraws all map layers (bounds, POIs, hazards).
-    public void refresh(List<Reserve> reserves, List<PublicEvent> hazards,
+    public void refresh(List<Reserve> reserves, List<Event> hazards,
                         Reserve currentReserve, boolean hasLocationPermission) {
         if (googleMap == null) {
             return;
@@ -89,11 +89,11 @@ public class ReserveMapHelper {
     }
 
     // Draws hazard markers only when layer is enabled.
-    private void drawHazardsIfEnabled(List<PublicEvent> hazards) {
+    private void drawHazardsIfEnabled(List<Event> hazards) {
         if (!showingHazards) {
             return;
         }
-        for (PublicEvent hazard : hazards) {
+        for (Event hazard : hazards) {
             drawHazardMarker(hazard);
         }
     }
@@ -122,7 +122,7 @@ public class ReserveMapHelper {
 
 
     // Draws one hazard marker with color based on priority.
-    private void drawHazardMarker(PublicEvent hazard) {
+    private void drawHazardMarker(Event hazard) {
         if (!hazard.hasCoordinates() || googleMap == null) {
             return;
         }

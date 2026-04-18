@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReserveRepository {
+public class ReserveNetworkRepository {
 
     // Downloads reserves list and maps JSON into Reserve objects.
     public List<Reserve> loadReserves() throws Exception {
@@ -23,8 +23,8 @@ public class ReserveRepository {
     }
 
     // Downloads published events for each reserve and returns combined hazards.
-    public List<PublicEvent> loadPublishedHazards(List<Reserve> reserves) throws Exception {
-        List<PublicEvent> hazards = new ArrayList<>();
+    public List<Event> loadPublishedHazards(List<Reserve> reserves) throws Exception {
+        List<Event> hazards = new ArrayList<>();
 
         for (Reserve reserve : reserves) {
             hazards.addAll(parseHazardsForReserve(reserve));
@@ -56,9 +56,9 @@ public class ReserveRepository {
     }
 
     // Loads hazards for one reserve and maps them into PublicEvent objects.
-    private List<PublicEvent> parseHazardsForReserve(Reserve reserve) throws Exception {
+    private List<Event> parseHazardsForReserve(Reserve reserve) throws Exception {
         JSONArray response = loadJsonArray("/events?reserveId=" + reserve.getId());
-        List<PublicEvent> hazards = new ArrayList<>();
+        List<Event> hazards = new ArrayList<>();
         for (int index = 0; index < response.length(); index++) {
             hazards.add(parsePublicEvent(reserve.getId(), response.getJSONObject(index)));
         }
@@ -79,8 +79,8 @@ public class ReserveRepository {
     }
 
     // Maps one event JSON object into PublicEvent.
-    private PublicEvent parsePublicEvent(long reserveId, JSONObject event) {
-        return new PublicEvent(
+    private Event parsePublicEvent(long reserveId, JSONObject event) {
+        return new Event(
                 reserveId,
                 event.optString("type", "OTHER"),
                 event.optString("priority", "LOW"),

@@ -2,7 +2,7 @@ package com.reserve.mobile;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public final class PublicEvent {
+public final class Event {
 
     private final long reserveId;
     private final String type;
@@ -12,8 +12,8 @@ public final class PublicEvent {
     private final double longitude;
 
     // Stores one public event/hazard record returned by the backend.
-    public PublicEvent(long reserveId, String type, String priority, String description,
-                       double latitude, double longitude) {
+    public Event(long reserveId, String type, String priority, String description,
+                 double latitude, double longitude) {
         this.reserveId = reserveId;
         this.type = type;
         this.priority = priority;

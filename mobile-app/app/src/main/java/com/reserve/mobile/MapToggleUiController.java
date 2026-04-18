@@ -6,7 +6,7 @@ import android.widget.ImageButton;
 
 import com.google.android.material.button.MaterialButton;
 
-final class MainToggleUiController {
+final class MapToggleUiController {
 
     private static final int TOGGLE_ACTIVE_FILL = Color.parseColor("#E3F0E2");
     private static final int TOGGLE_INACTIVE_FILL = Color.parseColor("#F8FCF7");

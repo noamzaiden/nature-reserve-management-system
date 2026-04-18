@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 
-final class MainWeatherController {
+final class WeatherUiController {
 
     private static final long WEATHER_CACHE_MAX_AGE_MS = 30L * 60L * 1000L;
     private static final float WEATHER_RELOAD_DISTANCE_METERS = 1000f;
@@ -30,7 +30,7 @@ final class MainWeatherController {
     private boolean expanded;
 
     // Creates controller that owns weather UI state and refresh logic.
-    MainWeatherController(Activity activity, WeatherRepository weatherRepository, ExecutorService executorService) {
+    WeatherUiController(Activity activity, WeatherRepository weatherRepository, ExecutorService executorService) {
         this.activity = activity;
         this.weatherRepository = weatherRepository;
         this.executorService = executorService;

@@ -55,11 +55,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final List<Reserve> reserves = new ArrayList<>();
-    private final List<PublicEvent> allHazards = new ArrayList<>();
+    private final List<Event> allHazards = new ArrayList<>();
     private final List<Uri> selectedMediaUris = new ArrayList<>();
-    private final ReserveRepository reserveRepository = new ReserveRepository();
+    private final ReserveNetworkRepository reserveRepository = new ReserveNetworkRepository();
     private final WeatherRepository weatherRepository = new WeatherRepository();
-    private final MainToggleUiController toggleUiController = new MainToggleUiController();
+    private final MapToggleUiController toggleUiController = new MapToggleUiController();
 
     private Spinner reserveSpinner;
     private Spinner reportTypeSpinner;
@@ -98,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private GoogleMap googleMap;
-    private ReserveMapHelper reserveMapHelper;
-    private MainWeatherController weatherController;
-    private MainHazardPollingController hazardPollingController;
-    private MainReportUiHelper reportUiHelper;
+    private MapController mapController;
+    private WeatherUiController weatherController;
+    private EventPollingController hazardPollingController;
+    private EventReportUiController reportUiHelper;
     private LatLng currentUserLatLng;
     private Reserve currentReserve;
     private boolean followUserCamera = true;
@@ -118,14 +118,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Core helpers used by map/location and network tasks.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        reserveMapHelper = new ReserveMapHelper(this);
-        weatherController = new MainWeatherController(this, weatherRepository, executorService);
-        hazardPollingController = new MainHazardPollingController(
+        mapController = new MapController(this);
+        weatherController = new WeatherUiController(this, weatherRepository, executorService);
+        hazardPollingController = new EventPollingController(
                 HAZARD_POLL_INTERVAL_MS,
                 () -> !reserves.isEmpty(),
                 this::loadPublishedHazards
         );
-        reportUiHelper = new MainReportUiHelper();
+        reportUiHelper = new EventReportUiController();
 
         // call setup methods
         bindViews();
@@ -260,11 +260,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Connects map layer toggle controls (POI, hazards, weather).
     private void configureLayerButtons() {
         poiToggleButton.setOnClickListener(view -> {
-            reserveMapHelper.setShowPois(!reserveMapHelper.isShowingPois());
+            mapController.setShowPois(!mapController.isShowingPois());
             onMapLayerChanged(false);
         });
         hazardToggleButton.setOnClickListener(view -> {
-            reserveMapHelper.setShowHazards(!reserveMapHelper.isShowingHazards());
+            mapController.setShowHazards(!mapController.isShowingHazards());
             onMapLayerChanged(true);
         });
         weatherToggleButton.setOnClickListener(view -> toggleWeather());
@@ -296,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         googleMap.setOnMapClickListener(this::handleMapClickForManualLocation);
-        reserveMapHelper.attachMap(map);
+        mapController.attachMap(map);
         refreshMapContent();
         startLocationTracking();
         setStatusText("");
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         hazardRefreshInFlight = true;
         executorService.execute(() -> {
             try {
-                List<PublicEvent> loadedHazards = reserveRepository.loadPublishedHazards(reserves);
+                List<Event> loadedHazards = reserveRepository.loadPublishedHazards(reserves);
                 runOnUiThread(() -> onHazardsLoaded(loadedHazards));
             } catch (Exception exception) {
                 runOnUiThread(() -> {
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Redraws map layers using current data and toggle states.
     private void refreshMapContent() {
-        reserveMapHelper.refresh(reserves, allHazards, currentReserve, hasLocationPermission());
+        mapController.refresh(reserves, allHazards, currentReserve, hasLocationPermission());
     }
 
     // Refreshes map and summary after one of the layer toggles changes.
@@ -413,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // Replaces the hazard list with the newest backend data.
-    private void onHazardsLoaded(List<PublicEvent> loadedHazards) {
+    private void onHazardsLoaded(List<Event> loadedHazards) {
         updateServerStatus(true);
         allHazards.clear();
         allHazards.addAll(loadedHazards);
@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Refreshes text/styles of all layer toggle buttons.
     private void updateToggleLabels() {
         toggleUiController.updateLabels(
-                reserveMapHelper,
+                mapController,
                 poiToggleButton,
                 hazardToggleButton,
                 weatherToggleButton,
@@ -439,7 +439,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void updateReserveSummary() {
         // Figure out whether the user is currently inside a known reserve.
         currentReserve = currentUserLatLng == null ? null : ReserveUtils.findReserveForLocation(reserves, currentUserLatLng);
-        boolean showHazards = reserveMapHelper.isShowingHazards();
+        boolean showHazards = mapController.isShowingHazards();
 
         if (currentUserLatLng == null) {
             renderNoLocationSummary(showHazards);
