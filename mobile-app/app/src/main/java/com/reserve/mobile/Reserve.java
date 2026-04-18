@@ -9,10 +9,10 @@ public final class Reserve {
     private final AreaBounds areaBounds;
 
     // Builds one reserve object for map and spinner usage.
-    public Reserve(long id, String name, String displayName,
-                         double centerLatitude, double centerLongitude, AreaBounds areaBounds) {
+    public Reserve(long id, String fallbackName, String displayName,
+                   double centerLatitude, double centerLongitude, AreaBounds areaBounds) {
         this.id = id;
-        this.displayName = displayName == null || displayName.isEmpty() ? name : displayName;
+        this.displayName = displayName == null || displayName.isEmpty() ? fallbackName : displayName;
         this.centerLatitude = centerLatitude;
         this.centerLongitude = centerLongitude;
         this.areaBounds = areaBounds;
@@ -38,11 +38,10 @@ public final class Reserve {
         return areaBounds;
     }
 
-
+    // Returns true when this reserve has a usable map center point.
     public boolean hasCenterPoint() {
         return !Double.isNaN(centerLatitude) && !Double.isNaN(centerLongitude);
     }
-
 
     // Spinner uses this text when rendering list items.
     @Override
@@ -50,4 +49,3 @@ public final class Reserve {
         return displayName;
     }
 }
-

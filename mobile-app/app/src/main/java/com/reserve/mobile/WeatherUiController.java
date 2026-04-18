@@ -20,7 +20,7 @@ final class WeatherUiController {
     private static final int HOURLY_FORECAST_HOURS = 6;
 
     private final Activity activity;
-    private final WeatherRepository weatherRepository;
+    private final WeatherService weatherService;
     private final ExecutorService executorService;
 
     private LatLng lastWeatherLatLng;
@@ -30,9 +30,9 @@ final class WeatherUiController {
     private boolean expanded;
 
     // Creates controller that owns weather UI state and refresh logic.
-    WeatherUiController(Activity activity, WeatherRepository weatherRepository, ExecutorService executorService) {
+    WeatherUiController(Activity activity, WeatherService weatherService, ExecutorService executorService) {
         this.activity = activity;
-        this.weatherRepository = weatherRepository;
+        this.weatherService = weatherService;
         this.executorService = executorService;
     }
 
@@ -60,16 +60,22 @@ final class WeatherUiController {
         showWeatherPanel(weatherOverlay, weatherHourlyPanel, weatherExpandButton);
 
         if (currentUserLatLng == null) {
-            showStatus(weatherNowText, weatherHourlyText,
+            showStatus(
+                    weatherNowText,
+                    weatherHourlyText,
                     R.string.weather_waiting_location,
-                    R.string.weather_hourly_waiting_location);
+                    R.string.weather_hourly_waiting_location
+            );
             return;
         }
 
-        if (!weatherRepository.hasApiKey()) {
-            showStatus(weatherNowText, weatherHourlyText,
+        if (!weatherService.hasApiKey()) {
+            showStatus(
+                    weatherNowText,
+                    weatherHourlyText,
                     R.string.weather_missing_key,
-                    R.string.weather_hourly_unavailable);
+                    R.string.weather_hourly_unavailable
+            );
             return;
         }
 
@@ -83,21 +89,24 @@ final class WeatherUiController {
             return;
         }
 
-        showStatus(weatherNowText, weatherHourlyText,
+        showStatus(
+                weatherNowText,
+                weatherHourlyText,
                 R.string.weather_loading,
-                R.string.weather_hourly_loading);
+                R.string.weather_hourly_loading
+        );
 
         executorService.execute(() -> {
             try {
                 WeatherCurrent loadedWeather = needCurrentLoad
-                        ? weatherRepository.loadCurrentWeather(currentUserLatLng.latitude, currentUserLatLng.longitude)
+                        ? weatherService.loadCurrentWeather(currentUserLatLng.latitude, currentUserLatLng.longitude)
                         : currentWeather;
                 List<WeatherHourlyForecast> loadedHourly = needHourlyLoad
-                        ? weatherRepository.loadHourlyWeather(
-                        currentUserLatLng.latitude,
-                        currentUserLatLng.longitude,
-                        HOURLY_FORECAST_HOURS
-                )
+                        ? weatherService.loadHourlyWeather(
+                                currentUserLatLng.latitude,
+                                currentUserLatLng.longitude,
+                                HOURLY_FORECAST_HOURS
+                        )
                         : currentHourly;
 
                 activity.runOnUiThread(() -> {
@@ -110,9 +119,12 @@ final class WeatherUiController {
                 });
             } catch (Exception exception) {
                 activity.runOnUiThread(() -> {
-                    showStatus(weatherNowText, weatherHourlyText,
+                    showStatus(
+                            weatherNowText,
+                            weatherHourlyText,
                             R.string.weather_unavailable,
-                            R.string.weather_hourly_unavailable);
+                            R.string.weather_hourly_unavailable
+                    );
                 });
             }
         });

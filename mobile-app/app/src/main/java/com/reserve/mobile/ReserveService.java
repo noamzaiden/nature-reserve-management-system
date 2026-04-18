@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -15,11 +16,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReserveNetworkRepository {
+public class ReserveService {
+
+    private static final String RESERVES_PATH = "/reserves";
+    private static final String EVENTS_PATH = "/events?reserveId=";
+    private static final String REPORTS_PATH = "/reports";
 
     // Downloads reserves list and maps JSON into Reserve objects.
     public List<Reserve> loadReserves() throws Exception {
-        return parseReserves(loadJsonArray("/reserves"));
+        return parseReserves(loadJsonArray(RESERVES_PATH));
     }
 
     // Downloads published events for each reserve and returns combined hazards.
@@ -55,17 +60,17 @@ public class ReserveNetworkRepository {
         return reserves;
     }
 
-    // Loads hazards for one reserve and maps them into PublicEvent objects.
+    // Loads hazards for one reserve and maps them into Event objects.
     private List<Event> parseHazardsForReserve(Reserve reserve) throws Exception {
-        JSONArray response = loadJsonArray("/events?reserveId=" + reserve.getId());
+        JSONArray response = loadJsonArray(EVENTS_PATH + reserve.getId());
         List<Event> hazards = new ArrayList<>();
         for (int index = 0; index < response.length(); index++) {
-            hazards.add(parsePublicEvent(reserve.getId(), response.getJSONObject(index)));
+            hazards.add(parseEvent(reserve.getId(), response.getJSONObject(index)));
         }
         return hazards;
     }
 
-
+    // Maps area JSON into a simple rectangular boundary.
     private AreaBounds parseAreaBounds(JSONObject area) {
         if (area == null) {
             return null;
@@ -78,8 +83,8 @@ public class ReserveNetworkRepository {
         );
     }
 
-    // Maps one event JSON object into PublicEvent.
-    private Event parsePublicEvent(long reserveId, JSONObject event) {
+    // Maps one event JSON object into the app event model.
+    private Event parseEvent(long reserveId, JSONObject event) {
         return new Event(
                 reserveId,
                 event.optString("type", "OTHER"),
@@ -93,31 +98,28 @@ public class ReserveNetworkRepository {
     // Uploads one traveler report as multipart/form-data with optional attachments.
     public void submitTravelerReport(ContentResolver resolver, TravelerReportData reportData) throws Exception {
         String boundary = "----ReserveTraveler" + System.currentTimeMillis();
-        HttpURLConnection connection = (HttpURLConnection) new URL(ApiConfig.BACKEND_API_BASE + "/reports").openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        HttpURLConnection connection = openMultipartPostConnection(REPORTS_PATH, boundary);
 
-        try (DataOutputStream output = new DataOutputStream(connection.getOutputStream())) {
-            writeFormField(output, boundary, "reserveId", String.valueOf(reportData.getReserveId()));
-            writeFormField(output, boundary, "type", reportData.getType());
-            writeFormField(output, boundary, "reporterName", reportData.getReporterName());
-            writeFormField(output, boundary, "description", reportData.getDescription());
-            writeFormField(output, boundary, "latitude", String.valueOf(reportData.getLatitude()));
-            writeFormField(output, boundary, "longitude", String.valueOf(reportData.getLongitude()));
+        try {
+            try (DataOutputStream output = new DataOutputStream(connection.getOutputStream())) {
+                writeFormField(output, boundary, "reserveId", String.valueOf(reportData.getReserveId()));
+                writeFormField(output, boundary, "type", reportData.getType());
+                writeFormField(output, boundary, "reporterName", reportData.getReporterName());
+                writeFormField(output, boundary, "description", reportData.getDescription());
+                writeFormField(output, boundary, "latitude", String.valueOf(reportData.getLatitude()));
+                writeFormField(output, boundary, "longitude", String.valueOf(reportData.getLongitude()));
 
-            for (Uri uri : reportData.getAttachmentUris()) {
-                writeFileField(resolver, output, boundary, uri);
+                for (Uri uri : reportData.getAttachmentUris()) {
+                    writeFileField(resolver, output, boundary, uri);
+                }
+
+                output.writeBytes("--" + boundary + "--\r\n");
+                output.flush();
             }
 
-            output.writeBytes("--" + boundary + "--\r\n");
-            output.flush();
-        }
-
-        int responseCode = connection.getResponseCode();
-        connection.disconnect();
-        if (responseCode < 200 || responseCode >= 300) {
-            throw new IllegalStateException("Report upload failed with status " + responseCode);
+            requireSuccessResponse(connection, "Report upload failed with status");
+        } finally {
+            connection.disconnect();
         }
     }
 
@@ -156,18 +158,52 @@ public class ReserveNetworkRepository {
 
     // Runs a GET request and returns response JSON text.
     private JSONArray loadJsonArray(String path) throws Exception {
-        return new JSONArray(readJsonFromGet(ApiConfig.BACKEND_API_BASE + path));
+        return new JSONArray(readJsonFromGet(BuildConfig.BACKEND_API_BASE + path));
     }
 
     // Runs a GET request and returns response JSON text.
     private String readJsonFromGet(String url) throws Exception {
-        HttpURLConnection connection = HttpUtils.openJsonGetConnection(url);
+        HttpURLConnection connection = openJsonGetConnection(url);
 
         try {
-            HttpUtils.requireSuccessResponse(connection, "GET failed with status");
-            return HttpUtils.readResponseText(connection);
+            requireSuccessResponse(connection, "GET failed with status");
+            return readResponseText(connection);
         } finally {
             connection.disconnect();
+        }
+    }
+
+    private HttpURLConnection openJsonGetConnection(String urlText) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(urlText).openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Accept", "application/json");
+        return connection;
+    }
+
+    private HttpURLConnection openMultipartPostConnection(String path, String boundary) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(BuildConfig.BACKEND_API_BASE + path).openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        return connection;
+    }
+
+    private void requireSuccessResponse(HttpURLConnection connection, String errorPrefix) throws Exception {
+        int responseCode = connection.getResponseCode();
+        if (responseCode < 200 || responseCode >= 300) {
+            throw new IllegalStateException(errorPrefix + " " + responseCode);
+        }
+    }
+
+    private String readResponseText(HttpURLConnection connection) throws Exception {
+        try (InputStream input = new BufferedInputStream(connection.getInputStream());
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = input.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+            return new String(output.toByteArray(), StandardCharsets.UTF_8);
         }
     }
 }
