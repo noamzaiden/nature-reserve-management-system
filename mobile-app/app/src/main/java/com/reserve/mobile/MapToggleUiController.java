@@ -17,14 +17,14 @@ final class MainToggleUiController {
 
     // Updates labels and styles for POI, hazard, and weather toggles.
     void updateLabels(
-            ReserveMapHelper reserveMapHelper,
+            MapController mapController,
             MaterialButton poiToggleButton,
             MaterialButton hazardToggleButton,
             ImageButton weatherToggleButton,
             boolean showWeather
     ) {
-        boolean showPois = reserveMapHelper.isShowingPois();
-        boolean showHazards = reserveMapHelper.isShowingHazards();
+        boolean showPois = mapController.isShowingPois();
+        boolean showHazards = mapController.isShowingHazards();
 
         poiToggleButton.setText(showPois ? R.string.poi_on : R.string.poi_off);
         hazardToggleButton.setText(showHazards ? R.string.hazards_on : R.string.hazards_off);
