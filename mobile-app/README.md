@@ -31,11 +31,16 @@ Helpful docs:
 ## Run
 
 1. Open `mobile-app` in Android Studio.
-2. Add API keys to `mobile-app/gradle.properties`:
+
+
+2. Create `mobile-app/gradle.properties` from `mobile-app/gradle.properties.example`.
+3. Add your local API keys to `mobile-app/gradle.properties`:
    - `MAPS_API_KEY=...`
    - `OPEN_WEATHER_API_KEY=...`
-   You can also put them in your user Gradle properties (`%USERPROFILE%\\.gradle\\gradle.properties`) to keep local secrets out of project files.
-3. Start an emulator.
-4. Run the `app` configuration.
+4. You can also place these values in `%USERPROFILE%\.gradle\gradle.properties` instead of creating a project-local file.
+5. Start an emulator.
+6. Run the `app` configuration.
+
+`mobile-app/gradle.properties` is for local use only and should not be committed.
 
 The backend must already be running on `http://localhost:8080`.
