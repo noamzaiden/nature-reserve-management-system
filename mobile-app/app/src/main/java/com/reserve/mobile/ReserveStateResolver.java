@@ -6,7 +6,6 @@ import java.util.List;
 
 final class ReserveStateResolver {
 
-    // Computes the current reserve state from location, reserve list, and hazards.
     ReserveState resolve(LatLng currentUserLatLng, List<Reserve> reserves, List<Event> hazards) {
         if (currentUserLatLng == null) {
             return ReserveState.noLocation(countVisibleHazards(null, hazards));
@@ -14,7 +13,11 @@ final class ReserveStateResolver {
 
         Reserve activeReserve = findReserveForLocation(currentUserLatLng, reserves);
         if (activeReserve != null) {
-            return ReserveState.insideReserve(activeReserve, countVisibleHazards(activeReserve, hazards));
+            return ReserveState.insideReserve(
+                    activeReserve,
+                    countVisibleHazards(activeReserve, hazards),
+                    hasFireHazard(activeReserve, hazards)
+            );
         }
 
         return ReserveState.outsideReserve(countVisibleHazards(null, hazards));
@@ -38,5 +41,14 @@ final class ReserveStateResolver {
             }
         }
         return count;
+    }
+
+    private boolean hasFireHazard(Reserve reserve, List<Event> hazards) {
+        for (Event event : hazards) {
+            if (event.getReserveId() == reserve.getId() && event.isFire()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

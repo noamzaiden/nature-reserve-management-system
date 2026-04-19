@@ -1,240 +1,121 @@
 # Android App Block Diagram
 
-This diagram complements the mobile app planning document and shows the main structural blocks of the Android app and how data moves between them.
+This document shows the mobile app architecture at two levels:
 
-Related document: [Mobile App Planning Document](./mobile-app-planning.md)
+- a high-level structural block diagram
+- a workflow diagram that follows the main runtime path
 
-## How To Draw It Yourself
+Draw.io source:
 
-Use this sequence:
+- [traveler_app_block_diagram.drawio](./traveler_app_block_diagram.drawio)
 
-1. Start with the app entry point in the center: `MainActivity`.
-2. Group the code around it into 4 boxes:
-   - UI layer
-   - controllers/helpers
-   - app services
-   - Android and external services
-3. Add model classes as a separate shared data box.
-4. Draw arrows only for major dependencies or data flow.
-5. Ignore method-level details. Keep only the blocks that explain architecture.
+Related docs:
 
-For this app, the easiest mental model is:
+- [Mobile App Architecture and Planning Document](./mobile-app-planning.md)
+- [Mobile App Programmer Guide](./mobile-app-programmer-guide.md)
+- [MainActivity Workflow](./main-activity-workflow.md)
 
-- `MainActivity` coordinates everything.
-- helpers handle focused screen behavior or workflow logic.
-- app services fetch or send data.
-- models carry data.
-- Android services and external APIs sit outside the app core.
-
-## High-Level View
+## High-Level Block Diagram
 
 ```mermaid
 flowchart LR
-    User[Traveler]
-    UI[UI Layer\nMainActivity + activity_main.xml]
-    Helpers[Controllers and Helpers\nMapController / MapToggleUiController\nWeatherUiController / EventPollingController\nEventReportUiController / LocationController\nReportMediaController / ReportSubmissionController\nReserveStateResolver]
-    AppServices[App Services\nReserveService / WeatherService]
-    Models[Models\nReserve / AreaBounds / Event / ReserveState\nTravelerReportData\nWeatherCurrent / WeatherHourlyForecast]
-    External[Android + External Services\nGoogle Maps SDK / Fused Location Provider\nAndroid FileProvider / Backend API / OpenWeather]
+    Traveler[Traveler]
+    MainScreen[MainActivity + activity_main.xml]
+    Controllers[Controllers and workflow helpers<br/>MapController<br/>MapToggleUiController<br/>LocationController<br/>ReserveStateResolver<br/>WeatherUiController<br/>EventPollingController<br/>EventReportUiController<br/>ReportMediaController<br/>ReportSubmissionController]
+    ApiClients[Integration API clients<br/>ReserveApiClient<br/>ReportApiClient<br/>WeatherApiClient]
+    Models[Models<br/>Reserve / AreaBounds / Event / Poi<br/>ReserveState / TravelerReportData<br/>WeatherCurrent / WeatherHourlyForecast]
+    Resources[Resources and config<br/>strings / dimens / drawables / raw map styles<br/>AndroidManifest / BuildConfig / FileProvider paths]
+    External[Android and external services<br/>Google Maps SDK / Fused Location Provider<br/>FileProvider / Backend public API / OpenWeather]
 
-    User --> UI
-    UI --> Helpers
-    UI --> AppServices
-    Helpers --> Models
-    Helpers --> AppServices
-    AppServices --> Models
-    Helpers --> External
-    AppServices --> External
+    Traveler --> MainScreen
+    MainScreen --> Controllers
+    MainScreen --> ApiClients
+    MainScreen --> Resources
+    Controllers --> Models
+    Controllers --> ApiClients
+    Controllers --> External
+    ApiClients --> Models
+    ApiClients --> External
 ```
 
-This is the version to use when you want to explain the system quickly in class, in a presentation, or at the start of a design document.
+## How To Read The High-Level Diagram
 
-## Class Relations View
+- `MainActivity + activity_main.xml` is the visible screen and the main coordination point.
+- Controllers sit one step below the activity and own feature-specific logic.
+- API clients sit at the integration boundary and fetch or send data.
+- Models are the data that flows between API clients, controllers, and the activity.
+- Resources and config define how the app looks and what endpoints and keys it uses.
+- Android and external services sit outside the app and are called through the controllers or API clients.
 
-This version is closer to the code. It focuses on the classes in `com.reserve.mobile` and shows ownership, usage, and data-model relations.
+## Runtime Workflow In Text
 
-```mermaid
-classDiagram
-    class MainActivity
-    class MapController
-    class MapToggleUiController
-    class WeatherUiController
-    class EventPollingController
-    class EventReportUiController
-    class LocationController
-    class ReportMediaController
-    class ReportSubmissionController
-    class ReserveStateResolver
-    class ReserveService
-    class WeatherService
-    class Reserve
-    class AreaBounds
-    class Event
-    class ReserveState
-    class TravelerReportData
-    class WeatherCurrent
-    class WeatherHourlyForecast
+The normal runtime path is:
 
-    MainActivity --> MapController : creates / calls
-    MainActivity --> MapToggleUiController : creates / calls
-    MainActivity --> WeatherUiController : creates / calls
-    MainActivity --> EventPollingController : creates / starts
-    MainActivity --> EventReportUiController : creates / calls
-    MainActivity --> LocationController : creates / calls
-    MainActivity --> ReportMediaController : creates / calls
-    MainActivity --> ReportSubmissionController : creates / calls
-    MainActivity --> ReserveStateResolver : uses
-    MainActivity --> ReserveService : uses
-    MainActivity --> WeatherService : owns instance
-    MainActivity o-- Reserve : holds list
-    MainActivity o-- Event : holds list
-    MainActivity o-- ReserveState : stores current state
+1. Android launches `MainActivity`.
+2. `MainActivity` binds the layout, builds controllers and API clients, and starts reserve loading.
+3. The map fragment returns a `GoogleMap` through `onMapReady(...)`.
+4. `LocationController` begins GPS tracking.
+5. `ReserveApiClient` loads reserves, hazards, and POIs.
+6. `ReserveStateResolver` computes whether the traveler is inside a reserve.
+7. `MapController` renders reserve polygons, hazards, and optional POIs.
+8. `WeatherUiController` optionally loads weather if the traveler enables it.
+9. `ReportMediaController`, `EventReportUiController`, `ReportSubmissionController`, and `ReportApiClient` support report creation and upload.
+10. `EventPollingController` keeps hazard data refreshed in the background.
 
-    WeatherUiController --> WeatherService : uses
-    WeatherUiController o-- WeatherCurrent : caches
-    WeatherUiController o-- WeatherHourlyForecast : caches list
-
-    MapToggleUiController --> MapController : reads toggle state
-
-    MapController --> Reserve : renders
-    MapController --> Event : renders
-    Reserve *-- AreaBounds : contains
-    MapController --> AreaBounds : reads bounds
-
-    EventPollingController ..> MainActivity : triggers hazard reload callback
-    EventReportUiController ..> MainActivity : invoked by
-    LocationController ..> MainActivity : host callbacks
-    ReportMediaController ..> MainActivity : activity-result flow
-    ReportSubmissionController --> ReserveService : uploads through
-    ReportSubmissionController ..> TravelerReportData : creates
-    ReserveStateResolver --> Reserve : reads
-    ReserveStateResolver --> Event : reads
-    ReserveStateResolver ..> ReserveState : builds
-
-    ReserveService ..> Reserve : creates
-    ReserveService ..> AreaBounds : creates
-    ReserveService ..> Event : creates
-    ReserveService --> TravelerReportData : uploads
-
-    WeatherService ..> WeatherCurrent : creates
-    WeatherService ..> WeatherHourlyForecast : creates
-```
-
-How to read it:
-
-- `-->` means a class directly uses or calls another class.
-- `..>` means a weaker dependency, such as callback flow or object creation.
-- `o--` means a class holds references to instances of another class.
-- `*--` means strong containment, like `Reserve` owning its `AreaBounds`.
-
-## Component View
+## Workflow Diagram
 
 ```mermaid
 flowchart TB
-    User[Traveler]
+    A[App launch] --> B[MainActivity.onCreate]
+    B --> C[Bind views and wire buttons]
+    B --> D[Build controllers and API clients]
+    B --> E[Load reserves on executor]
+    B --> F[Request map async]
 
-    subgraph UI[Android App UI Layer]
-        Layout[activity_main.xml]
-        MainActivity[MainActivity]
-    end
+    F --> G[onMapReady]
+    G --> H[Attach map and set listeners]
+    G --> I[Start location tracking]
 
-    subgraph Helpers[Controllers and Helpers]
-        MapController[MapController]
-        ToggleController[MapToggleUiController]
-        WeatherController[WeatherUiController]
-        PollingController[EventPollingController]
-        ReportUiController[EventReportUiController]
-        LocationController[LocationController]
-        MediaController[ReportMediaController]
-        SubmissionController[ReportSubmissionController]
-        StateResolver[ReserveStateResolver]
-    end
+    E --> J[ReserveApiClient.loadReserves]
+    J --> K[Populate reserve spinner]
+    K --> L[Load hazards]
+    K --> M[Load POIs]
 
-    subgraph AppServices[App Services]
-        ReserveServiceNode[ReserveService]
-        WeatherServiceNode[WeatherService]
-    end
+    I --> N[LocationController updates location]
+    N --> O[ReserveStateResolver.resolve]
+    O --> P[Refresh hint text, hazard count, report location, map, weather]
 
-    subgraph Models[Models]
-        ReserveModel[Reserve + AreaBounds]
-        EventModel[Event]
-        StateModel[ReserveState]
-        ReportModel[TravelerReportData]
-        WeatherModel[WeatherCurrent + WeatherHourlyForecast]
-    end
+    L --> Q[ReserveApiClient.loadPublishedHazards]
+    Q --> R[MapController.refresh]
+    R --> S[EventPollingController.start]
+    S --> L
 
-    subgraph External[Android and External Services]
-        GoogleMap[Google Maps SDK]
-        LocationProvider[Fused Location Provider]
-        FileProvider[Android FileProvider]
-        Backend[Backend API]
-        OpenWeather[OpenWeather API]
-    end
+    M --> R
 
-    User --> MainActivity
-    Layout --> MainActivity
-
-    MainActivity --> MapController
-    MainActivity --> ToggleController
-    MainActivity --> WeatherController
-    MainActivity --> PollingController
-    MainActivity --> ReportUiController
-    MainActivity --> LocationController
-    MainActivity --> MediaController
-    MainActivity --> SubmissionController
-    MainActivity --> StateResolver
-    MainActivity --> ReserveServiceNode
-
-    PollingController --> MainActivity
-
-    MapController --> GoogleMap
-    ReportUiController --> GoogleMap
-    LocationController --> LocationProvider
-    MediaController --> FileProvider
-    WeatherController --> WeatherServiceNode
-    SubmissionController --> LocationProvider
-    SubmissionController --> ReserveServiceNode
-
-    StateResolver --> ReserveModel
-    StateResolver --> EventModel
-    StateResolver --> StateModel
-
-    ReserveServiceNode --> Backend
-    WeatherServiceNode --> OpenWeather
-
-    ReserveServiceNode --> ReserveModel
-    ReserveServiceNode --> EventModel
-    ReserveServiceNode --> ReportModel
-    WeatherServiceNode --> WeatherModel
-
-    MapController --> ReserveModel
-    MapController --> EventModel
-    WeatherController --> WeatherModel
-    MainActivity --> StateModel
+    T[Traveler opens report panel] --> U[Optional media or manual map point]
+    U --> V[ReportSubmissionController.submitReport]
+    V --> W[Fresh GPS if needed]
+    W --> X[ReportApiClient.submitTravelerReport]
+    X --> Y[Reset form and reload hazards]
+    Y --> L
 ```
 
-## Reading The Diagram
+## Workflow Notes
 
-- `MainActivity` is the app's central orchestrator and the main owner of screen state.
-- `MapController`, `WeatherUiController`, `EventPollingController`, `EventReportUiController`, `LocationController`, `ReportMediaController`, `ReportSubmissionController`, and `ReserveStateResolver` keep focused workflows out of the activity.
-- `ReserveService` and `WeatherService` are the integration boundary to backend and weather APIs.
-- `Reserve`, `AreaBounds`, `Event`, `ReserveState`, `TravelerReportData`, and weather models are the data objects passed between services, helpers, and the activity.
-- Google Maps, device location, file handling, the backend API, and OpenWeather sit outside the app core and are used through the helpers or services.
+- Reserve loading and map readiness happen independently and meet later at UI refresh time.
+- Location updates are important because they drive:
+  - reserve state
+  - report location label
+  - optional weather refresh
+  - camera recenter behavior
+- Hazard polling loops back into the hazard-load path every 15 seconds.
+- Report submission loops back into hazard loading so new traveler-origin events can appear after submission.
 
-## Primary Data Paths
+## Why The Draw.io File Matters
 
-### Map and reserve flow
+The Mermaid diagrams in this document are easy to read in markdown. The Draw.io file is better when you want to:
 
-`MainActivity` -> `ReserveService` -> `Backend API` -> `Reserve` / `Event` -> `MapController` -> `Google Maps SDK`
-
-### Location and reserve detection flow
-
-`Fused Location Provider` -> `LocationController` -> `MainActivity` -> `ReserveStateResolver` -> `ReserveState` -> location hint + hazard count + map refresh + report location text
-
-### Weather flow
-
-`MainActivity` -> `WeatherUiController` -> `WeatherService` -> `OpenWeather API` -> weather models -> weather overlay
-
-### Traveler report flow
-
-User input + media -> `ReportMediaController` / `EventReportUiController` -> `MainActivity` -> `ReportSubmissionController` -> `TravelerReportData` -> `ReserveService` -> `Backend API`
+- open and edit the diagram visually
+- export PNG or PDF versions
+- rearrange architecture blocks for a presentation
+- add team-specific annotations later

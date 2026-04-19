@@ -2,7 +2,7 @@
 
 This document explains the runtime workflow of `MainActivity` in `mobile-app/app/src/main/java/com/reserve/mobile/MainActivity.java`.
 
-`MainActivity` is the main coordinator of the Android app. It does not do every task itself, but it owns the overall screen state and decides when helper controllers and service classes should run.
+`MainActivity` is the main coordinator of the Android app. It does not do every task itself, but it owns the overall screen state and decides when helper controllers and API client classes should run.
 
 ## Main Responsibilities
 
@@ -32,11 +32,13 @@ This document explains the runtime workflow of `MainActivity` in `mobile-app/app
   Manages report attachments, camera capture state, and selected-media UI text.
 - `ReportSubmissionController`
   Validates report inputs, resolves report coordinates, and uploads reports.
+- `ReportApiClient`
+  Uploads traveler reports and attachments to the backend.
 - `MapToggleUiController`
   Updates the visual state of the layer toggle buttons.
-- `ReserveService`
-  Loads reserves, loads published hazards, and uploads traveler reports.
-- `WeatherService`
+- `ReserveApiClient`
+  Loads reserves and published hazards.
+- `WeatherApiClient`
   Loads current weather and hourly forecast data.
 
 ## Startup Flow
@@ -84,7 +86,7 @@ Inside `onMapReady()`:
 
 The sequence is:
 
-1. `ReserveService.loadReserves()` is called in the background.
+1. `ReserveApiClient.loadReserves()` is called in the background.
 2. On success, `runOnUiThread(...)` calls `onReservesLoaded(...)`.
 3. `onReservesLoaded(...)`:
    updates server status to online, replaces the reserve list, fills the reserve spinner, refreshes the map, refreshes the reserve state UI, sets a "loading hazards" status, and starts the first hazard fetch.
@@ -102,7 +104,7 @@ It first refuses to run if:
 If it can run:
 
 1. `hazardRefreshInFlight` is set to `true`.
-2. `ReserveService.loadPublishedHazards(reserves)` runs on the executor.
+2. `ReserveApiClient.loadPublishedHazards(reserves)` runs on the executor.
 3. On success, `onHazardsLoaded(...)` runs on the UI thread.
 4. `onHazardsLoaded(...)`:
    updates server status, replaces the hazard list, refreshes the map, refreshes the reserve state UI, clears the status text, resets `hazardRefreshInFlight`, and starts polling.
@@ -232,7 +234,7 @@ The sequence is:
 It:
 
 1. builds a `TravelerReportData` object from the form fields, current coordinates, and selected media
-2. calls `ReserveService.submitTravelerReport(...)`
+2. calls `ReportApiClient.submitTravelerReport(...)`
 3. on success:
    marks the server online, triggers `MainActivity` cleanup through host callbacks, restores enabled UI state, shows success feedback, and reloads hazards
 4. on failure:
@@ -252,7 +254,7 @@ It:
 So a common pattern in this class is:
 
 1. start work on the executor
-2. wait for the service call to finish
+2. wait for the API client call to finish
 3. switch back to the UI thread
 4. update views and in-memory state
 
@@ -276,6 +278,6 @@ The easiest way to remember `MainActivity` is:
 - map readiness begins location tracking
 - location drives reserve state and weather refresh
 - reserve loading enables hazard loading and then hazard polling
-- report submission gathers UI data and sends it through `ReserveService`
+- report submission gathers UI data and sends it through `ReportApiClient`
 
 So `MainActivity` is less a "single feature" class and more the traffic controller of the whole mobile screen.

@@ -1,0 +1,76 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="system-architecture-diagram" name="Page-1">
+    <mxGraphModel dx="1188" dy="771" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="admin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" value="Administrator" vertex="1">
+          <mxGeometry x="40" y="120" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="manager" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" value="Reserve Manager" vertex="1">
+          <mxGeometry x="40" y="230" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="traveler" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" value="Traveler" vertex="1">
+          <mxGeometry x="40" y="520" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="web" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" value="Web App&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;React + Vite + Axios + Leaflet&lt;/span&gt;" vertex="1">
+          <mxGeometry x="300" y="150" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" value="Android App&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;MainActivity + controllers + services&lt;/span&gt;" vertex="1">
+          <mxGeometry x="300" y="490" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="backend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="Spring Boot Backend&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Auth / Admin / Events / Reserves / Public API&lt;/span&gt;" vertex="1">
+          <mxGeometry x="700" y="300" width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="1" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="PostgreSQL" vertex="1">
+          <mxGeometry x="1180" y="210" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="media" parent="1" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" value="Local Media Storage&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;uploads/traveler-media&lt;/span&gt;" vertex="1">
+          <mxGeometry x="1160" y="390" width="210" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="maps" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="Map Providers&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Leaflet tiles + Google Maps SDK&lt;/span&gt;" vertex="1">
+          <mxGeometry x="1180" y="570" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="location" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="Device Location&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;Fused Location Provider&lt;/span&gt;" vertex="1">
+          <mxGeometry x="690" y="570" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="weather" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="OpenWeather API" vertex="1">
+          <mxGeometry x="940" y="570" width="180" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="admin" target="web" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="manager" target="web" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="traveler" target="mobile" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="web" target="backend" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="mobile" target="backend" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="backend" target="db" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="backend" target="media" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="web" target="maps" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="mobile" target="maps" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="mobile" target="location" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="mobile" target="weather" style="endArrow=block;endFill=1;html=1;rounded=0;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
