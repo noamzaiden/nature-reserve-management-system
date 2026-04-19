@@ -7,12 +7,21 @@ android {
     compileSdk 34
 
     defaultConfig {
+        def mapsApiKey = project.findProperty('MAPS_API_KEY') ?: 'YOUR_GOOGLE_MAPS_API_KEY'
+        def openWeatherApiKey = project.findProperty('OPEN_WEATHER_API_KEY') ?: ''
+        def backendApiBase = project.findProperty('BACKEND_API_BASE') ?: 'http://10.0.2.2:8080/api/public'
+        def openWeatherApiBase = project.findProperty('OPEN_WEATHER_API_BASE') ?: 'https://api.openweathermap.org/data/2.5/weather'
+
         applicationId 'com.reserve.mobile'
         minSdk 24
         targetSdk 34
         versionCode 1
         versionName '1.0'
-        manifestPlaceholders = [MAPS_API_KEY: project.findProperty("MAPS_API_KEY") ?: "YOUR_GOOGLE_MAPS_API_KEY"]
+        manifestPlaceholders = [MAPS_API_KEY: mapsApiKey]
+
+        buildConfigField 'String', 'BACKEND_API_BASE', "\"${backendApiBase}\""
+        buildConfigField 'String', 'OPEN_WEATHER_API_BASE', "\"${openWeatherApiBase}\""
+        buildConfigField 'String', 'OPEN_WEATHER_API_KEY', "\"${openWeatherApiKey}\""
     }
 
     buildTypes {
@@ -24,6 +33,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 }
 

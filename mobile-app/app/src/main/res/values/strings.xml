@@ -19,16 +19,23 @@
     <string name="hide_report_button">Hide report</string>
     <string name="open_menu">Open side menu</string>
     <string name="drawer_title">Map menu</string>
-    <string name="drawer_subtitle">Small controls for this student Android app.</string>
+    <string name="drawer_subtitle">Map controls and layer options.</string>
     <string name="drawer_map_section">Map layers</string>
     <string name="server_status_checking">Server: checking...</string>
     <string name="server_status_online">Server: online</string>
     <string name="server_status_offline">Server: offline</string>
     <string name="display_weather_on">Display weather on</string>
     <string name="display_weather_off">Display weather off</string>
+    <string name="weather_toggle_on">Weather toggle: on</string>
+    <string name="weather_toggle_off">Weather toggle: off</string>
     <string name="weather_waiting_location">Weather: waiting for location...</string>
     <string name="weather_loading">Weather: loading...</string>
-    <string name="weather_missing_key">Weather: add the OpenWeather key in ApiConfig.java</string>
+    <string name="weather_expand">Expand hourly weather</string>
+    <string name="weather_hourly_title">Hourly forecast</string>
+    <string name="weather_hourly_loading">Loading hourly weather...</string>
+    <string name="weather_hourly_waiting_location">Hourly weather: waiting for location...</string>
+    <string name="weather_hourly_unavailable">Hourly weather: unavailable right now</string>
+    <string name="weather_missing_key">Weather: add OPEN_WEATHER_API_KEY in gradle.properties</string>
     <string name="weather_unavailable">Weather: unavailable right now</string>
     <string name="weather_ready">Weather: %1$.1f&#176;C, %2$s</string>
     <string name="my_location">Back to my location</string>
@@ -39,7 +46,7 @@
     <string name="hazards_on">Hazards on</string>
     <string name="hazards_off">Hazards off</string>
     <string name="report_heading">Report something happening now</string>
-    <string name="report_subheading">Student-project style reporting: the event uses your current phone location, and you can attach a fresh photo from the camera.</string>
+    <string name="report_subheading">Report events using your current phone location, and attach a photo from the camera if needed.</string>
     <string name="reporter_name">Your name (optional)</string>
     <string name="event_description">What did you see?</string>
     <string name="attach_media">Choose media</string>
@@ -47,6 +54,10 @@
     <string name="submit_report">Send report</string>
     <string name="event_count_default">Hazards and reserve boundaries will appear on the map.</string>
     <string name="selected_media_none">No photos or videos selected yet.</string>
+    <plurals name="selected_media_count">
+        <item quantity="one">%1$d attachment selected.</item>
+        <item quantity="other">%1$d attachments selected.</item>
+    </plurals>
     <string name="inside_reserve">You are currently inside %1$s.</string>
     <string name="outside_reserve">You are not inside a known reserve right now.</string>
     <string name="nearest_reserve">Nearest known reserve: %1$s.</string>
@@ -63,9 +74,19 @@
     <string name="report_pick_location">Move near a reserve or choose one manually in the report panel.</string>
     <string name="report_location_waiting">Phone location for report: waiting for GPS...</string>
     <string name="report_location_ready">Phone location for report: %1$.5f, %2$.5f</string>
+    <string name="report_pick_map_location">Pick location on map</string>
+    <string name="report_manual_location_waiting">Tap a point on the map...</string>
+    <string name="report_manual_location_hint">Tap on the map to set report location.</string>
+    <string name="report_manual_location_saved">Manual report location saved.</string>
+    <string name="report_manual_marker_title">Report location</string>
     <string name="camera_capture_failed">Could not prepare the camera photo.</string>
     <string name="camera_capture_cancelled">Picture was not saved.</string>
     <string name="camera_attachment_added">New camera photo added to the report.</string>
     <string name="poi_marker_snippet">Reserve center</string>
     <string name="hazard_snippet">%1$s hazard</string>
+    <string-array name="report_types">
+        <item>FIRE</item>
+        <item>BLOCKAGE</item>
+        <item>OTHER</item>
+    </string-array>
 </resources>

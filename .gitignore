@@ -42,6 +42,7 @@ web-app/dist/
 .tmp-*.png
 mobile-app/local.properties
 mobile-app/.gradle/
+mobile-app/gradle.properties
 uploads/
 .chrono-repo/
 .fresh-repo/
