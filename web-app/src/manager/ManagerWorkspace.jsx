@@ -110,6 +110,7 @@ function NotificationPanel({ notifications, unreadCount, seenNotificationIds, on
 }
 
 export default function ManagerWorkspace({
+  apiBase,
   profile,
   loading,
   error,
@@ -329,6 +330,23 @@ export default function ManagerWorkspace({
   const openRequests = filteredRequests.filter((request) => request.status === 'OPEN')
   const historyRequests = filteredRequests.filter((request) => request.status !== 'OPEN')
 
+  function resolveMediaUrl(mediaUrl) {
+    if (!mediaUrl) {
+      return ''
+    }
+    if (/^https?:\/\//i.test(mediaUrl)) {
+      return mediaUrl
+    }
+    return `${apiBase}${mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`}`
+  }
+
+  function imageAttachmentsForEvent(event) {
+    if (!Array.isArray(event.media)) {
+      return []
+    }
+    return event.media.filter((mediaItem) => mediaItem?.mediaType === 'IMAGE' && mediaItem.mediaUrl)
+  }
+
   return (
     <main className="shell">
       <header className="topbar topbar-manager">
@@ -448,7 +466,19 @@ export default function ManagerWorkspace({
                 </section>
                 <section className="control-event-feed">
                   <div className="panel-heading"><div><p className="eyebrow">Event stream</p><h2>{filteredControlEvents.length} matching events</h2></div></div>
-                  <div className="event-list control-event-list">{filteredControlEvents.length === 0 ? <p className="empty-state">No events match the current filters.</p> : filteredControlEvents.map((event) => <article key={event.id} className="event-card"><div className="event-card-header"><div><strong>{event.type}</strong><span>{formatRelativeTime(event.updatedAt || event.createdAt)}</span></div><div className="event-chip-group"><span className={`priority-chip ${priorityStyle(event.priority).badge}`}>{event.priority}</span><span className={`status-chip status-${event.status.toLowerCase()}`}>{event.status}</span></div></div><p>{event.description || 'No description provided.'}</p><div className="event-meta"><span>Source: {event.origin}</span><span>Public: {event.publishedToTravelers ? 'Visible to travelers' : 'Manager only'}</span>{event.reporterName ? <span>Reporter: {event.reporterName}</span> : null}</div><div className="event-actions"><select value={event.priority} onChange={(actionEvent) => onUpdateEventPriority(event.id, actionEvent.target.value)}><option value="LOW">Low priority</option><option value="MEDIUM">Medium priority</option><option value="HIGH">High priority</option></select>{event.status === 'CLOSED' ? <button type="button" className="secondary-button" onClick={() => onUpdateEventStatus(event.id, 'OPEN')}>Reopen</button> : <button type="button" onClick={() => onUpdateEventStatus(event.id, 'CLOSED')}>Close event</button>}<button type="button" className={event.publishedToTravelers ? 'secondary-button' : ''} onClick={() => onUpdateEventPublish(event.id, !event.publishedToTravelers)}>{event.publishedToTravelers ? 'Hide from travelers' : 'Publish to travelers'}</button></div></article>)}</div>
+                  <div className="event-list control-event-list">{filteredControlEvents.length === 0 ? <p className="empty-state">No events match the current filters.</p> : filteredControlEvents.map((event) => {
+                    const imageAttachments = imageAttachmentsForEvent(event)
+
+                    return (
+                      <article key={event.id} className="event-card">
+                        <div className="event-card-header"><div><strong>{event.type}</strong><span>{formatRelativeTime(event.updatedAt || event.createdAt)}</span></div><div className="event-chip-group"><span className={`priority-chip ${priorityStyle(event.priority).badge}`}>{event.priority}</span><span className={`status-chip status-${event.status.toLowerCase()}`}>{event.status}</span></div></div>
+                        <p>{event.description || 'No description provided.'}</p>
+                        <div className="event-meta"><span>Source: {event.origin}</span><span>Public: {event.publishedToTravelers ? 'Visible to travelers' : 'Manager only'}</span>{event.reporterName ? <span>Reporter: {event.reporterName}</span> : null}</div>
+                        {imageAttachments.length > 0 ? <div className="event-media-list">{imageAttachments.map((mediaItem) => <a key={mediaItem.id || mediaItem.mediaUrl} href={resolveMediaUrl(mediaItem.mediaUrl)} target="_blank" rel="noreferrer" className="event-media-link"><img src={resolveMediaUrl(mediaItem.mediaUrl)} alt={mediaItem.originalFilename || `${event.type} attachment`} className="event-media-preview" loading="lazy" /></a>)}</div> : null}
+                        <div className="event-actions"><select value={event.priority} onChange={(actionEvent) => onUpdateEventPriority(event.id, actionEvent.target.value)}><option value="LOW">Low priority</option><option value="MEDIUM">Medium priority</option><option value="HIGH">High priority</option></select>{event.status === 'CLOSED' ? <button type="button" className="secondary-button" onClick={() => onUpdateEventStatus(event.id, 'OPEN')}>Reopen</button> : <button type="button" onClick={() => onUpdateEventStatus(event.id, 'CLOSED')}>Close event</button>}<button type="button" className={event.publishedToTravelers ? 'secondary-button' : ''} onClick={() => onUpdateEventPublish(event.id, !event.publishedToTravelers)}>{event.publishedToTravelers ? 'Hide from travelers' : 'Publish to travelers'}</button></div>
+                      </article>
+                    )
+                  })}</div>
                 </section>
               </aside>
             </div>
