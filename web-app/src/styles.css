@@ -381,6 +381,49 @@ button:disabled {
   min-width: 180px;
 }
 
+.control-event-card {
+  border-width: 2px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.control-event-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(69, 54, 31, 0.12);
+}
+
+.control-event-card-high {
+  background: linear-gradient(180deg, rgba(255, 229, 223, 0.98), rgba(255, 241, 235, 0.94));
+  border-color: rgba(192, 57, 43, 0.35);
+}
+
+.control-event-card-medium {
+  background: linear-gradient(180deg, rgba(255, 244, 214, 0.98), rgba(255, 249, 233, 0.94));
+  border-color: rgba(214, 137, 16, 0.3);
+}
+
+.control-event-card-low {
+  background: linear-gradient(180deg, rgba(224, 241, 255, 0.98), rgba(240, 248, 255, 0.94));
+  border-color: rgba(36, 113, 163, 0.26);
+}
+
+.control-event-card-closed {
+  background: linear-gradient(180deg, rgba(239, 239, 239, 0.98), rgba(248, 248, 248, 0.94));
+  border-color: rgba(143, 148, 154, 0.3);
+}
+
+.event-attention-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: #a5281b;
+  color: #fff8ef;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 0 3px rgba(255, 248, 239, 0.7);
+}
+
 .reserve-suggestions {
   display: grid;
   gap: 0.6rem;

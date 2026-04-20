@@ -377,6 +377,22 @@ export default function ManagerWorkspace({
     return event.media.filter((mediaItem) => mediaItem?.mediaType === 'IMAGE' && mediaItem.mediaUrl)
   }
 
+  function controlEventCardClass(event) {
+    if (event.status === 'CLOSED') {
+      return 'event-card control-event-card control-event-card-closed'
+    }
+
+    if (event.priority === 'HIGH') {
+      return 'event-card control-event-card control-event-card-high'
+    }
+
+    if (event.priority === 'MEDIUM') {
+      return 'event-card control-event-card control-event-card-medium'
+    }
+
+    return 'event-card control-event-card control-event-card-low'
+  }
+
   return (
     <main className="shell">
       <header className="topbar topbar-manager">
@@ -514,12 +530,12 @@ export default function ManagerWorkspace({
                     const imageAttachments = imageAttachmentsForEvent(event)
 
                     return (
-                      <article key={event.id} className="event-card">
-                        <div className="event-card-header"><div><strong>{event.type}</strong><span>{formatRelativeTime(event.updatedAt || event.createdAt)}</span></div><div className="event-chip-group"><span className={`priority-chip ${priorityStyle(event.priority).badge}`}>{event.priority}</span><span className={`status-chip status-${event.status.toLowerCase()}`}>{event.status}</span></div></div>
+                      <article key={event.id} className={controlEventCardClass(event)}>
+                        <div className="event-card-header"><div><strong>{event.type}</strong><span>{formatRelativeTime(event.updatedAt || event.createdAt)}</span></div><div className="event-chip-group">{event.status === 'OPEN' ? <span className="event-attention-badge" title="This event still needs manager attention">!</span> : null}<span className={`priority-chip ${priorityStyle(event.priority).badge}`}>{event.priority}</span><span className={`status-chip status-${event.status.toLowerCase()}`}>{event.status}</span></div></div>
                         <p>{event.description || 'No description provided.'}</p>
                         <div className="event-meta"><span>Source: {event.origin}</span><span>Public: {event.publishedToTravelers ? 'Visible to travelers' : 'Manager only'}</span>{event.reporterName ? <span>Reporter: {event.reporterName}</span> : null}</div>
                         {imageAttachments.length > 0 ? <div className="event-media-list">{imageAttachments.map((mediaItem) => <a key={mediaItem.id || mediaItem.mediaUrl} href={resolveMediaUrl(mediaItem.mediaUrl)} target="_blank" rel="noreferrer" className="event-media-link"><img src={resolveMediaUrl(mediaItem.mediaUrl)} alt={mediaItem.originalFilename || `${event.type} attachment`} className="event-media-preview" loading="lazy" /></a>)}</div> : null}
-                        <div className="event-actions"><select value={event.priority} onChange={(actionEvent) => onUpdateEventPriority(event.id, actionEvent.target.value)}><option value="LOW">Low priority</option><option value="MEDIUM">Medium priority</option><option value="HIGH">High priority</option></select>{event.status === 'CLOSED' ? <button type="button" className="secondary-button" onClick={() => onUpdateEventStatus(event.id, 'OPEN')}>Reopen</button> : <button type="button" onClick={() => onUpdateEventStatus(event.id, 'CLOSED')}>Close event</button>}<button type="button" className={event.publishedToTravelers ? 'secondary-button' : ''} onClick={() => onUpdateEventPublish(event.id, !event.publishedToTravelers)}>{event.publishedToTravelers ? 'Hide from travelers' : 'Publish to travelers'}</button></div>
+                        <div className="event-actions"><select value={event.priority} onChange={(actionEvent) => onUpdateEventPriority(event.id, actionEvent.target.value)}><option value="LOW">Low priority</option><option value="MEDIUM">Medium priority</option><option value="HIGH">High priority</option></select><select value={event.status} onChange={(actionEvent) => onUpdateEventStatus(event.id, actionEvent.target.value)}><option value="OPEN">Open</option><option value="IN_PROGRESS">In progress</option><option value="CLOSED">Closed</option></select><button type="button" className={event.publishedToTravelers ? 'secondary-button' : ''} onClick={() => onUpdateEventPublish(event.id, !event.publishedToTravelers)}>{event.publishedToTravelers ? 'Hide from travelers' : 'Publish to travelers'}</button></div>
                       </article>
                     )
                   })}</div>
