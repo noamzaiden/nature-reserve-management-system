@@ -43,12 +43,35 @@ export default function App() {
   const [adminSelectedReserveId, setAdminSelectedReserveId] = useState(null)
   const [reserves, setReserves] = useState([])
   const [events, setEvents] = useState([])
+  const [reservePoisByReserveId, setReservePoisByReserveId] = useState({})
+  const [reservePoiTypesByReserveId, setReservePoiTypesByReserveId] = useState({})
   const [reserveRequests, setReserveRequests] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
 
   const regionOptions = useMemo(() => [...new Set(adminReserves.map((reserve) => reserve.region).filter(Boolean))].sort(), [adminReserves])
+
+  async function loadManagerPoiData(activeToken, reserveList) {
+    const poiEntries = await Promise.all(reserveList.map(async (reserve) => {
+      const [poisResponse, poiTypesResponse] = await Promise.all([
+        axios.get(`${API_BASE}/api/reserves/${reserve.id}/pois`, authConfig(activeToken)),
+        axios.get(`${API_BASE}/api/reserves/${reserve.id}/poi-types`, authConfig(activeToken))
+      ])
+      return [reserve.id, { pois: poisResponse.data, poiTypes: poiTypesResponse.data }]
+    }))
+
+    const poisByReserveId = {}
+    const poiTypesByReserveId = {}
+
+    poiEntries.forEach(([reserveId, data]) => {
+      poisByReserveId[reserveId] = data.pois
+      poiTypesByReserveId[reserveId] = data.poiTypes
+    })
+
+    setReservePoisByReserveId(poisByReserveId)
+    setReservePoiTypesByReserveId(poiTypesByReserveId)
+  }
 
   async function loadManagerDashboard(activeToken) {
     const [profileResponse, reservesResponse, eventsResponse, requestsResponse] = await Promise.all([
@@ -61,6 +84,7 @@ export default function App() {
     setReserves(reservesResponse.data)
     setEvents(eventsResponse.data)
     setReserveRequests(requestsResponse.data)
+    await loadManagerPoiData(activeToken, reservesResponse.data)
   }
 
   async function loadAdminDashboard(activeToken) {
@@ -90,6 +114,8 @@ export default function App() {
       setProfile(null)
       setReserves([])
       setEvents([])
+      setReservePoisByReserveId({})
+      setReservePoiTypesByReserveId({})
       setReserveRequests([])
       setAdminUsers([])
       setAdminReserves([])
@@ -218,6 +244,51 @@ export default function App() {
     await loadManagerDashboard(token)
   }
 
+  async function createReservePoi(reserveId, poiForm) {
+    await axios.post(`${API_BASE}/api/reserves/${reserveId}/pois`, {
+      ...poiForm,
+      typeId: Number(poiForm.typeId),
+      latitude: Number(poiForm.latitude),
+      longitude: Number(poiForm.longitude)
+    }, authConfig(token))
+    await loadManagerDashboard(token)
+  }
+
+  async function updateReservePoi(reserveId, poiId, poiForm) {
+    await axios.put(`${API_BASE}/api/reserves/${reserveId}/pois/${poiId}`, {
+      ...poiForm,
+      typeId: Number(poiForm.typeId),
+      latitude: Number(poiForm.latitude),
+      longitude: Number(poiForm.longitude)
+    }, authConfig(token))
+    await loadManagerDashboard(token)
+  }
+
+  async function deleteReservePoi(reserveId, poiId) {
+    await axios.delete(`${API_BASE}/api/reserves/${reserveId}/pois/${poiId}`, authConfig(token))
+    await loadManagerDashboard(token)
+  }
+
+  async function createReservePoiType(reserveId, typeForm) {
+    const response = await axios.post(`${API_BASE}/api/reserves/${reserveId}/poi-types`, {
+      name: typeForm.name
+    }, authConfig(token))
+    await loadManagerDashboard(token)
+    return response.data
+  }
+
+  async function updateReservePoiType(reserveId, typeId, typeForm) {
+    await axios.put(`${API_BASE}/api/reserves/${reserveId}/poi-types/${typeId}`, {
+      name: typeForm.name
+    }, authConfig(token))
+    await loadManagerDashboard(token)
+  }
+
+  async function deleteReservePoiType(reserveId, typeId) {
+    await axios.delete(`${API_BASE}/api/reserves/${reserveId}/poi-types/${typeId}`, authConfig(token))
+    await loadManagerDashboard(token)
+  }
+
   if (!token) {
     return (
       <main className="shell shell-login">
@@ -258,6 +329,8 @@ export default function App() {
         notice={notice}
         reserves={reserves}
         events={events}
+        reservePoisByReserveId={reservePoisByReserveId}
+        reservePoiTypesByReserveId={reservePoiTypesByReserveId}
         reserveRequests={reserveRequests}
         onClearError={() => setError('')}
         onClearNotice={() => setNotice('')}
@@ -283,6 +356,60 @@ export default function App() {
         onUpdateEventStatus={updateEventStatus}
         onUpdateEventPriority={updateEventPriority}
         onUpdateEventPublish={updateEventPublish}
+        onCreateReservePoi={async (reserveId, poiForm) => {
+          setError('')
+          try {
+            await createReservePoi(reserveId, poiForm)
+            setNotice('POI created successfully.')
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Failed to create POI.')
+          }
+        }}
+        onUpdateReservePoi={async (reserveId, poiId, poiForm) => {
+          setError('')
+          try {
+            await updateReservePoi(reserveId, poiId, poiForm)
+            setNotice('POI updated successfully.')
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Failed to update POI.')
+          }
+        }}
+        onDeleteReservePoi={async (reserveId, poiId) => {
+          setError('')
+          try {
+            await deleteReservePoi(reserveId, poiId)
+            setNotice('POI deleted successfully.')
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Failed to delete POI.')
+          }
+        }}
+        onCreateReservePoiType={async (reserveId, typeForm) => {
+          setError('')
+          try {
+            await createReservePoiType(reserveId, typeForm)
+            setNotice('POI type created successfully.')
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Failed to create POI type.')
+          }
+        }}
+        onUpdateReservePoiType={async (reserveId, typeId, typeForm) => {
+          setError('')
+          try {
+            await updateReservePoiType(reserveId, typeId, typeForm)
+            setNotice('POI type updated successfully.')
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Failed to update POI type.')
+          }
+        }}
+        onDeleteReservePoiType={async (reserveId, typeId) => {
+          setError('')
+          try {
+            await deleteReservePoiType(reserveId, typeId)
+            setNotice('POI type deleted successfully.')
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Failed to delete POI type.')
+          }
+        }}
       />
     )
   }

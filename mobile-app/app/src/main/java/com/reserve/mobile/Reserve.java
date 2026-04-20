@@ -8,7 +8,6 @@ public final class Reserve {
     private final double centerLongitude;
     private final AreaBounds areaBounds;
 
-    // Builds one reserve object for map and spinner usage.
     public Reserve(long id, String fallbackName, String displayName,
                    double centerLatitude, double centerLongitude, AreaBounds areaBounds) {
         this.id = id;
@@ -38,12 +37,10 @@ public final class Reserve {
         return areaBounds;
     }
 
-    // Returns true when this reserve has a usable map center point.
     public boolean hasCenterPoint() {
         return !Double.isNaN(centerLatitude) && !Double.isNaN(centerLongitude);
     }
 
-    // Spinner uses this text when rendering list items.
     @Override
     public String toString() {
         return displayName;

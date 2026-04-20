@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CircleMarker, MapContainer, Popup, Rectangle, TileLayer, useMap } from 'react-leaflet'
+import { divIcon } from 'leaflet'
+import { CircleMarker, MapContainer, Marker, Popup, Rectangle, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 
 const emptyRequestForm = { reserveName: '', message: '' }
 const emptyEventForm = { type: 'OTHER', priority: 'MEDIUM', description: '', latitude: '', longitude: '', publishedToTravelers: false }
+const emptyPoiForm = { typeId: '', customTypeName: '', name: '', description: '', latitude: '', longitude: '' }
 
 const reserveBounds = (reserve) => [[reserve.area.minLatitude, reserve.area.minLongitude], [reserve.area.maxLatitude, reserve.area.maxLongitude]]
 const reserveCenter = (reserve) => [reserve.centerLatitude ?? ((reserve.area.minLatitude + reserve.area.maxLatitude) / 2), reserve.centerLongitude ?? ((reserve.area.minLongitude + reserve.area.maxLongitude) / 2)]
+const pointInsideReserve = (reserve, latitude, longitude) => latitude >= reserve.area.minLatitude
+  && latitude <= reserve.area.maxLatitude
+  && longitude >= reserve.area.minLongitude
+  && longitude <= reserve.area.maxLongitude
 const formatDate = (value) => value ? new Date(value).toLocaleString() : 'Not available'
 const formatRelativeTime = (value) => {
   if (!value) return 'Just now'
@@ -20,12 +26,36 @@ const priorityStyle = (priority) => priority === 'HIGH'
   : priority === 'MEDIUM'
     ? { accent: '#d68910', fill: '#fde3a7', badge: 'priority-medium', markerRadius: 8 }
     : { accent: '#2471a3', fill: '#b9ddff', badge: 'priority-low', markerRadius: 7 }
+const poiPinIcon = (typeName) => divIcon({
+  className: 'poi-pin-wrapper',
+  html: `<span class="poi-map-pin"><span class="poi-map-pin-label">${(typeName || 'P').slice(0, 1).toUpperCase()}</span></span>`,
+  iconSize: [30, 30],
+  iconAnchor: [15, 26],
+  popupAnchor: [0, -20]
+})
 
 function FitToReserve({ reserve }) {
   const map = useMap()
   useEffect(() => {
     if (reserve) map.fitBounds(reserveBounds(reserve), { padding: [32, 32] })
   }, [map, reserve])
+  return null
+}
+
+function PoiMapPicker({ reserve, enabled, onPick }) {
+  useMapEvents({
+    click(event) {
+      if (!enabled || !reserve) {
+        return
+      }
+
+      const { lat, lng } = event.latlng
+      if (pointInsideReserve(reserve, lat, lng)) {
+        onPick(lat, lng)
+      }
+    }
+  })
+
   return null
 }
 
@@ -86,6 +116,8 @@ export default function ManagerWorkspace({
   notice,
   reserves,
   events,
+  reservePoisByReserveId,
+  reservePoiTypesByReserveId,
   reserveRequests,
   onClearError,
   onClearNotice,
@@ -94,7 +126,13 @@ export default function ManagerWorkspace({
   onCreateEvent,
   onUpdateEventStatus,
   onUpdateEventPriority,
-  onUpdateEventPublish
+  onUpdateEventPublish,
+  onCreateReservePoi,
+  onUpdateReservePoi,
+  onDeleteReservePoi,
+  onCreateReservePoiType,
+  onUpdateReservePoiType,
+  onDeleteReservePoiType
 }) {
   const [page, setPage] = useState('overview')
   const [reserveViewMode, setReserveViewMode] = useState('cards')
@@ -103,6 +141,9 @@ export default function ManagerWorkspace({
   const [requestFilters, setRequestFilters] = useState({ status: 'ALL', search: '' })
   const [requestForm, setRequestForm] = useState(emptyRequestForm)
   const [eventForm, setEventForm] = useState(emptyEventForm)
+  const [poiForm, setPoiForm] = useState(emptyPoiForm)
+  const [editingPoiId, setEditingPoiId] = useState(null)
+  const [poiMapPickMode, setPoiMapPickMode] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [seenNotificationIds, setSeenNotificationIds] = useState([])
 
@@ -122,6 +163,9 @@ export default function ManagerWorkspace({
   }), [reserves, events])
 
   const selectedReserve = useMemo(() => reserveSummaries.find((reserve) => reserve.id === selectedReserveId) || reserveSummaries[0] || null, [reserveSummaries, selectedReserveId])
+  const selectedReservePois = useMemo(() => selectedReserve ? reservePoisByReserveId[selectedReserve.id] || [] : [], [selectedReserve, reservePoisByReserveId])
+  const selectedReservePoiTypes = useMemo(() => selectedReserve ? reservePoiTypesByReserveId[selectedReserve.id] || [] : [], [selectedReserve, reservePoiTypesByReserveId])
+  const poiTypeOptions = useMemo(() => [...selectedReservePoiTypes, { id: '__custom__', name: 'Create new type...' }], [selectedReservePoiTypes])
 
   const notifications = useMemo(() => {
     const requestItems = reserveRequests.map((request) => ({
@@ -183,6 +227,22 @@ export default function ManagerWorkspace({
     setEventForm((current) => ({ ...current, latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '', longitude: selectedReserve.centerLongitude?.toFixed(4) ?? '' }))
   }, [selectedReserve?.id])
 
+  useEffect(() => {
+    if (!selectedReserve || editingPoiId) return
+    const fallbackTypeId = selectedReservePoiTypes[0] ? String(selectedReservePoiTypes[0].id) : ''
+    setPoiForm((current) => ({
+      ...emptyPoiForm,
+      typeId: selectedReservePoiTypes.some((type) => String(type.id) === current.typeId) ? current.typeId : fallbackTypeId,
+      latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '',
+      longitude: selectedReserve.centerLongitude?.toFixed(4) ?? ''
+    }))
+  }, [selectedReserve?.id, selectedReservePoiTypes, editingPoiId])
+
+  useEffect(() => {
+    setEditingPoiId(null)
+    setPoiForm(emptyPoiForm)
+  }, [selectedReserve?.id])
+
   function openReserveControlCenter(reserveId) {
     setSelectedReserveId(reserveId)
     setPage('control')
@@ -200,6 +260,63 @@ export default function ManagerWorkspace({
     if (!selectedReserve) return
     await onCreateEvent(selectedReserve.id, eventForm)
     setEventForm((current) => ({ ...emptyEventForm, latitude: current.latitude, longitude: current.longitude }))
+  }
+
+  function resetPoiForm() {
+    setEditingPoiId(null)
+    setPoiMapPickMode(false)
+    setPoiForm({
+      ...emptyPoiForm,
+      typeId: selectedReservePoiTypes[0] ? String(selectedReservePoiTypes[0].id) : '',
+      customTypeName: '',
+      latitude: selectedReserve?.centerLatitude?.toFixed(4) ?? '',
+      longitude: selectedReserve?.centerLongitude?.toFixed(4) ?? ''
+    })
+  }
+
+  async function submitPoi(event) {
+    event.preventDefault()
+    if (!selectedReserve) return
+    let typeId = poiForm.typeId
+
+    if (typeId === '__custom__') {
+      const createdType = await onCreateReservePoiType(selectedReserve.id, { name: poiForm.customTypeName })
+      typeId = String(createdType.id)
+    }
+
+    const poiPayload = {
+      ...poiForm,
+      typeId
+    }
+
+    if (editingPoiId) {
+      await onUpdateReservePoi(selectedReserve.id, editingPoiId, poiPayload)
+    } else {
+      await onCreateReservePoi(selectedReserve.id, poiPayload)
+    }
+    resetPoiForm()
+  }
+
+  function startPoiEdit(poi) {
+    setPoiMapPickMode(false)
+    setEditingPoiId(poi.id)
+    setPoiForm({
+      typeId: String(poi.typeId),
+      customTypeName: '',
+      name: poi.name,
+      description: poi.description || '',
+      latitude: String(poi.latitude ?? ''),
+      longitude: String(poi.longitude ?? '')
+    })
+  }
+
+  function handlePoiMapPick(latitude, longitude) {
+    setPoiForm((current) => ({
+      ...current,
+      latitude: latitude.toFixed(4),
+      longitude: longitude.toFixed(4)
+    }))
+    setPoiMapPickMode(false)
   }
 
   function openNotification(item) {
@@ -275,7 +392,22 @@ export default function ManagerWorkspace({
                   <MapContainer key={`control-${selectedReserve.id}-${controlFilters.status}-${controlFilters.priority}`} center={reserveCenter(selectedReserve)} zoom={12} scrollWheelZoom className="reserve-map reserve-map-focus">
                     <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <FitToReserve reserve={selectedReserve} />
-                    <Rectangle bounds={reserveBounds(selectedReserve)} pathOptions={{ color: '#d14b27', weight: 3, dashArray: '12 8', fillOpacity: 0 }}><Popup><strong>{selectedReserve.displayName}</strong><br />{selectedReserve.region}</Popup></Rectangle>
+                    <PoiMapPicker reserve={selectedReserve} enabled={poiMapPickMode} onPick={handlePoiMapPick} />
+                    <Rectangle
+                      bounds={reserveBounds(selectedReserve)}
+                      pathOptions={{ color: '#d14b27', weight: 3, dashArray: '12 8', fillOpacity: poiMapPickMode ? 0.08 : 0 }}
+                      eventHandlers={{
+                        click: (event) => {
+                          if (poiMapPickMode && pointInsideReserve(selectedReserve, event.latlng.lat, event.latlng.lng)) {
+                            handlePoiMapPick(event.latlng.lat, event.latlng.lng)
+                          }
+                        }
+                      }}
+                    >
+                      <Popup><strong>{selectedReserve.displayName}</strong><br />{selectedReserve.region}</Popup>
+                    </Rectangle>
+                    {poiMapPickMode && poiForm.latitude && poiForm.longitude ? <Marker position={[Number(poiForm.latitude), Number(poiForm.longitude)]} icon={poiPinIcon('P')}><Popup>Pending POI position</Popup></Marker> : null}
+                    {selectedReservePois.filter((poi) => typeof poi.latitude === 'number' && typeof poi.longitude === 'number').map((poi) => <Marker key={`poi-${poi.id}`} position={[poi.latitude, poi.longitude]} icon={poiPinIcon(poi.typeName)}><Popup><strong>{poi.name}</strong><br />{poi.typeName}<br />{poi.description || 'No description provided.'}</Popup></Marker>)}
                     {filteredControlEvents.filter((event) => typeof event.latitude === 'number' && typeof event.longitude === 'number').map((event) => <CircleMarker key={event.id} center={[event.latitude, event.longitude]} radius={priorityStyle(event.priority).markerRadius} pathOptions={{ color: priorityStyle(event.priority).accent, fillColor: priorityStyle(event.priority).fill, fillOpacity: 0.92, weight: 2 }}><Popup><strong>{event.type}</strong><br />{event.priority} priority<br />{event.status}<br />{event.description || 'No description provided.'}</Popup></CircleMarker>)}
                   </MapContainer>
                 </div>
@@ -299,6 +431,20 @@ export default function ManagerWorkspace({
                     <label className="checkbox-row event-form-wide"><input type="checkbox" checked={eventForm.publishedToTravelers} onChange={(event) => setEventForm((current) => ({ ...current, publishedToTravelers: event.target.checked }))} />Publish this event to the traveler mobile app</label>
                     <div className="event-actions event-form-wide"><button type="button" className="secondary-button" onClick={() => setEventForm((current) => ({ ...current, latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '', longitude: selectedReserve.centerLongitude?.toFixed(4) ?? '' }))}>Use reserve center</button><button type="submit">Create event</button></div>
                   </form>
+                </section>
+                <section>
+                  <div className="panel-heading"><div><p className="eyebrow">Reserve POIs</p><h2>{editingPoiId ? 'Edit map pin' : 'Add map pin'}</h2></div></div>
+                  <form className="event-form control-create-form" onSubmit={submitPoi}>
+                    <label>Type<select value={poiForm.typeId} onChange={(event) => setPoiForm((current) => ({ ...current, typeId: event.target.value, customTypeName: event.target.value === '__custom__' ? current.customTypeName : '' }))} required><option value="" disabled>Select a type</option>{poiTypeOptions.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}</select></label>
+                    <label>Name<input type="text" value={poiForm.name} onChange={(event) => setPoiForm((current) => ({ ...current, name: event.target.value }))} placeholder="Forest entrance" required /></label>
+                    {poiForm.typeId === '__custom__' ? <label className="event-form-wide">New type name<input type="text" value={poiForm.customTypeName} onChange={(event) => setPoiForm((current) => ({ ...current, customTypeName: event.target.value }))} placeholder="Shuttle stop" required /></label> : null}
+                    <label className="event-form-wide">Description<textarea value={poiForm.description} onChange={(event) => setPoiForm((current) => ({ ...current, description: event.target.value }))} placeholder="Optional short guidance for visitors." /></label>
+                    <label>Latitude<input type="number" step="0.0001" value={poiForm.latitude} onChange={(event) => setPoiForm((current) => ({ ...current, latitude: event.target.value }))} required /></label>
+                    <label>Longitude<input type="number" step="0.0001" value={poiForm.longitude} onChange={(event) => setPoiForm((current) => ({ ...current, longitude: event.target.value }))} required /></label>
+                    <p className="muted poi-helper-text">{poiMapPickMode ? 'Click inside the reserve area on the map to fill the POI coordinates.' : 'You can enter coordinates manually or use the map to pick them.'}</p>
+                    <div className="event-actions event-form-wide"><button type="button" className="secondary-button" onClick={() => setPoiForm((current) => ({ ...current, latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '', longitude: selectedReserve.centerLongitude?.toFixed(4) ?? '' }))}>Use reserve center</button><button type="button" className={poiMapPickMode ? '' : 'secondary-button'} onClick={() => setPoiMapPickMode((current) => !current)}>{poiMapPickMode ? 'Cancel map pick' : 'Pick from map'}</button>{editingPoiId ? <button type="button" className="secondary-button" onClick={resetPoiForm}>Cancel edit</button> : null}<button type="submit">{editingPoiId ? 'Save POI' : 'Create POI'}</button></div>
+                  </form>
+                  <div className="event-list compact-card-list">{selectedReservePois.length === 0 ? <p className="empty-state">No POIs have been added yet.</p> : selectedReservePois.map((poi) => <article key={poi.id} className="event-card compact-card"><div className="event-card-header"><div><strong>{poi.name}</strong><span>{poi.typeName}</span></div></div><p>{poi.description || 'No description provided.'}</p><div className="event-meta"><span>{Number(poi.latitude).toFixed(4)}, {Number(poi.longitude).toFixed(4)}</span></div><div className="event-actions"><button type="button" className="secondary-button" onClick={() => startPoiEdit(poi)}>Edit</button><button type="button" className="secondary-button" onClick={() => window.confirm(`Delete POI "${poi.name}"?`) && onDeleteReservePoi(selectedReserve.id, poi.id).then(() => resetPoiForm())}>Delete</button></div></article>)}</div>
                 </section>
                 <section className="control-event-feed">
                   <div className="panel-heading"><div><p className="eyebrow">Event stream</p><h2>{filteredControlEvents.length} matching events</h2></div></div>

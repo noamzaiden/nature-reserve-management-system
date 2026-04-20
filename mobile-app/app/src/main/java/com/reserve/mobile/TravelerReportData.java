@@ -15,7 +15,6 @@ public final class TravelerReportData {
     private final double longitude;
     private final List<Uri> attachmentUris;
 
-    // Holds one report payload before multipart upload.
     public TravelerReportData(long reserveId, String type, String reporterName, String description,
                               double latitude, double longitude, List<Uri> attachmentUris) {
         this.reserveId = reserveId;
@@ -27,37 +26,30 @@ public final class TravelerReportData {
         this.attachmentUris = attachmentUris == null ? new ArrayList<>() : new ArrayList<>(attachmentUris);
     }
 
-    // Returns selected reserve id.
     public long getReserveId() {
         return reserveId;
     }
 
-    // Returns selected report type.
     public String getType() {
         return type;
     }
 
-    // Returns reporter name (optional).
     public String getReporterName() {
         return reporterName;
     }
 
-    // Returns report description text.
     public String getDescription() {
         return description;
     }
 
-    // Returns latitude captured from phone location.
     public double getLatitude() {
         return latitude;
     }
 
-    // Returns longitude captured from phone location.
     public double getLongitude() {
         return longitude;
     }
 
-    // Returns chosen media files to upload.
     public List<Uri> getAttachmentUris() {
         return attachmentUris;
     }

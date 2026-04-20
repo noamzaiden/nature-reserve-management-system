@@ -1,0 +1,64 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="erd-drawio" name="ERD">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="users" value="&lt;b&gt;USERS&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;name&lt;br/&gt;email&lt;br/&gt;password_hash&lt;br/&gt;role" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="70" width="220" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="reserves" value="&lt;b&gt;RESERVES&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;name&lt;br/&gt;display_name&lt;br/&gt;region&lt;br/&gt;min_latitude&lt;br/&gt;max_latitude&lt;br/&gt;min_longitude&lt;br/&gt;max_longitude&lt;br/&gt;center_latitude&lt;br/&gt;center_longitude&lt;br/&gt;polygon_geojson&lt;br/&gt;FK manager_user_id&lt;br/&gt;created_at" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="50" width="260" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="events" value="&lt;b&gt;EVENTS&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;FK reserve_id&lt;br/&gt;FK assigned_user_id&lt;br/&gt;priority&lt;br/&gt;status&lt;br/&gt;type&lt;br/&gt;origin&lt;br/&gt;description&lt;br/&gt;reporter_name&lt;br/&gt;published_to_travelers&lt;br/&gt;latitude&lt;br/&gt;longitude&lt;br/&gt;created_at&lt;br/&gt;updated_at&lt;br/&gt;closed_at" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="60" width="270" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="eventLogs" value="&lt;b&gt;EVENT_LOGS&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;FK event_id&lt;br/&gt;FK performed_by_user_id&lt;br/&gt;action&lt;br/&gt;note&lt;br/&gt;created_at" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="80" width="240" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="eventMedia" value="&lt;b&gt;EVENT_MEDIA&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;FK event_id&lt;br/&gt;media_url&lt;br/&gt;media_type&lt;br/&gt;original_filename" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="350" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="requests" value="&lt;b&gt;RESERVE_CREATION_REQUESTS&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;FK requested_by_user_id&lt;br/&gt;requested_reserve_name&lt;br/&gt;request_message&lt;br/&gt;status&lt;br/&gt;created_at&lt;br/&gt;resolved_at" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="470" width="300" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="poiTypes" value="&lt;b&gt;RESERVE_POI_TYPES&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;FK reserve_id&lt;br/&gt;name&lt;br/&gt;system_default&lt;br/&gt;created_at" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="510" width="250" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="pois" value="&lt;b&gt;RESERVE_POIS&lt;/b&gt;&lt;br/&gt;PK id&lt;br/&gt;FK reserve_id&lt;br/&gt;FK type_id&lt;br/&gt;name&lt;br/&gt;description&lt;br/&gt;latitude&lt;br/&gt;longitude&lt;br/&gt;created_at" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=8;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="890" y="510" width="250" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" value="1 manages *" edge="1" parent="1" source="users" target="reserves" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="1 submits *" edge="1" parent="1" source="users" target="requests" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="1 contains *" edge="1" parent="1" source="reserves" target="events" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" value="0..1 assigned_user" edge="1" parent="1" source="users" target="events" style="endArrow=block;endFill=1;html=1;strokeWidth=2;dashed=1;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" value="1 logs *" edge="1" parent="1" source="events" target="eventLogs" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" value="0..1 performs *" edge="1" parent="1" source="users" target="eventLogs" style="endArrow=block;endFill=1;html=1;strokeWidth=2;dashed=1;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" value="1 attaches *" edge="1" parent="1" source="events" target="eventMedia" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r8" value="1 defines *" edge="1" parent="1" source="reserves" target="poiTypes" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r9" value="1 contains *" edge="1" parent="1" source="reserves" target="pois" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r10" value="1 classifies *" edge="1" parent="1" source="poiTypes" target="pois" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

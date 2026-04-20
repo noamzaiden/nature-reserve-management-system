@@ -460,8 +460,45 @@ button:disabled {
   box-shadow: 0 0 0 4px rgba(209, 75, 39, 0.18), 0 8px 16px rgba(0, 0, 0, 0.16);
 }
 
+.poi-map-pin {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px 999px 999px 0;
+  transform: rotate(-45deg);
+  background: #6f4d9b;
+  color: #fff8ef;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 2px solid rgba(255, 248, 236, 0.95);
+  box-shadow: 0 8px 16px rgba(26, 14, 46, 0.18);
+  position: relative;
+}
+
+.poi-map-pin-label {
+  transform: rotate(45deg);
+}
+
 .assignment-form {
   margin-top: 1rem;
+}
+
+.compact-card-list {
+  gap: 0.75rem;
+}
+
+.compact-card {
+  padding: 0.9rem;
+}
+
+.poi-type-form {
+  grid-template-columns: 1fr;
+}
+
+.poi-helper-text {
+  margin: -0.2rem 0 0;
+  font-size: 0.92rem;
 }
 
 .polygon-details {

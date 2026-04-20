@@ -42,7 +42,13 @@ web-app/dist/
 .tmp-*.png
 mobile-app/local.properties
 mobile-app/.gradle/
+mobile-app/.gradle-user/
 mobile-app/gradle.properties
+mobile-app/icons/
+mobile-app/captures/
+mobile-app/*.jks
+mobile-app/*.keystore
+mobile-app/keystore.properties
 uploads/
 .chrono-repo/
 .fresh-repo/

@@ -22,14 +22,12 @@ final class EventPollingController {
         }
     };
 
-    // Keeps periodic hazard polling logic out of MainActivity.
     EventPollingController(long pollIntervalMs,
                            Runnable pollAction) {
         this.pollIntervalMs = pollIntervalMs;
         this.pollAction = pollAction;
     }
 
-    // Starts polling loop if it is not already running.
     void start() {
         if (running) {
             return;
@@ -38,7 +36,6 @@ final class EventPollingController {
         handler.postDelayed(pollRunnable, pollIntervalMs);
     }
 
-    // Stops polling and removes pending callbacks.
     void stop() {
         running = false;
         handler.removeCallbacks(pollRunnable);

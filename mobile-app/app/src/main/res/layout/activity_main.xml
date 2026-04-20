@@ -65,6 +65,17 @@
                                 android:text="@string/location_unavailable"
                                 android:textColor="#5B7661"
                                 android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/reserve_alert_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="@string/fire_alert_in_reserve"
+                                android:textColor="#B4473A"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
                         </LinearLayout>
                     </LinearLayout>
 
