@@ -5,9 +5,12 @@ Android client for travelers who want to view reserve hazards on a map, detect w
 Helpful docs:
 
 - `../docs/mobile-app-newcomer-guide.md`
+- `../docs/mobile-app-programmer-guide.md`
+- `../docs/mobile-app-file-reference-table.md`
 - `../docs/main-activity-workflow.md`
 - `../docs/mobile-app-planning.md`
 - `../docs/android-app-block-diagram.md`
+- `../docs/system-user-guide.md`
 
 ## Features
 
@@ -24,7 +27,7 @@ Helpful docs:
   `MapController`, `MapToggleUiController`, `EventPollingController`,
   `EventReportUiController`, `LocationController`, `ReportMediaController`,
   `ReportSubmissionController`, `ReserveStateResolver`, and `WeatherUiController`.
-- `ReserveService` and `WeatherService` handle backend and weather HTTP calls.
+- `ReserveApiClient`, `ReportApiClient`, and `WeatherApiClient` handle network calls.
 - Model classes (`Reserve`, `Event`, `ReserveState`, `TravelerReportData`, and weather models)
   carry the data moving through the app.
 
@@ -40,5 +43,7 @@ Helpful docs:
    See `mobile-app/gradle.properties.example` for the expected keys.
 3. Start an emulator.
 4. Run the `app` configuration.
+
+`mobile-app/gradle.properties` keeps shared non-secret Gradle settings. Put personal API values in your user Gradle properties so they do not get committed.
 
 The backend must already be running on `http://localhost:8080`.

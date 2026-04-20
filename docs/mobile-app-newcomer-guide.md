@@ -5,6 +5,7 @@ This guide is for someone opening the Android app code for the first time and tr
 Related docs:
 
 - [Mobile App Planning Document](./mobile-app-planning.md)
+- [Mobile App Programmer Guide](./mobile-app-programmer-guide.md)
 - [MainActivity Workflow](./main-activity-workflow.md)
 - [Android App Block Diagram](./android-app-block-diagram.md)
 
@@ -34,9 +35,10 @@ If you only have 20 to 30 minutes, read the project in this order:
 8. `mobile-app/app/src/main/java/com/reserve/mobile/ReserveStateResolver.java`
 9. `mobile-app/app/src/main/java/com/reserve/mobile/ReportMediaController.java`
 10. `mobile-app/app/src/main/java/com/reserve/mobile/ReportSubmissionController.java`
-11. `mobile-app/app/src/main/java/com/reserve/mobile/ReserveService.java`
-12. `mobile-app/app/src/main/java/com/reserve/mobile/WeatherService.java`
-13. The model classes: `Reserve`, `AreaBounds`, `Event`, `TravelerReportData`, `WeatherCurrent`, `WeatherHourlyForecast`, `ReserveState`
+11. `mobile-app/app/src/main/java/com/reserve/mobile/ReserveApiClient.java`
+12. `mobile-app/app/src/main/java/com/reserve/mobile/ReportApiClient.java`
+13. `mobile-app/app/src/main/java/com/reserve/mobile/WeatherApiClient.java`
+14. The model classes: `Reserve`, `AreaBounds`, `Event`, `TravelerReportData`, `WeatherCurrent`, `WeatherHourlyForecast`, `ReserveState`
 
 That order gives you:
 
@@ -54,14 +56,14 @@ The simplest way to think about the app is:
 
 - `MainActivity` is the center of the app
 - small controller classes handle focused UI behavior
-- service classes talk to the backend and weather API
+- API client classes talk to the backend and weather API
 - model classes hold the data
 
 So in practice:
 
 - `MainActivity` coordinates the screen
 - controllers help it avoid becoming even larger
-- services fetch or send data
+- API clients fetch or send data
 - models are plain data objects
 
 ## The Most Important Files
@@ -98,9 +100,11 @@ So in practice:
 
 ### Data access
 
-- `ReserveService.java`
-  Loads reserves and hazards from the backend and uploads traveler reports.
-- `WeatherService.java`
+- `ReserveApiClient.java`
+  Loads reserves, hazards, and POIs from the backend.
+- `ReportApiClient.java`
+  Uploads traveler reports and media attachments to the backend.
+- `WeatherApiClient.java`
   Loads current weather and hourly forecast from OpenWeather.
 
 ### Data models
@@ -144,10 +148,10 @@ If you are trying to understand "what happens first", start in:
 
 ### 1. Reserve and hazard flow
 
-- `MainActivity.loadReserves()` calls `ReserveService.loadReserves()`
-- `ReserveService` calls the backend `/reserves`
+- `MainActivity.loadReserves()` calls `ReserveApiClient.loadReserves()`
+- `ReserveApiClient` calls the backend `/reserves`
 - JSON is converted into `Reserve` objects
-- `MainActivity.loadPublishedHazards()` calls `ReserveService.loadPublishedHazards(reserves)`
+- `MainActivity.loadPublishedHazards()` calls `ReserveApiClient.loadPublishedHazards(reserves)`
 - hazard JSON is converted into `Event` objects
 - `MapController.refresh(...)` redraws the map
 
@@ -165,8 +169,8 @@ If you are trying to understand "what happens first", start in:
 - user taps the weather button
 - `MainActivity` calls `WeatherUiController.refreshWeather(...)`
 - `WeatherUiController` decides whether cached weather is still good
-- if needed, it asks `WeatherService` for fresh data
-- `WeatherService` calls OpenWeather and creates `WeatherCurrent` and `WeatherHourlyForecast`
+- if needed, it asks `WeatherApiClient` for fresh data
+- `WeatherApiClient` calls OpenWeather and creates `WeatherCurrent` and `WeatherHourlyForecast`
 - `WeatherUiController` updates the weather views
 
 ### 4. Report submission flow
@@ -178,7 +182,7 @@ If you are trying to understand "what happens first", start in:
 - `MainActivity.submitTravelerReport()` passes the form state to `ReportSubmissionController`
 - `ReportSubmissionController` validates the form and resolves the best report location
 - `ReportSubmissionController` builds `TravelerReportData`
-- `ReserveService.submitTravelerReport(...)` uploads the report
+- `ReportApiClient.submitTravelerReport(...)` uploads the report
 - after success, the form is cleared and hazards are refreshed
 
 ## Who Owns What
@@ -203,7 +207,7 @@ This is useful when you are deciding where to change code.
   Owns report validation, fresh report-location lookup, and upload orchestration.
 - `EventPollingController`
   Owns only the polling timer behavior.
-- services
+- API clients
   Own data fetching and upload code.
 
 ## Threads and Async Work
@@ -227,7 +231,7 @@ So the rough pattern is:
 
 1. UI event happens
 2. app schedules background work with `executorService.execute(...)`
-3. service performs network request
+3. API client performs network request
 4. app returns to the UI thread with `runOnUiThread(...)`
 
 ## External Libraries and Services
@@ -253,7 +257,7 @@ Mostly in `MainActivity.java`.
 
 ### Where do hazards come from?
 
-From `ReserveService.loadPublishedHazards(...)`.
+From `ReserveApiClient.loadPublishedHazards(...)`.
 
 ### Where is map drawing done?
 
@@ -261,7 +265,7 @@ In `MapController.java`.
 
 ### Where is weather fetched?
 
-In `WeatherService.java`.
+In `WeatherApiClient.java`.
 
 ### Why is the weather logic not in `MainActivity`?
 
@@ -296,14 +300,15 @@ Edit:
 
 Edit:
 
-- `ReserveService.java`
+- `ReserveApiClient.java`
+- `ReportApiClient.java`
 - `ReportSubmissionController.java`
 
 ### Change weather fetch or weather parsing
 
 Edit:
 
-- `WeatherService.java`
+- `WeatherApiClient.java`
 
 ### Change weather UI behavior
 
@@ -333,9 +338,9 @@ This project uses one main screen, so a lot of orchestration lives there. That i
 
 Here, "controller" mostly means "focused helper for one feature area".
 
-### 3. The services do raw HTTP directly
+### 3. The API clients do raw HTTP directly
 
-There is no Retrofit or OkHttp layer. The services use `HttpURLConnection` and `org.json` directly.
+There is no Retrofit or OkHttp layer. The API clients use `HttpURLConnection` and `org.json` directly.
 
 ### 4. Some older notes may mention removed helper classes
 
@@ -349,7 +354,7 @@ The current code no longer has:
 
 Their responsibilities are now split more clearly across:
 
-- `ReserveService` and `WeatherService` for HTTP and JSON work
+- `ReserveApiClient`, `ReportApiClient`, and `WeatherApiClient` for network work
 - `LocationController`, `ReserveStateResolver`, `ReportMediaController`, and `ReportSubmissionController` for focused workflows
 - `MainActivity` for overall screen orchestration
 
@@ -364,11 +369,11 @@ If you are onboarding a teammate, a good first reading session is:
    - reserves and hazards
    - or weather
    - or report submission
-5. Read the matching controller and service for that flow
+5. Read the matching controller and API client for that flow
 6. Only then read the planning doc and block diagram
 
 ## Short Summary
 
 If you remember only one thing, remember this:
 
-`MainActivity` is the coordinator, controllers handle focused UI behavior, services handle API access, and models carry data between them.
+`MainActivity` is the coordinator, controllers handle focused UI behavior, API clients handle reserve data, report upload, and weather access, and models carry data between them.

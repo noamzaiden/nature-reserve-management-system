@@ -2,6 +2,8 @@ package com.noam.fleetcommand.events;
 
 import com.noam.fleetcommand.events.dto.EventResponseDto;
 import com.noam.fleetcommand.events.dto.TravelerEventReportRequestDto;
+import com.noam.fleetcommand.reserves.ReservePoiService;
+import com.noam.fleetcommand.reserves.dto.ReservePoiResponseDto;
 import com.noam.fleetcommand.reserves.ReserveService;
 import com.noam.fleetcommand.reserves.dto.ReserveResponseDto;
 import jakarta.validation.Valid;
@@ -21,13 +23,16 @@ import java.util.List;
 public class PublicTravelerController {
 
     private final EventService eventService;
+    private final ReservePoiService reservePoiService;
     private final ReserveService reserveService;
     private final TravelerMediaStorageService travelerMediaStorageService;
 
     public PublicTravelerController(EventService eventService,
+                                    ReservePoiService reservePoiService,
                                     ReserveService reserveService,
                                     TravelerMediaStorageService travelerMediaStorageService) {
         this.eventService = eventService;
+        this.reservePoiService = reservePoiService;
         this.reserveService = reserveService;
         this.travelerMediaStorageService = travelerMediaStorageService;
     }
@@ -40,6 +45,11 @@ public class PublicTravelerController {
     @GetMapping("/events")
     public List<EventResponseDto> getPublishedEvents(@RequestParam Long reserveId) {
         return eventService.getPublishedForTravelers(reserveId);
+    }
+
+    @GetMapping("/reserves/{reserveId}/pois")
+    public List<ReservePoiResponseDto> getReservePois(@PathVariable Long reserveId) {
+        return reservePoiService.getPublicReservePois(reserveId);
     }
 
     @PostMapping(value = "/reports", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

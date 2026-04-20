@@ -37,21 +37,20 @@ final class ReportSubmissionController {
     private final ContentResolver contentResolver;
     private final FusedLocationProviderClient fusedLocationClient;
     private final ExecutorService executorService;
-    private final ReserveService reserveService;
+    private final ReportApiClient reportApiClient;
 
     ReportSubmissionController(Activity activity,
                                ContentResolver contentResolver,
                                FusedLocationProviderClient fusedLocationClient,
                                ExecutorService executorService,
-                               ReserveService reserveService) {
+                               ReportApiClient reportApiClient) {
         this.activity = activity;
         this.contentResolver = contentResolver;
         this.fusedLocationClient = fusedLocationClient;
         this.executorService = executorService;
-        this.reserveService = reserveService;
+        this.reportApiClient = reportApiClient;
     }
 
-    // Validates report data, resolves a location, and uploads the report.
     @SuppressLint("MissingPermission")
     void submitReport(Reserve selectedReserve,
                       String reportType,
@@ -90,7 +89,6 @@ final class ReportSubmissionController {
         }
 
         host.setBusyState(true, activity.getString(R.string.status_fetching_phone_location));
-        // Request one fresh GPS fix so the uploaded report uses the latest coordinates.
         fusedLocationClient.getCurrentLocation(
                         Priority.PRIORITY_HIGH_ACCURACY,
                         new CancellationTokenSource().getToken()
@@ -115,7 +113,6 @@ final class ReportSubmissionController {
                 .addOnFailureListener(exception -> handleMissingLocation(host));
     }
 
-    // Uploads the validated report payload on the shared background executor.
     private void uploadReport(Reserve selectedReserve,
                               String reportType,
                               String reporterName,
@@ -136,7 +133,7 @@ final class ReportSubmissionController {
                         reportLatLng.longitude,
                         attachmentSnapshot
                 );
-                reserveService.submitTravelerReport(contentResolver, reportData);
+                reportApiClient.submitTravelerReport(contentResolver, reportData);
                 activity.runOnUiThread(() -> {
                     host.updateServerStatus(true);
                     host.onReportSubmitted();
@@ -153,7 +150,6 @@ final class ReportSubmissionController {
         });
     }
 
-    // Restores UI state when a fresh location fix could not be obtained.
     private void handleMissingLocation(Host host) {
         host.setBusyState(false, activity.getString(R.string.status_location_waiting));
         showShortToast(R.string.report_requires_location);

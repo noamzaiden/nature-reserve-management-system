@@ -20,7 +20,7 @@ final class WeatherUiController {
     private static final int HOURLY_FORECAST_HOURS = 6;
 
     private final Activity activity;
-    private final WeatherService weatherService;
+    private final WeatherApiClient weatherApiClient;
     private final ExecutorService executorService;
 
     private LatLng lastWeatherLatLng;
@@ -29,19 +29,16 @@ final class WeatherUiController {
     private long lastWeatherLoadedAt;
     private boolean expanded;
 
-    // Creates controller that owns weather UI state and refresh logic.
-    WeatherUiController(Activity activity, WeatherService weatherService, ExecutorService executorService) {
+    WeatherUiController(Activity activity, WeatherApiClient weatherApiClient, ExecutorService executorService) {
         this.activity = activity;
-        this.weatherService = weatherService;
+        this.weatherApiClient = weatherApiClient;
         this.executorService = executorService;
     }
 
-    // Flips expanded state for hourly weather panel.
     void toggleExpanded() {
         expanded = !expanded;
     }
 
-    // Shows/hides weather overlay and refreshes current + hourly data when needed.
     void refreshWeather(
             boolean showWeather,
             boolean forceRefresh,
@@ -69,7 +66,7 @@ final class WeatherUiController {
             return;
         }
 
-        if (!weatherService.hasApiKey()) {
+        if (!weatherApiClient.hasApiKey()) {
             showStatus(
                     weatherNowText,
                     weatherHourlyText,
@@ -99,10 +96,10 @@ final class WeatherUiController {
         executorService.execute(() -> {
             try {
                 WeatherCurrent loadedWeather = needCurrentLoad
-                        ? weatherService.loadCurrentWeather(currentUserLatLng.latitude, currentUserLatLng.longitude)
+                        ? weatherApiClient.loadCurrentWeather(currentUserLatLng.latitude, currentUserLatLng.longitude)
                         : currentWeather;
                 List<WeatherHourlyForecast> loadedHourly = needHourlyLoad
-                        ? weatherService.loadHourlyWeather(
+                        ? weatherApiClient.loadHourlyWeather(
                                 currentUserLatLng.latitude,
                                 currentUserLatLng.longitude,
                                 HOURLY_FORECAST_HOURS
@@ -130,7 +127,6 @@ final class WeatherUiController {
         });
     }
 
-    // Makes weather panel visible and updates expand/collapse icon.
     private void showWeatherPanel(View weatherOverlay, View weatherHourlyPanel, ImageButton weatherExpandButton) {
         weatherOverlay.setVisibility(View.VISIBLE);
         weatherHourlyPanel.setVisibility(expanded ? View.VISIBLE : View.GONE);
@@ -139,7 +135,6 @@ final class WeatherUiController {
                 : android.R.drawable.arrow_down_float);
     }
 
-    // Writes the small weather status texts in one place.
     private void showStatus(TextView weatherNowText, TextView weatherHourlyText, int nowTextResId, int hourlyTextResId) {
         weatherNowText.setText(nowTextResId);
         if (expanded) {
@@ -147,7 +142,6 @@ final class WeatherUiController {
         }
     }
 
-    // Writes current weather line into compact overlay.
     private void renderCurrentWeather(TextView weatherNowText) {
         if (currentWeather == null) {
             weatherNowText.setText(R.string.weather_unavailable);
@@ -160,7 +154,6 @@ final class WeatherUiController {
         ));
     }
 
-    // Renders a compact multi-line hourly forecast summary.
     private void renderHourlyWeather(TextView weatherHourlyText) {
         if (!expanded) {
             return;
@@ -187,7 +180,6 @@ final class WeatherUiController {
         weatherHourlyText.setText(builder.toString());
     }
 
-    // Decides whether cache is stale by age or travel distance.
     private boolean shouldReloadWeather(LatLng nowLocation) {
         if (currentWeather == null || lastWeatherLatLng == null) {
             return true;

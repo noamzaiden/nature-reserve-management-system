@@ -27,12 +27,10 @@ final class ReportMediaController {
         this.selectedMediaText = selectedMediaText;
     }
 
-    // Launches the picker for photo/video attachments.
     void openMediaPicker(ActivityResultLauncher<String[]> mediaPickerLauncher) {
         mediaPickerLauncher.launch(REPORT_MEDIA_MIME_TYPES);
     }
 
-    // Applies selected media returned from the picker.
     void onMediaPicked(List<Uri> uris) {
         if (uris != null) {
             selectedMediaUris.addAll(uris);
@@ -40,13 +38,11 @@ final class ReportMediaController {
         updateSelectedMediaText();
     }
 
-    // Prepares a photo Uri and returns it for camera capture.
     Uri prepareCameraCapture() {
         pendingCameraPhotoUri = createCameraImageUri();
         return pendingCameraPhotoUri;
     }
 
-    // Handles the result of a camera capture attempt.
     void onCameraCaptureResult(boolean success) {
         if (success && pendingCameraPhotoUri != null) {
             selectedMediaUris.add(pendingCameraPhotoUri);
@@ -58,7 +54,6 @@ final class ReportMediaController {
         updateSelectedMediaText();
     }
 
-    // Clears all selected media so the next report starts fresh.
     void clearSelectedMedia() {
         selectedMediaUris.clear();
         pendingCameraPhotoUri = null;

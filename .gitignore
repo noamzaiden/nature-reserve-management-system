@@ -40,6 +40,7 @@ web-app/dist/
 *.log
 *.live.log
 .tmp-*.png
+docs/.$*.dtmp
 
 # Mobile app local/generated files
 mobile-app/local.properties
@@ -52,6 +53,7 @@ mobile-app/*.apk
 mobile-app/*.aab
 mobile-app/*.jks
 mobile-app/*.keystore
+mobile-app/keystore.properties
 uploads/
 .chrono-repo/
 .fresh-repo/

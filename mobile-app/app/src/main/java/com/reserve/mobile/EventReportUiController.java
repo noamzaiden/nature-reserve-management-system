@@ -17,7 +17,6 @@ final class EventReportUiController {
     private LatLng manualReportLatLng;
     private Marker manualReportMarker;
 
-    // Applies current panel visibility and keeps related controls in sync.
     void setReportPanelVisible(boolean visible, View reportPanel, View bottomSpacer, MaterialButton reportToggleButton) {
         reportPanelVisible = visible;
         reportPanel.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -25,24 +24,20 @@ final class EventReportUiController {
         reportToggleButton.setText(visible ? R.string.hide_report_button : R.string.report_event_button);
     }
 
-    // Toggles panel visibility and returns the new visible state.
     boolean toggleReportPanel(View reportPanel, View bottomSpacer, MaterialButton reportToggleButton) {
         setReportPanelVisible(!reportPanelVisible, reportPanel, bottomSpacer, reportToggleButton);
         return reportPanelVisible;
     }
 
-    // Puts report flow into map-tap mode for manual location pick.
     void startManualLocationSelection(MaterialButton manualLocationButton) {
         selectingManualLocation = true;
         manualLocationButton.setText(R.string.report_manual_location_waiting);
     }
 
-    // Returns true when the next map tap should set report location.
     boolean isSelectingManualLocation() {
         return selectingManualLocation;
     }
 
-    // Stores tapped location, updates marker, and refreshes location label.
     void saveManualLocation(LatLng latLng,
                             GoogleMap googleMap,
                             MaterialButton manualLocationButton,
@@ -54,24 +49,16 @@ final class EventReportUiController {
         manualLocationButton.setText(R.string.report_pick_map_location);
 
         if (googleMap != null) {
-            if (manualReportMarker == null) {
-                manualReportMarker = googleMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(context.getString(R.string.report_manual_marker_title)));
-            } else {
-                manualReportMarker.setPosition(latLng);
-            }
+            ensureManualMarker(latLng, googleMap, context);
         }
 
         updateReportLocationText(reportLocationText, currentUserLatLng, context);
     }
 
-    // Returns manual location chosen by user, or null when not set.
     LatLng getManualReportLatLng() {
         return manualReportLatLng;
     }
 
-    // Clears manual marker/location and restores default report button label.
     void clearManualLocation(MaterialButton manualLocationButton,
                              TextView reportLocationText,
                              LatLng currentUserLatLng,
@@ -86,7 +73,15 @@ final class EventReportUiController {
         updateReportLocationText(reportLocationText, currentUserLatLng, context);
     }
 
-    // Updates report coordinates label using manual location first, then GPS.
+    void restoreManualLocationMarker(GoogleMap googleMap, Context context) {
+        if (manualReportLatLng == null || googleMap == null) {
+            return;
+        }
+
+        manualReportMarker = null;
+        ensureManualMarker(manualReportLatLng, googleMap, context);
+    }
+
     void updateReportLocationText(TextView reportLocationText, LatLng currentUserLatLng, Context context) {
         if (manualReportLatLng != null) {
             reportLocationText.setText(context.getString(
@@ -105,6 +100,17 @@ final class EventReportUiController {
                 currentUserLatLng.latitude,
                 currentUserLatLng.longitude
         ));
+    }
+
+    private void ensureManualMarker(LatLng latLng, GoogleMap googleMap, Context context) {
+        if (manualReportMarker == null) {
+            manualReportMarker = googleMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(context.getString(R.string.report_manual_marker_title)));
+            return;
+        }
+
+        manualReportMarker.setPosition(latLng);
     }
 }
 

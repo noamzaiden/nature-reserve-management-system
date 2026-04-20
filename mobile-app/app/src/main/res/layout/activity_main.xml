@@ -65,6 +65,17 @@
                                 android:text="@string/location_unavailable"
                                 android:textColor="#5B7661"
                                 android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/reserve_alert_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="@string/fire_alert_in_reserve"
+                                android:textColor="#B4473A"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -95,79 +106,96 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:layout_marginTop="@dimen/control_stack_margin_top"
-                android:gravity="start"
-                android:orientation="vertical">
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="start"
+                    android:orientation="vertical"
+                    android:paddingBottom="4dp">
+
+                    <ImageButton
+                        android:id="@+id/menu_button"
+                        android:layout_width="@dimen/map_round_button_size"
+                        android:layout_height="@dimen/map_round_button_size"
+                        android:layout_gravity="start"
+                        android:background="@drawable/bg_map_round_button"
+                        android:contentDescription="@string/open_menu"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_menu_hamburger"
+                        android:tint="#466B51" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <ImageButton
+                            android:id="@+id/map_layers_button"
+                            android:layout_width="@dimen/map_round_button_size"
+                            android:layout_height="@dimen/map_round_button_size"
+                            android:background="@drawable/bg_map_round_button"
+                            android:contentDescription="@string/map_layers"
+                            android:padding="14dp"
+                            android:src="@android:drawable/ic_menu_mapmode"
+                            android:tint="#496D54" />
+
+                        <ImageButton
+                            android:id="@+id/my_location_button"
+                            android:layout_width="@dimen/map_round_button_size"
+                            android:layout_height="@dimen/map_round_button_size"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_map_round_button"
+                            android:contentDescription="@string/my_location"
+                            android:padding="12dp"
+                            android:src="@android:drawable/ic_menu_mylocation"
+                            android:tint="#496D54" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/north_up_button"
+                            android:layout_width="@dimen/map_round_button_size"
+                            android:layout_height="@dimen/map_round_button_size"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_map_round_button"
+                            android:contentDescription="@string/north_up"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="@string/north_up_short"
+                            android:textColor="#496D54"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="8dp" />
+
+                    <ImageButton
+                        android:id="@+id/weather_toggle_button"
+                        android:layout_width="@dimen/map_round_button_size"
+                        android:layout_height="@dimen/map_round_button_size"
+                        android:background="@drawable/bg_map_round_button_inactive"
+                        android:contentDescription="@string/weather_toggle_off"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_weather_sun_cloud"
+                        android:tint="#496D54" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+                </LinearLayout>
 
                 <View
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    android:id="@+id/menu_button"
-                    android:layout_width="@dimen/map_round_button_size"
-                    android:layout_height="@dimen/map_round_button_size"
-                    android:layout_gravity="start"
-                    android:background="@drawable/bg_map_round_button"
-                    android:contentDescription="@string/open_menu"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_menu_hamburger"
-                    android:tint="#466B51" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/my_location_button"
-                    android:layout_width="@dimen/map_round_button_size"
-                    android:layout_height="@dimen/map_round_button_size"
-                    android:background="@drawable/bg_map_round_button"
-                    android:contentDescription="@string/my_location"
-                    android:padding="14dp"
-                    android:src="@android:drawable/ic_menu_mylocation"
-                    android:tint="#496D54" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/north_up_button"
-                    android:layout_width="@dimen/map_round_button_size"
-                    android:layout_height="@dimen/map_round_button_size"
-                    android:background="@drawable/bg_map_round_button"
-                    android:contentDescription="@string/north_up"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:padding="0dp"
-                    android:text="@string/north_up_short"
-                    android:textAllCaps="false"
-                    android:textColor="#496D54"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/weather_toggle_button"
-                    android:layout_width="@dimen/map_round_button_size"
-                    android:layout_height="@dimen/map_round_button_size"
-                    android:background="@drawable/bg_map_round_button_inactive"
-                    android:contentDescription="@string/weather_toggle_off"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_weather_sun_cloud"
-                    android:tint="#496D54" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
             </LinearLayout>
 
             <View

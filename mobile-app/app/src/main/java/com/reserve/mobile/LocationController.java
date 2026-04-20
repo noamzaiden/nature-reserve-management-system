@@ -38,7 +38,6 @@ final class LocationController {
         this.fusedLocationClient = fusedLocationClient;
     }
 
-    // Continues or starts tracking after the permission result is known.
     void onPermissionResult(boolean granted, GoogleMap googleMap, Host host) {
         if (granted) {
             startTracking(googleMap, host);
@@ -48,7 +47,6 @@ final class LocationController {
     }
 
     @SuppressLint("MissingPermission")
-    // Starts location tracking and reports initial/live updates back to the host.
     void startTracking(GoogleMap googleMap, Host host) {
         if (!host.hasLocationPermission()) {
             host.requestLocationPermissions();
@@ -71,7 +69,6 @@ final class LocationController {
         );
     }
 
-    // Stops active location updates.
     void stopTracking() {
         if (locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
