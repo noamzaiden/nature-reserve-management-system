@@ -42,7 +42,7 @@ function FitToReserve({ reserve }) {
   return null
 }
 
-function PoiMapPicker({ reserve, enabled, onPick }) {
+function ReserveMapPicker({ reserve, enabled, onPick, onReject }) {
   useMapEvents({
     click(event) {
       if (!enabled || !reserve) {
@@ -52,6 +52,8 @@ function PoiMapPicker({ reserve, enabled, onPick }) {
       const { lat, lng } = event.latlng
       if (pointInsideReserve(reserve, lat, lng)) {
         onPick(lat, lng)
+      } else if (onReject) {
+        onReject()
       }
     }
   })
@@ -144,7 +146,9 @@ export default function ManagerWorkspace({
   const [eventForm, setEventForm] = useState(emptyEventForm)
   const [poiForm, setPoiForm] = useState(emptyPoiForm)
   const [editingPoiId, setEditingPoiId] = useState(null)
+  const [eventMapPickMode, setEventMapPickMode] = useState(false)
   const [poiMapPickMode, setPoiMapPickMode] = useState(false)
+  const [eventFormMessage, setEventFormMessage] = useState('')
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [seenNotificationIds, setSeenNotificationIds] = useState([])
 
@@ -225,6 +229,8 @@ export default function ManagerWorkspace({
 
   useEffect(() => {
     if (!selectedReserve) return
+    setEventMapPickMode(false)
+    setEventFormMessage('')
     setEventForm((current) => ({ ...current, latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '', longitude: selectedReserve.centerLongitude?.toFixed(4) ?? '' }))
   }, [selectedReserve?.id])
 
@@ -259,6 +265,20 @@ export default function ManagerWorkspace({
   async function submitEvent(event) {
     event.preventDefault()
     if (!selectedReserve) return
+    const latitude = Number(eventForm.latitude)
+    const longitude = Number(eventForm.longitude)
+
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+      setEventFormMessage('Enter valid latitude and longitude values before creating the event.')
+      return
+    }
+
+    if (!pointInsideReserve(selectedReserve, latitude, longitude)) {
+      setEventFormMessage('Event coordinates must stay inside the selected reserve boundary.')
+      return
+    }
+
+    setEventFormMessage('')
     await onCreateEvent(selectedReserve.id, eventForm)
     setEventForm((current) => ({ ...emptyEventForm, latitude: current.latitude, longitude: current.longitude }))
   }
@@ -318,6 +338,16 @@ export default function ManagerWorkspace({
       longitude: longitude.toFixed(4)
     }))
     setPoiMapPickMode(false)
+  }
+
+  function handleEventMapPick(latitude, longitude) {
+    setEventForm((current) => ({
+      ...current,
+      latitude: latitude.toFixed(4),
+      longitude: longitude.toFixed(4)
+    }))
+    setEventFormMessage('')
+    setEventMapPickMode(false)
   }
 
   function openNotification(item) {
@@ -410,12 +440,21 @@ export default function ManagerWorkspace({
                   <MapContainer key={`control-${selectedReserve.id}-${controlFilters.status}-${controlFilters.priority}`} center={reserveCenter(selectedReserve)} zoom={12} scrollWheelZoom className="reserve-map reserve-map-focus">
                     <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <FitToReserve reserve={selectedReserve} />
-                    <PoiMapPicker reserve={selectedReserve} enabled={poiMapPickMode} onPick={handlePoiMapPick} />
+                    <ReserveMapPicker
+                      reserve={selectedReserve}
+                      enabled={eventMapPickMode}
+                      onPick={handleEventMapPick}
+                      onReject={() => setEventFormMessage('Pick a point inside the reserve boundary.')}
+                    />
+                    <ReserveMapPicker reserve={selectedReserve} enabled={poiMapPickMode} onPick={handlePoiMapPick} />
                     <Rectangle
                       bounds={reserveBounds(selectedReserve)}
-                      pathOptions={{ color: '#d14b27', weight: 3, dashArray: '12 8', fillOpacity: poiMapPickMode ? 0.08 : 0 }}
+                      pathOptions={{ color: '#d14b27', weight: 3, dashArray: '12 8', fillOpacity: eventMapPickMode || poiMapPickMode ? 0.08 : 0 }}
                       eventHandlers={{
                         click: (event) => {
+                          if (eventMapPickMode && pointInsideReserve(selectedReserve, event.latlng.lat, event.latlng.lng)) {
+                            handleEventMapPick(event.latlng.lat, event.latlng.lng)
+                          }
                           if (poiMapPickMode && pointInsideReserve(selectedReserve, event.latlng.lat, event.latlng.lng)) {
                             handlePoiMapPick(event.latlng.lat, event.latlng.lng)
                           }
@@ -424,6 +463,7 @@ export default function ManagerWorkspace({
                     >
                       <Popup><strong>{selectedReserve.displayName}</strong><br />{selectedReserve.region}</Popup>
                     </Rectangle>
+                    {eventMapPickMode && eventForm.latitude && eventForm.longitude ? <CircleMarker center={[Number(eventForm.latitude), Number(eventForm.longitude)]} radius={10} pathOptions={{ color: '#7b2718', fillColor: '#f1aa88', fillOpacity: 0.95, weight: 2 }}><Popup>Pending event position</Popup></CircleMarker> : null}
                     {poiMapPickMode && poiForm.latitude && poiForm.longitude ? <Marker position={[Number(poiForm.latitude), Number(poiForm.longitude)]} icon={poiPinIcon('P')}><Popup>Pending POI position</Popup></Marker> : null}
                     {selectedReservePois.filter((poi) => typeof poi.latitude === 'number' && typeof poi.longitude === 'number').map((poi) => <Marker key={`poi-${poi.id}`} position={[poi.latitude, poi.longitude]} icon={poiPinIcon(poi.typeName)}><Popup><strong>{poi.name}</strong><br />{poi.typeName}<br />{poi.description || 'No description provided.'}</Popup></Marker>)}
                     {filteredControlEvents.filter((event) => typeof event.latitude === 'number' && typeof event.longitude === 'number').map((event) => <CircleMarker key={event.id} center={[event.latitude, event.longitude]} radius={priorityStyle(event.priority).markerRadius} pathOptions={{ color: priorityStyle(event.priority).accent, fillColor: priorityStyle(event.priority).fill, fillOpacity: 0.92, weight: 2 }}><Popup><strong>{event.type}</strong><br />{event.priority} priority<br />{event.status}<br />{event.description || 'No description provided.'}</Popup></CircleMarker>)}
@@ -441,13 +481,17 @@ export default function ManagerWorkspace({
                 <section>
                   <div className="panel-heading"><div><p className="eyebrow">Create event</p><h2>New reserve incident</h2></div></div>
                   <form className="event-form control-create-form" onSubmit={submitEvent}>
+                    <p className="muted poi-helper-text event-form-wide">Start by setting the event location, either by clicking inside the reserve on the map or by entering coordinates manually.</p>
+                    <label>Latitude<input type="number" step="0.0001" value={eventForm.latitude} onChange={(event) => { setEventForm((current) => ({ ...current, latitude: event.target.value })); setEventFormMessage('') }} required /></label>
+                    <label>Longitude<input type="number" step="0.0001" value={eventForm.longitude} onChange={(event) => { setEventForm((current) => ({ ...current, longitude: event.target.value })); setEventFormMessage('') }} required /></label>
+                    <div className="event-actions event-form-wide"><button type="button" className="secondary-button" onClick={() => { setEventForm((current) => ({ ...current, latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '', longitude: selectedReserve.centerLongitude?.toFixed(4) ?? '' })); setEventFormMessage(''); setEventMapPickMode(false) }}>Use reserve center</button><button type="button" className={eventMapPickMode ? '' : 'secondary-button'} onClick={() => { setEventMapPickMode((current) => !current); setEventFormMessage('') }}>{eventMapPickMode ? 'Cancel map pick' : 'Pick from map'}</button></div>
+                    <p className="muted poi-helper-text event-form-wide">{eventMapPickMode ? 'Click inside the reserve area on the map to place the event.' : 'Once the location is set, continue with the rest of the event details.'}</p>
+                    {eventFormMessage ? <p className="error-banner event-form-wide">{eventFormMessage}</p> : null}
                     <label>Type<select value={eventForm.type} onChange={(event) => setEventForm((current) => ({ ...current, type: event.target.value }))}><option value="FIRE">Fire</option><option value="BLOCKAGE">Blockage</option><option value="OTHER">Other</option></select></label>
                     <label>Priority<select value={eventForm.priority} onChange={(event) => setEventForm((current) => ({ ...current, priority: event.target.value }))}><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option></select></label>
                     <label className="event-form-wide">Description<textarea value={eventForm.description} onChange={(event) => setEventForm((current) => ({ ...current, description: event.target.value }))} placeholder="Describe the issue inside this reserve." /></label>
-                    <label>Latitude<input type="number" step="0.0001" value={eventForm.latitude} onChange={(event) => setEventForm((current) => ({ ...current, latitude: event.target.value }))} required /></label>
-                    <label>Longitude<input type="number" step="0.0001" value={eventForm.longitude} onChange={(event) => setEventForm((current) => ({ ...current, longitude: event.target.value }))} required /></label>
                     <label className="checkbox-row event-form-wide"><input type="checkbox" checked={eventForm.publishedToTravelers} onChange={(event) => setEventForm((current) => ({ ...current, publishedToTravelers: event.target.checked }))} />Publish this event to the traveler mobile app</label>
-                    <div className="event-actions event-form-wide"><button type="button" className="secondary-button" onClick={() => setEventForm((current) => ({ ...current, latitude: selectedReserve.centerLatitude?.toFixed(4) ?? '', longitude: selectedReserve.centerLongitude?.toFixed(4) ?? '' }))}>Use reserve center</button><button type="submit">Create event</button></div>
+                    <div className="event-actions event-form-wide"><button type="submit">Create event</button></div>
                   </form>
                 </section>
                 <section>
