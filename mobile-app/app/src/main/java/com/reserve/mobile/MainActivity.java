@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,15 +68,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button capturePhotoButton;
     private Button submitReportButton;
     private MaterialButton manualLocationButton;
-    private TextView northUpButton;
     private MaterialButton reportToggleButton;
     private MaterialButton poiToggleButton;
     private MaterialButton hazardToggleButton;
+    private TextView northUpButton;
+    private ImageButton mapLayersButton;
+    private ImageButton myLocationButton;
     private ImageButton weatherToggleButton;
     private ImageButton weatherExpandButton;
     private DrawerLayout drawerLayout;
     private ImageButton menuButton;
-    private ImageButton myLocationButton;
     private View reportPanel;
     private View bottomSpacer;
     private View weatherOverlay;
@@ -240,15 +242,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         capturePhotoButton = findViewById(R.id.capture_photo_button);
         submitReportButton = findViewById(R.id.submit_report_button);
         manualLocationButton = findViewById(R.id.manual_location_button);
-        northUpButton = findViewById(R.id.north_up_button);
         reportToggleButton = findViewById(R.id.report_toggle_button);
         poiToggleButton = findViewById(R.id.poi_toggle_button);
         hazardToggleButton = findViewById(R.id.hazard_toggle_button);
+        northUpButton = findViewById(R.id.north_up_button);
+        mapLayersButton = findViewById(R.id.map_layers_button);
+        myLocationButton = findViewById(R.id.my_location_button);
         weatherToggleButton = findViewById(R.id.weather_toggle_button);
         weatherExpandButton = findViewById(R.id.weather_expand_button);
         drawerLayout = findViewById(R.id.drawer_layout);
         menuButton = findViewById(R.id.menu_button);
-        myLocationButton = findViewById(R.id.my_location_button);
         reportPanel = findViewById(R.id.report_panel);
         bottomSpacer = findViewById(R.id.bottom_spacer);
         weatherOverlay = findViewById(R.id.weather_overlay);
@@ -301,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             moveCameraToUser(true);
         });
         northUpButton.setOnClickListener(view -> resetMapOrientation());
+        mapLayersButton.setOnClickListener(view -> showMapLayersMenu());
         poiToggleButton.setOnClickListener(view -> {
             mapController.setShowPois(!mapController.isShowingPois());
             onMapLayerChanged(false);
@@ -326,9 +330,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
-        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         googleMap.getUiSettings().setCompassEnabled(false);
+        googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {
             if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                 followUserCamera = false;
@@ -601,10 +606,55 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (googleMap == null) {
             return;
         }
-        CameraPosition current = googleMap.getCameraPosition();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                new CameraPosition.Builder(current).bearing(0f).tilt(0f).build()
-        ));
+
+        CameraPosition currentPosition = googleMap.getCameraPosition();
+        CameraPosition northUpPosition = new CameraPosition.Builder(currentPosition)
+                .bearing(0f)
+                .tilt(0f)
+                .build();
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(northUpPosition));
+    }
+
+    private void showMapLayersMenu() {
+        if (googleMap == null) {
+            return;
+        }
+
+        PopupMenu popupMenu = new PopupMenu(this, mapLayersButton);
+        popupMenu.inflate(R.menu.map_layers_menu);
+
+        int mapType = googleMap.getMapType();
+        popupMenu.getMenu().findItem(R.id.layer_type_normal).setChecked(mapType == GoogleMap.MAP_TYPE_NORMAL);
+        popupMenu.getMenu().findItem(R.id.layer_type_satellite).setChecked(mapType == GoogleMap.MAP_TYPE_SATELLITE);
+        popupMenu.getMenu().findItem(R.id.layer_type_terrain).setChecked(mapType == GoogleMap.MAP_TYPE_TERRAIN);
+        popupMenu.getMenu().findItem(R.id.layer_type_hybrid).setChecked(mapType == GoogleMap.MAP_TYPE_HYBRID);
+        popupMenu.getMenu().findItem(R.id.layer_traffic).setChecked(googleMap.isTrafficEnabled());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.layer_type_normal) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            }
+            if (itemId == R.id.layer_type_satellite) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                return true;
+            }
+            if (itemId == R.id.layer_type_terrain) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                return true;
+            }
+            if (itemId == R.id.layer_type_hybrid) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            }
+            if (itemId == R.id.layer_traffic) {
+                googleMap.setTrafficEnabled(!googleMap.isTrafficEnabled());
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
     }
 
     private void launchCameraCapture() {
@@ -650,9 +700,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 poiToggleButton,
                 hazardToggleButton,
                 weatherToggleButton,
+                northUpButton,
+                mapLayersButton,
                 menuButton,
                 myLocationButton,
-                northUpButton
+                weatherExpandButton
         };
         for (View control : controls) {
             control.setEnabled(enabled);

@@ -43,6 +43,12 @@
     <string name="my_location">Back to my location</string>
     <string name="north_up">North up</string>
     <string name="north_up_short">N&#8593;</string>
+    <string name="map_layers">Map layers</string>
+    <string name="layer_type_normal">Normal</string>
+    <string name="layer_type_satellite">Satellite</string>
+    <string name="layer_type_terrain">Terrain</string>
+    <string name="layer_type_hybrid">Hybrid</string>
+    <string name="layer_traffic">Traffic</string>
     <string name="poi_on">POI on</string>
     <string name="poi_off">POI off</string>
     <string name="hazards_on">Hazards on</string>
