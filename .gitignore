@@ -40,9 +40,18 @@ web-app/dist/
 *.log
 *.live.log
 .tmp-*.png
+
+# Mobile app local/generated files
 mobile-app/local.properties
 mobile-app/.gradle/
-mobile-app/gradle.properties
+mobile-app/.gradle-user/
+mobile-app/.android/
+mobile-app/icons/
+mobile-app/captures/
+mobile-app/*.apk
+mobile-app/*.aab
+mobile-app/*.jks
+mobile-app/*.keystore
 uploads/
 .chrono-repo/
 .fresh-repo/

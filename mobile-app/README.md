@@ -31,10 +31,13 @@ Helpful docs:
 ## Run
 
 1. Open `mobile-app` in Android Studio.
-2. Add API keys to `mobile-app/gradle.properties`:
+2. Add your local API values in your user Gradle properties (`%USERPROFILE%\\.gradle\\gradle.properties`) so they stay out of Git:
    - `MAPS_API_KEY=...`
    - `OPEN_WEATHER_API_KEY=...`
-   You can also put them in your user Gradle properties (`%USERPROFILE%\\.gradle\\gradle.properties`) to keep local secrets out of project files.
+   - Optional overrides:
+     `BACKEND_API_BASE=...`
+     `OPEN_WEATHER_API_BASE=...`
+   See `mobile-app/gradle.properties.example` for the expected keys.
 3. Start an emulator.
 4. Run the `app` configuration.
 
