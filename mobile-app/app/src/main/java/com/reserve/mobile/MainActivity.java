@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final long HAZARD_POLL_INTERVAL_MS = 15000L;
+    private static final long BACKEND_RETRY_INTERVAL_MS = 5000L;
     private static final int COLOR_STATUS_CHECKING = android.graphics.Color.parseColor("#735A2E");
     private static final int COLOR_STATUS_ONLINE = android.graphics.Color.parseColor("#2C7A57");
     private static final int COLOR_STATUS_OFFLINE = android.graphics.Color.parseColor("#B4473A");
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapController mapController;
     private WeatherUiController weatherController;
     private EventPollingController hazardPollingController;
+    private EventPollingController backendRetryController;
     private EventReportUiController reportUiController;
     private ReportMediaController reportMediaController;
     private ReportSubmissionController reportSubmissionController;
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean followUserCamera = true;
     private boolean hasCenteredOnUser = false;
     private boolean showWeather = false;
+    private boolean reserveRefreshInFlight = false;
+    private boolean poiRefreshInFlight = false;
     private boolean hazardRefreshInFlight = false;
 
     // Controller hosts
@@ -139,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onReportSubmitted() {
             resetReportDraft();
             reportUiController.setReportPanelVisible(false, reportPanel, bottomSpacer, reportToggleButton);
+            updateFloatingUiForReportPanel(false);
         }
 
         @Override
@@ -198,6 +203,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         hazardPollingController = new EventPollingController(
                 HAZARD_POLL_INTERVAL_MS,
                 this::loadPublishedHazards
+        );
+        backendRetryController = new EventPollingController(
+                BACKEND_RETRY_INTERVAL_MS,
+                this::retryBackendConnection
         );
         reportUiController = new EventReportUiController();
         locationController = new LocationController(fusedLocationClient);
@@ -352,14 +361,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void loadReserves() {
+        if (reserveRefreshInFlight) {
+            return;
+        }
+        reserveRefreshInFlight = true;
         executorService.execute(() -> {
             try {
                 List<Reserve> loadedReserves = reserveApiClient.loadReserves();
                 runOnUiThread(() -> onReservesLoaded(loadedReserves));
             } catch (Exception exception) {
                 runOnUiThread(() -> {
+                    reserveRefreshInFlight = false;
                     updateServerStatus(false);
                     statusText.setText(R.string.status_reserve_load_failed);
+                    backendRetryController.start();
                 });
             }
         });
@@ -379,30 +394,65 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     updateServerStatus(false);
                     statusText.setText(R.string.status_hazard_load_failed);
                     hazardRefreshInFlight = false;
+                    backendRetryController.start();
                 });
             }
         });
     }
 
     private void loadReservePois() {
-        if (reserves.isEmpty()) {
+        if (reserves.isEmpty() || poiRefreshInFlight) {
             return;
         }
+        poiRefreshInFlight = true;
         executorService.execute(() -> {
             try {
                 List<Poi> loadedPois = reserveApiClient.loadPois(reserves);
                 runOnUiThread(() -> onPoisLoaded(loadedPois));
             } catch (Exception exception) {
-                runOnUiThread(() -> showShortToast(R.string.status_poi_load_failed));
+                runOnUiThread(() -> {
+                    poiRefreshInFlight = false;
+                    showShortToast(R.string.status_poi_load_failed);
+                });
             }
         });
     }
 
+    private void retryBackendConnection() {
+        if (reserves.isEmpty()) {
+            loadReserves();
+            return;
+        }
+
+        loadPublishedHazards();
+        if (allPois.isEmpty()) {
+            loadReservePois();
+        }
+    }
+
     private void toggleReportPanel() {
         boolean reportPanelVisible = reportUiController.toggleReportPanel(reportPanel, bottomSpacer, reportToggleButton);
+        updateFloatingUiForReportPanel(reportPanelVisible);
         if (reportPanelVisible && !currentReserveState.hasActiveReserve()) {
             showShortToast(R.string.report_pick_location);
         }
+    }
+
+    private void updateFloatingUiForReportPanel(boolean reportPanelVisible) {
+        int visibility = reportPanelVisible ? View.GONE : View.VISIBLE;
+        menuButton.setVisibility(visibility);
+        mapLayersButton.setVisibility(visibility);
+        myLocationButton.setVisibility(visibility);
+        northUpButton.setVisibility(visibility);
+        weatherToggleButton.setVisibility(visibility);
+
+        if (reportPanelVisible) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            weatherOverlay.setVisibility(View.GONE);
+            return;
+        }
+
+        refreshWeather(false);
     }
 
     private void startManualLocationSelection() {
@@ -445,6 +495,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onReservesLoaded(List<Reserve> loadedReserves) {
+        reserveRefreshInFlight = false;
         updateServerStatus(true);
         reserves.clear();
         reserves.addAll(loadedReserves);
@@ -459,6 +510,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onPoisLoaded(List<Poi> loadedPois) {
+        poiRefreshInFlight = false;
         updateServerStatus(true);
         allPois.clear();
         allPois.addAll(loadedPois);
@@ -473,6 +525,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         updateReserveState();
         statusText.setText("");
         hazardRefreshInFlight = false;
+        backendRetryController.stop();
         hazardPollingController.start();
     }
 
@@ -733,7 +786,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void refreshWeather(boolean forceRefresh) {
         weatherController.refreshWeather(
-                showWeather,
+                showWeather && !reportUiController.isReportPanelVisible(),
                 forceRefresh,
                 currentUserLatLng,
                 weatherOverlay,
@@ -761,6 +814,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        backendRetryController.stop();
         hazardPollingController.stop();
         if (locationController != null) {
             locationController.stopTracking();

@@ -247,6 +247,11 @@ public class MapController {
         if ("parking".equals(normalizedType)) {
             return R.drawable.poi_parking;
         }
+        if ("picnic area".equals(normalizedType)
+                || "picnic site".equals(normalizedType)
+                || "picnic".equals(normalizedType)) {
+            return R.drawable.poi_picnic_area;
+        }
         if ("information desk".equals(normalizedType)) {
             return R.drawable.poi_information_desk;
         }

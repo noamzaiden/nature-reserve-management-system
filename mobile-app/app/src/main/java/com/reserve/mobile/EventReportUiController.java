@@ -29,6 +29,10 @@ final class EventReportUiController {
         return reportPanelVisible;
     }
 
+    boolean isReportPanelVisible() {
+        return reportPanelVisible;
+    }
+
     void startManualLocationSelection(MaterialButton manualLocationButton) {
         selectingManualLocation = true;
         manualLocationButton.setText(R.string.report_manual_location_waiting);

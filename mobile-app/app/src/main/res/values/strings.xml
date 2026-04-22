@@ -10,8 +10,8 @@
     <string name="status_location_permission_needed">Location permission is needed so the app can tell which reserve you are in.</string>
     <string name="status_location_waiting">Waiting for your live location...</string>
     <string name="status_map_ready">Map ready.</string>
-    <string name="status_reserve_load_failed">Could not load reserve boundaries. Make sure the backend is running.</string>
-    <string name="status_hazard_load_failed">Could not refresh hazards.</string>
+    <string name="status_reserve_load_failed">Could not load reserve boundaries. Make sure the backend is running. Retrying automatically...</string>
+    <string name="status_hazard_load_failed">Could not refresh hazards. Retrying automatically...</string>
     <string name="status_report_sending">Sending your report...</string>
     <string name="status_report_sent">Report sent for review.</string>
     <string name="status_report_failed">Could not send the report.</string>
