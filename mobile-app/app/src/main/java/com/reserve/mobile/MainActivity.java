@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationController.Host {
 
     private static final long HAZARD_POLL_INTERVAL_MS = 15000L;
     private static final long BACKEND_RETRY_INTERVAL_MS = 5000L;
@@ -156,41 +156,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             MainActivity.this.updateServerStatus(online);
         }
     };
-    private final LocationController.Host locationControllerHost = new LocationController.Host() {
-        @Override
-        public boolean hasLocationPermission() {
-            return MainActivity.this.hasLocationPermission();
-        }
-
-        @Override
-        public void requestLocationPermissions() {
-            locationPermissionLauncher.launch(LOCATION_PERMISSIONS);
-        }
-
-        @Override
-        public void onLocationPermissionDenied() {
-            statusText.setText(R.string.status_location_permission_needed);
-            updateReserveState();
-        }
-
-        @Override
-        public void onInitialLocationAvailable(LatLng latLng) {
-            applyCurrentLocation(latLng, true, false);
-        }
-
-        @Override
-        public void onLiveLocationAvailable(LatLng latLng) {
-            boolean shouldCenterCamera = followUserCamera || !hasCenteredOnUser;
-            applyCurrentLocation(latLng, shouldCenterCamera, hasCenteredOnUser);
-        }
-
-        @Override
-        public void onLocationUnavailable() {
-            statusText.setText(R.string.status_location_waiting);
-            updateReportLocationText();
-            refreshWeather(false);
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -294,8 +259,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 result -> {
                     boolean granted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION))
                             || Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_COARSE_LOCATION));
+                    if (!granted) {
+                        onLocationPermissionDenied();
+                        return;
+                    }
                     if (locationController != null) {
-                        locationController.onPermissionResult(granted, googleMap, locationControllerHost);
+                        locationController.startTracking(googleMap, this);
                     }
                 }
         );
@@ -358,6 +327,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         refreshMapContent();
         startLocationTracking();
         statusText.setText("");
+    }
+
+    @Override
+    public void onInitialLocationAvailable(LatLng latLng) {
+        applyCurrentLocation(latLng, true, false);
+    }
+
+    @Override
+    public void onLiveLocationAvailable(LatLng latLng) {
+        boolean shouldCenterCamera = followUserCamera || !hasCenteredOnUser;
+        applyCurrentLocation(latLng, shouldCenterCamera, hasCenteredOnUser);
+    }
+
+    @Override
+    public void onLocationUnavailable() {
+        statusText.setText(R.string.status_location_waiting);
+        updateReportLocationText();
+        refreshWeather(false);
     }
 
     private void loadReserves() {
@@ -623,9 +610,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void startLocationTracking() {
-        if (locationController != null) {
-            locationController.startTracking(googleMap, locationControllerHost);
+        if (!hasLocationPermission()) {
+            locationPermissionLauncher.launch(LOCATION_PERMISSIONS);
+            return;
         }
+        if (locationController != null) {
+            locationController.startTracking(googleMap, this);
+        }
+    }
+
+    private void onLocationPermissionDenied() {
+        statusText.setText(R.string.status_location_permission_needed);
+        updateReserveState();
     }
 
     private void applyCurrentLocation(LatLng latLng, boolean centerCamera, boolean animatedCamera) {
