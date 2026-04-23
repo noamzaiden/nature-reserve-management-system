@@ -323,6 +323,7 @@ export default function App() {
   if (profile?.role !== 'ADMIN') {
     return (
       <ManagerWorkspace
+        apiBase={API_BASE}
         profile={profile}
         loading={loading}
         error={error}
