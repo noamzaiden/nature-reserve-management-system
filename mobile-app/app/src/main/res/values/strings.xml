@@ -10,8 +10,8 @@
     <string name="status_location_permission_needed">Location permission is needed so the app can tell which reserve you are in.</string>
     <string name="status_location_waiting">Waiting for your live location...</string>
     <string name="status_map_ready">Map ready.</string>
-    <string name="status_reserve_load_failed">Could not load reserve boundaries. Make sure the backend is running.</string>
-    <string name="status_hazard_load_failed">Could not refresh hazards.</string>
+    <string name="status_reserve_load_failed">Could not load reserve boundaries. Make sure the backend is running. Retrying automatically...</string>
+    <string name="status_hazard_load_failed">Could not refresh hazards. Retrying automatically...</string>
     <string name="status_report_sending">Sending your report...</string>
     <string name="status_report_sent">Report sent for review.</string>
     <string name="status_report_failed">Could not send the report.</string>
@@ -21,7 +21,7 @@
     <string name="open_menu">Open side menu</string>
     <string name="open_menu_fire_alert">Open side menu. Fire alert in the current reserve.</string>
     <string name="drawer_title">Map menu</string>
-    <string name="drawer_subtitle">Map layers and quick controls.</string>
+    <string name="drawer_subtitle">Hide/view map elements</string>
     <string name="drawer_map_section">Map layers</string>
     <string name="server_status_checking">Server: checking...</string>
     <string name="server_status_online">Server: online</string>
@@ -43,6 +43,12 @@
     <string name="my_location">Back to my location</string>
     <string name="north_up">North up</string>
     <string name="north_up_short">N&#8593;</string>
+    <string name="map_layers">Map layers</string>
+    <string name="layer_type_normal">Normal</string>
+    <string name="layer_type_satellite">Satellite</string>
+    <string name="layer_type_terrain">Terrain</string>
+    <string name="layer_type_hybrid">Hybrid</string>
+    <string name="layer_traffic">Traffic</string>
     <string name="poi_on">POI on</string>
     <string name="poi_off">POI off</string>
     <string name="hazards_on">Hazards on</string>

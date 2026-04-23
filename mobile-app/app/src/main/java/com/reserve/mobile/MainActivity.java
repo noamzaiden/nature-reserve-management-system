@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,9 +37,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationController.Host {
 
     private static final long HAZARD_POLL_INTERVAL_MS = 15000L;
+    private static final long BACKEND_RETRY_INTERVAL_MS = 5000L;
     private static final int COLOR_STATUS_CHECKING = android.graphics.Color.parseColor("#735A2E");
     private static final int COLOR_STATUS_ONLINE = android.graphics.Color.parseColor("#2C7A57");
     private static final int COLOR_STATUS_OFFLINE = android.graphics.Color.parseColor("#B4473A");
@@ -67,15 +69,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button capturePhotoButton;
     private Button submitReportButton;
     private MaterialButton manualLocationButton;
-    private TextView northUpButton;
     private MaterialButton reportToggleButton;
     private MaterialButton poiToggleButton;
     private MaterialButton hazardToggleButton;
+    private TextView northUpButton;
+    private ImageButton mapLayersButton;
+    private ImageButton myLocationButton;
     private ImageButton weatherToggleButton;
     private ImageButton weatherExpandButton;
     private DrawerLayout drawerLayout;
     private ImageButton menuButton;
-    private ImageButton myLocationButton;
     private View reportPanel;
     private View bottomSpacer;
     private View weatherOverlay;
@@ -100,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapController mapController;
     private WeatherUiController weatherController;
     private EventPollingController hazardPollingController;
+    private EventPollingController backendRetryController;
     private EventReportUiController reportUiController;
     private ReportMediaController reportMediaController;
     private ReportSubmissionController reportSubmissionController;
@@ -109,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean followUserCamera = true;
     private boolean hasCenteredOnUser = false;
     private boolean showWeather = false;
+    private boolean reserveRefreshInFlight = false;
+    private boolean poiRefreshInFlight = false;
     private boolean hazardRefreshInFlight = false;
 
     // Controller hosts
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onReportSubmitted() {
             resetReportDraft();
             reportUiController.setReportPanelVisible(false, reportPanel, bottomSpacer, reportToggleButton);
+            updateFloatingUiForReportPanel(false);
         }
 
         @Override
@@ -147,41 +154,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         public void updateServerStatus(boolean online) {
             MainActivity.this.updateServerStatus(online);
-        }
-    };
-    private final LocationController.Host locationControllerHost = new LocationController.Host() {
-        @Override
-        public boolean hasLocationPermission() {
-            return MainActivity.this.hasLocationPermission();
-        }
-
-        @Override
-        public void requestLocationPermissions() {
-            locationPermissionLauncher.launch(LOCATION_PERMISSIONS);
-        }
-
-        @Override
-        public void onLocationPermissionDenied() {
-            statusText.setText(R.string.status_location_permission_needed);
-            updateReserveState();
-        }
-
-        @Override
-        public void onInitialLocationAvailable(LatLng latLng) {
-            applyCurrentLocation(latLng, true, false);
-        }
-
-        @Override
-        public void onLiveLocationAvailable(LatLng latLng) {
-            boolean shouldCenterCamera = followUserCamera || !hasCenteredOnUser;
-            applyCurrentLocation(latLng, shouldCenterCamera, hasCenteredOnUser);
-        }
-
-        @Override
-        public void onLocationUnavailable() {
-            statusText.setText(R.string.status_location_waiting);
-            updateReportLocationText();
-            refreshWeather(false);
         }
     };
 
@@ -196,6 +168,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         hazardPollingController = new EventPollingController(
                 HAZARD_POLL_INTERVAL_MS,
                 this::loadPublishedHazards
+        );
+        backendRetryController = new EventPollingController(
+                BACKEND_RETRY_INTERVAL_MS,
+                this::retryBackendConnection
         );
         reportUiController = new EventReportUiController();
         locationController = new LocationController(fusedLocationClient);
@@ -240,15 +216,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         capturePhotoButton = findViewById(R.id.capture_photo_button);
         submitReportButton = findViewById(R.id.submit_report_button);
         manualLocationButton = findViewById(R.id.manual_location_button);
-        northUpButton = findViewById(R.id.north_up_button);
         reportToggleButton = findViewById(R.id.report_toggle_button);
         poiToggleButton = findViewById(R.id.poi_toggle_button);
         hazardToggleButton = findViewById(R.id.hazard_toggle_button);
+        northUpButton = findViewById(R.id.north_up_button);
+        mapLayersButton = findViewById(R.id.map_layers_button);
+        myLocationButton = findViewById(R.id.my_location_button);
         weatherToggleButton = findViewById(R.id.weather_toggle_button);
         weatherExpandButton = findViewById(R.id.weather_expand_button);
         drawerLayout = findViewById(R.id.drawer_layout);
         menuButton = findViewById(R.id.menu_button);
-        myLocationButton = findViewById(R.id.my_location_button);
         reportPanel = findViewById(R.id.report_panel);
         bottomSpacer = findViewById(R.id.bottom_spacer);
         weatherOverlay = findViewById(R.id.weather_overlay);
@@ -282,8 +259,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 result -> {
                     boolean granted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION))
                             || Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_COARSE_LOCATION));
+                    if (!granted) {
+                        onLocationPermissionDenied();
+                        return;
+                    }
                     if (locationController != null) {
-                        locationController.onPermissionResult(granted, googleMap, locationControllerHost);
+                        locationController.startTracking(googleMap, this);
                     }
                 }
         );
@@ -301,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             moveCameraToUser(true);
         });
         northUpButton.setOnClickListener(view -> resetMapOrientation());
+        mapLayersButton.setOnClickListener(view -> showMapLayersMenu());
         poiToggleButton.setOnClickListener(view -> {
             mapController.setShowPois(!mapController.isShowingPois());
             onMapLayerChanged(false);
@@ -326,9 +308,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
-        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         googleMap.getUiSettings().setCompassEnabled(false);
+        googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
         googleMap.setOnCameraMoveStartedListener(reason -> {
             if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                 followUserCamera = false;
@@ -346,15 +329,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         statusText.setText("");
     }
 
+    @Override
+    public void onInitialLocationAvailable(LatLng latLng) {
+        applyCurrentLocation(latLng, true, false);
+    }
+
+    @Override
+    public void onLiveLocationAvailable(LatLng latLng) {
+        boolean shouldCenterCamera = followUserCamera || !hasCenteredOnUser;
+        applyCurrentLocation(latLng, shouldCenterCamera, hasCenteredOnUser);
+    }
+
+    @Override
+    public void onLocationUnavailable() {
+        statusText.setText(R.string.status_location_waiting);
+        updateReportLocationText();
+        refreshWeather(false);
+    }
+
     private void loadReserves() {
+        if (reserveRefreshInFlight) {
+            return;
+        }
+        reserveRefreshInFlight = true;
         executorService.execute(() -> {
             try {
                 List<Reserve> loadedReserves = reserveApiClient.loadReserves();
                 runOnUiThread(() -> onReservesLoaded(loadedReserves));
             } catch (Exception exception) {
                 runOnUiThread(() -> {
+                    reserveRefreshInFlight = false;
                     updateServerStatus(false);
                     statusText.setText(R.string.status_reserve_load_failed);
+                    backendRetryController.start();
                 });
             }
         });
@@ -374,30 +381,65 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     updateServerStatus(false);
                     statusText.setText(R.string.status_hazard_load_failed);
                     hazardRefreshInFlight = false;
+                    backendRetryController.start();
                 });
             }
         });
     }
 
     private void loadReservePois() {
-        if (reserves.isEmpty()) {
+        if (reserves.isEmpty() || poiRefreshInFlight) {
             return;
         }
+        poiRefreshInFlight = true;
         executorService.execute(() -> {
             try {
                 List<Poi> loadedPois = reserveApiClient.loadPois(reserves);
                 runOnUiThread(() -> onPoisLoaded(loadedPois));
             } catch (Exception exception) {
-                runOnUiThread(() -> showShortToast(R.string.status_poi_load_failed));
+                runOnUiThread(() -> {
+                    poiRefreshInFlight = false;
+                    showShortToast(R.string.status_poi_load_failed);
+                });
             }
         });
     }
 
+    private void retryBackendConnection() {
+        if (reserves.isEmpty()) {
+            loadReserves();
+            return;
+        }
+
+        loadPublishedHazards();
+        if (allPois.isEmpty()) {
+            loadReservePois();
+        }
+    }
+
     private void toggleReportPanel() {
         boolean reportPanelVisible = reportUiController.toggleReportPanel(reportPanel, bottomSpacer, reportToggleButton);
+        updateFloatingUiForReportPanel(reportPanelVisible);
         if (reportPanelVisible && !currentReserveState.hasActiveReserve()) {
             showShortToast(R.string.report_pick_location);
         }
+    }
+
+    private void updateFloatingUiForReportPanel(boolean reportPanelVisible) {
+        int visibility = reportPanelVisible ? View.GONE : View.VISIBLE;
+        menuButton.setVisibility(visibility);
+        mapLayersButton.setVisibility(visibility);
+        myLocationButton.setVisibility(visibility);
+        northUpButton.setVisibility(visibility);
+        weatherToggleButton.setVisibility(visibility);
+
+        if (reportPanelVisible) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            weatherOverlay.setVisibility(View.GONE);
+            return;
+        }
+
+        refreshWeather(false);
     }
 
     private void startManualLocationSelection() {
@@ -440,6 +482,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onReservesLoaded(List<Reserve> loadedReserves) {
+        reserveRefreshInFlight = false;
         updateServerStatus(true);
         reserves.clear();
         reserves.addAll(loadedReserves);
@@ -454,6 +497,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onPoisLoaded(List<Poi> loadedPois) {
+        poiRefreshInFlight = false;
         updateServerStatus(true);
         allPois.clear();
         allPois.addAll(loadedPois);
@@ -468,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         updateReserveState();
         statusText.setText("");
         hazardRefreshInFlight = false;
+        backendRetryController.stop();
         hazardPollingController.start();
     }
 
@@ -565,9 +610,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void startLocationTracking() {
-        if (locationController != null) {
-            locationController.startTracking(googleMap, locationControllerHost);
+        if (!hasLocationPermission()) {
+            locationPermissionLauncher.launch(LOCATION_PERMISSIONS);
+            return;
         }
+        if (locationController != null) {
+            locationController.startTracking(googleMap, this);
+        }
+    }
+
+    private void onLocationPermissionDenied() {
+        statusText.setText(R.string.status_location_permission_needed);
+        updateReserveState();
     }
 
     private void applyCurrentLocation(LatLng latLng, boolean centerCamera, boolean animatedCamera) {
@@ -601,10 +655,55 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (googleMap == null) {
             return;
         }
-        CameraPosition current = googleMap.getCameraPosition();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                new CameraPosition.Builder(current).bearing(0f).tilt(0f).build()
-        ));
+
+        CameraPosition currentPosition = googleMap.getCameraPosition();
+        CameraPosition northUpPosition = new CameraPosition.Builder(currentPosition)
+                .bearing(0f)
+                .tilt(0f)
+                .build();
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(northUpPosition));
+    }
+
+    private void showMapLayersMenu() {
+        if (googleMap == null) {
+            return;
+        }
+
+        PopupMenu popupMenu = new PopupMenu(this, mapLayersButton);
+        popupMenu.inflate(R.menu.map_layers_menu);
+
+        int mapType = googleMap.getMapType();
+        popupMenu.getMenu().findItem(R.id.layer_type_normal).setChecked(mapType == GoogleMap.MAP_TYPE_NORMAL);
+        popupMenu.getMenu().findItem(R.id.layer_type_satellite).setChecked(mapType == GoogleMap.MAP_TYPE_SATELLITE);
+        popupMenu.getMenu().findItem(R.id.layer_type_terrain).setChecked(mapType == GoogleMap.MAP_TYPE_TERRAIN);
+        popupMenu.getMenu().findItem(R.id.layer_type_hybrid).setChecked(mapType == GoogleMap.MAP_TYPE_HYBRID);
+        popupMenu.getMenu().findItem(R.id.layer_traffic).setChecked(googleMap.isTrafficEnabled());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.layer_type_normal) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            }
+            if (itemId == R.id.layer_type_satellite) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                return true;
+            }
+            if (itemId == R.id.layer_type_terrain) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                return true;
+            }
+            if (itemId == R.id.layer_type_hybrid) {
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            }
+            if (itemId == R.id.layer_traffic) {
+                googleMap.setTrafficEnabled(!googleMap.isTrafficEnabled());
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
     }
 
     private void launchCameraCapture() {
@@ -650,9 +749,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 poiToggleButton,
                 hazardToggleButton,
                 weatherToggleButton,
+                northUpButton,
+                mapLayersButton,
                 menuButton,
                 myLocationButton,
-                northUpButton
+                weatherExpandButton
         };
         for (View control : controls) {
             control.setEnabled(enabled);
@@ -681,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void refreshWeather(boolean forceRefresh) {
         weatherController.refreshWeather(
-                showWeather,
+                showWeather && !reportUiController.isReportPanelVisible(),
                 forceRefresh,
                 currentUserLatLng,
                 weatherOverlay,
@@ -709,6 +810,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        backendRetryController.stop();
         hazardPollingController.stop();
         if (locationController != null) {
             locationController.stopTracking();

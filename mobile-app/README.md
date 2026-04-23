@@ -4,6 +4,7 @@ Android client for travelers who want to view reserve hazards on a map, detect w
 
 Helpful docs:
 
+- `../docs/mobile-app-presentation-study-guide.md`
 - `../docs/mobile-app-newcomer-guide.md`
 - `../docs/mobile-app-programmer-guide.md`
 - `../docs/mobile-app-file-reference-table.md`
@@ -34,16 +35,16 @@ Helpful docs:
 ## Run
 
 1. Open `mobile-app` in Android Studio.
-
-
-2. Create `mobile-app/gradle.properties` from `mobile-app/gradle.properties.example`.
-3. Add your local API keys to `mobile-app/gradle.properties`:
+2. Add your local API values in your user Gradle properties (`%USERPROFILE%\\.gradle\\gradle.properties`) so they stay out of Git:
    - `MAPS_API_KEY=...`
    - `OPEN_WEATHER_API_KEY=...`
-4. You can also place these values in `%USERPROFILE%\.gradle\gradle.properties` instead of creating a project-local file.
-5. Start an emulator.
-6. Run the `app` configuration.
+   - Optional overrides:
+     `BACKEND_API_BASE=...`
+     `OPEN_WEATHER_API_BASE=...`
+   See `mobile-app/gradle.properties.example` for the expected keys.
+3. Start an emulator.
+4. Run the `app` configuration.
 
-`mobile-app/gradle.properties` is for local use only and should not be committed.
+`mobile-app/gradle.properties` keeps shared non-secret Gradle settings. Put personal API values in your user Gradle properties so they do not get committed.
 
-The backend must already be running on `http://localhost:8080`.
+The app targets `http://localhost:8080` through `10.0.2.2` on the Android emulator. If the backend starts after the app, the mobile client now retries automatically and reconnects when the server becomes available.

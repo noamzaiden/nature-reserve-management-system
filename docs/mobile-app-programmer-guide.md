@@ -7,6 +7,7 @@ Related docs:
 - [Mobile App Architecture and Planning Document](./mobile-app-planning.md)
 - [Android App Block Diagram](./android-app-block-diagram.md)
 - [MainActivity Workflow](./main-activity-workflow.md)
+- [Mobile App UML Class Diagram](./mobile-app-uml-class-diagram.md)
 
 ## Fast Reading Order
 

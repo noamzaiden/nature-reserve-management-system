@@ -344,11 +344,7 @@ flowchart LR
 - `app/src/main/res/values/strings.xml`
   All user-facing text, report types, and pluralized counters.
 - `app/src/main/res/values/dimens.xml`
-  Default phone dimensions.
-- `app/src/main/res/values-land/dimens.xml`
-  Landscape-specific dimension overrides.
-- `app/src/main/res/values-sw600dp/dimens.xml`
-  Larger-screen dimension overrides.
+  Shared dimensions across all screen sizes and orientations.
 
 ### Drawable resources
 

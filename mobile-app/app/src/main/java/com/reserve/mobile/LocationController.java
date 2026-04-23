@@ -17,12 +17,6 @@ import com.google.android.gms.maps.model.LatLng;
 final class LocationController {
 
     interface Host {
-        boolean hasLocationPermission();
-
-        void requestLocationPermissions();
-
-        void onLocationPermissionDenied();
-
         void onInitialLocationAvailable(LatLng latLng);
 
         void onLiveLocationAvailable(LatLng latLng);
@@ -38,21 +32,8 @@ final class LocationController {
         this.fusedLocationClient = fusedLocationClient;
     }
 
-    void onPermissionResult(boolean granted, GoogleMap googleMap, Host host) {
-        if (granted) {
-            startTracking(googleMap, host);
-        } else {
-            host.onLocationPermissionDenied();
-        }
-    }
-
     @SuppressLint("MissingPermission")
     void startTracking(GoogleMap googleMap, Host host) {
-        if (!host.hasLocationPermission()) {
-            host.requestLocationPermissions();
-            return;
-        }
-
         enableMyLocationLayer(googleMap);
         ensureLocationCallback(host);
 

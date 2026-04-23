@@ -28,9 +28,7 @@ This document summarizes the Java classes and XML files in the Android `mobile-a
 | `AndroidManifest.xml` | Declares app permissions, the launcher `MainActivity`, the Google Maps API key metadata, and the `FileProvider` used by camera capture. |
 | `activity_main.xml` | Main screen layout. It defines the map fragment, top status card, floating controls, weather overlay, side drawer, and report panel. |
 | `strings.xml` | Central string resource file for user-facing text, status messages, report labels, string arrays, and pluralized attachment and hazard text. |
-| `dimens.xml` | Default phone dimensions for padding, floating controls, panel sizes, drawer width, and weather overlay placement. |
-| `dimens.xml` in `values-land` | Landscape-specific dimension overrides that shrink vertically heavy UI elements for shorter screens. |
-| `dimens.xml` in `values-sw600dp` | Large-screen dimension overrides for tablets and wider devices. |
+| `dimens.xml` | Shared dimensions for padding, floating controls, panel sizes, drawer width, and weather overlay placement across all screen sizes and orientations. |
 | `file_paths.xml` | `FileProvider` path configuration that allows camera-created report images to be shared safely through app-managed file paths. |
 | `bg_map_round_button.xml` | Base circular drawable background used by the floating map buttons. |
 | `bg_map_round_button_active.xml` | Active-state circular background used when the weather toggle is on. |
