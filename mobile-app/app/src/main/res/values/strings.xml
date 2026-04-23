@@ -21,7 +21,7 @@
     <string name="open_menu">Open side menu</string>
     <string name="open_menu_fire_alert">Open side menu. Fire alert in the current reserve.</string>
     <string name="drawer_title">Map menu</string>
-    <string name="drawer_subtitle">Map layers and quick controls.</string>
+    <string name="drawer_subtitle">Hide/view map elements</string>
     <string name="drawer_map_section">Map layers</string>
     <string name="server_status_checking">Server: checking...</string>
     <string name="server_status_online">Server: online</string>

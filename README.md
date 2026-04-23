@@ -57,7 +57,16 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
+Windows shortcut from the repo root to start the database, backend, and web app together:
+
+```powershell
+.\run-backend.cmd
+```
+
+The script opens the backend and web app in separate terminal windows.
+
 Backend base URL: `http://localhost:8080`
+Web app URL: `http://localhost:5173`
 
 Useful endpoints:
 

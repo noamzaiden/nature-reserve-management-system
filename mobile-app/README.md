@@ -4,6 +4,7 @@ Android client for travelers who want to view reserve hazards on a map, detect w
 
 Helpful docs:
 
+- `../docs/mobile-app-presentation-study-guide.md`
 - `../docs/mobile-app-newcomer-guide.md`
 - `../docs/mobile-app-programmer-guide.md`
 - `../docs/mobile-app-file-reference-table.md`
@@ -46,4 +47,4 @@ Helpful docs:
 
 `mobile-app/gradle.properties` keeps shared non-secret Gradle settings. Put personal API values in your user Gradle properties so they do not get committed.
 
-The backend must already be running on `http://localhost:8080`.
+The app targets `http://localhost:8080` through `10.0.2.2` on the Android emulator. If the backend starts after the app, the mobile client now retries automatically and reconnects when the server becomes available.
