@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { divIcon } from 'leaflet'
 import { CircleMarker, MapContainer, Marker, Popup, Rectangle, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import confusedEmoji from '../../emoji-confused.png'
 
 const emptyRequestForm = { reserveName: '', message: '' }
 const emptyEventForm = { type: 'OTHER', priority: 'MEDIUM', description: '', latitude: '', longitude: '', publishedToTravelers: false }
@@ -123,6 +124,7 @@ export default function ManagerWorkspace({
   reservePoisByReserveId,
   reservePoiTypesByReserveId,
   reserveRequests,
+  inactiveReserveSuggestions,
   onClearError,
   onClearNotice,
   onLogout,
@@ -495,26 +497,31 @@ export default function ManagerWorkspace({
 
       {page === 'overview' ? (
         <section className="manager-page stack">
-          <article className="hero-panel">
-            <div><p className="eyebrow">Manager dashboard</p><h2>Welcome back, {profile?.name}</h2><p className="muted">Start here for a broad view across every reserve you manage before opening a focused control center.</p></div>
-            <div className="hero-stats"><div className="hero-stat"><span>{reserveSummaries.length}</span><small>Active reserves</small></div><div className="hero-stat"><span>{events.filter((event) => event.priority === 'HIGH' && event.status !== 'CLOSED').length}</span><small>High-priority events</small></div><div className="hero-stat"><span>{events.filter((event) => event.origin === 'TRAVELER' && event.status !== 'CLOSED').length}</span><small>Traveler reports</small></div></div>
-          </article>
-          <div className="metric-grid">
-            <article className="panel metric-card"><p className="eyebrow">Operations</p><strong>{events.filter((event) => event.status !== 'CLOSED').length}</strong><span>Active events across all reserves</span></article>
-            <article className="panel metric-card"><p className="eyebrow">Mobile app</p><strong>{events.filter((event) => event.publishedToTravelers && event.status !== 'CLOSED').length}</strong><span>Events visible to travelers</span></article>
-            <article className="panel metric-card"><p className="eyebrow">Requests</p><strong>{reserveRequests.filter((request) => request.status === 'OPEN').length}</strong><span>Open reserve requests</span></article>
-            <article className="panel metric-card"><p className="eyebrow">Alerts</p><strong>{notifications.length}</strong><span>Recent updates needing attention</span></article>
-          </div>
-          <div className="content-grid content-grid-wide">
-            <article className="panel stack">
-              <div className="panel-heading"><div><p className="eyebrow">Reserve focus</p><h2>Your busiest reserves</h2></div><button type="button" className="info-button" onClick={() => setPage('requests')}>Open requests page</button></div>
-              <div className="overview-reserve-grid">{reserveSummaries.length === 0 ? <p className="empty-state">No active reserves yet.</p> : reserveSummaries.slice().sort((left, right) => (right.priorityCounts.HIGH - left.priorityCounts.HIGH) || (right.totalActiveEvents - left.totalActiveEvents)).slice(0, 3).map((reserve) => <article key={reserve.id} className="overview-reserve-card"><div className="overview-reserve-header"><div><strong>{reserve.displayName}</strong><span>{reserve.region}</span></div><button type="button" className="info-button" onClick={() => openReserveControlCenter(reserve.id)}>Open control center</button></div><div className="event-meta"><span>{reserve.totalActiveEvents} active events</span><span>{reserve.travelerReports} traveler reports</span></div><PriorityBreakdown counts={reserve.priorityCounts} /></article>)}</div>
-            </article>
-            <article className="panel stack">
-              <div className="panel-heading"><div><p className="eyebrow">Alert stream</p><h2>Latest updates</h2></div></div>
-              <div className="timeline-list">{notifications.length === 0 ? <p className="empty-state">No notifications yet.</p> : notifications.slice(0, 5).map((item) => <button key={item.id} type="button" className="timeline-entry" onClick={() => openNotification(item)}><div className="timeline-entry-header"><strong>{item.title}</strong><span>{formatRelativeTime(item.createdAt)}</span></div><p>{item.body}</p><div className="timeline-entry-meta"><span>{item.reserveName || item.type}</span>{item.priority ? <span className={`priority-chip ${priorityStyle(item.priority).badge}`}>{item.priority}</span> : null}</div></button>)}</div>
-            </article>
-          </div>
+          {reserveSummaries.length === 0 ? <article className="panel stack">
+              <div className="panel-heading"><div><p className="eyebrow">Reserve focus</p><h2>Your active reserves</h2></div><button type="button" className="info-button" onClick={() => setPage('requests')}>Open requests page</button></div>
+              <div className="overview-empty-state"><img src={confusedEmoji} alt="Confused emoji" className="overview-empty-state-image" /><div className="overview-empty-state-copy"><strong>No reserve is assigned to you yet.</strong><p className="empty-state">You do not have an assigned reserve yet. Send a request to the admin to get your first reserve assignment.</p></div><button type="button" className="overview-community-button" onClick={() => setPage('requests')}>join us now!</button></div>
+            </article> : <>
+              <article className="hero-panel">
+                <div><p className="eyebrow">Manager dashboard</p><h2>Welcome back, {profile?.name}</h2><p className="muted">Start here for a broad view across every reserve you manage before opening a focused control center.</p></div>
+                <div className="hero-stats"><div className="hero-stat"><span>{reserveSummaries.length}</span><small>Active reserves</small></div><div className="hero-stat"><span>{events.filter((event) => event.priority === 'HIGH' && event.status !== 'CLOSED').length}</span><small>High-priority events</small></div><div className="hero-stat"><span>{events.filter((event) => event.origin === 'TRAVELER' && event.status !== 'CLOSED').length}</span><small>Traveler reports</small></div></div>
+              </article>
+              <div className="metric-grid">
+                <article className="panel metric-card"><p className="eyebrow">Operations</p><strong>{events.filter((event) => event.status !== 'CLOSED').length}</strong><span>Active events across all reserves</span></article>
+                <article className="panel metric-card"><p className="eyebrow">Mobile app</p><strong>{events.filter((event) => event.publishedToTravelers && event.status !== 'CLOSED').length}</strong><span>Events visible to travelers</span></article>
+                <article className="panel metric-card"><p className="eyebrow">Requests</p><strong>{reserveRequests.filter((request) => request.status === 'OPEN').length}</strong><span>Open reserve requests</span></article>
+                <article className="panel metric-card"><p className="eyebrow">Alerts</p><strong>{notifications.length}</strong><span>Recent updates needing attention</span></article>
+              </div>
+              <div className="content-grid content-grid-wide">
+                <article className="panel stack">
+                  <div className="panel-heading"><div><p className="eyebrow">Reserve focus</p><h2>Your active reserves</h2></div><button type="button" className="info-button" onClick={() => setPage('requests')}>Open requests page</button></div>
+                  <div className="overview-reserve-list">{reserveSummaries.map((reserve) => <article key={reserve.id} className="overview-reserve-card"><div className="overview-reserve-header"><div><strong>{reserve.displayName}</strong><span>{reserve.region}</span></div><button type="button" className="info-button" onClick={() => openReserveControlCenter(reserve.id)}>Open control center</button></div><div className="event-meta"><span>{reserve.totalActiveEvents} active events</span><span>{reserve.travelerReports} traveler reports</span></div><PriorityBreakdown counts={reserve.priorityCounts} /></article>)}</div>
+                </article>
+                <article className="panel stack">
+                  <div className="panel-heading"><div><p className="eyebrow">Alert stream</p><h2>Latest updates</h2></div></div>
+                  <div className="timeline-list">{notifications.length === 0 ? <p className="empty-state">No notifications yet.</p> : notifications.slice(0, 5).map((item) => <button key={item.id} type="button" className="timeline-entry" onClick={() => openNotification(item)}><div className="timeline-entry-header"><strong>{item.title}</strong><span>{formatRelativeTime(item.createdAt)}</span></div><p>{item.body}</p><div className="timeline-entry-meta"><span>{item.reserveName || item.type}</span>{item.priority ? <span className={`priority-chip ${priorityStyle(item.priority).badge}`}>{item.priority}</span> : null}</div></button>)}</div>
+                </article>
+              </div>
+            </>}
         </section>
       ) : null}
 
@@ -685,7 +692,11 @@ export default function ManagerWorkspace({
             <article className="panel stack">
               <div className="panel-heading"><div><p className="eyebrow">New request</p><h2>Ask the admin for reserve access</h2></div></div>
               <form className="event-form" onSubmit={submitReserveRequest}>
-                <label className="event-form-wide">Requested reserve name<input type="text" value={requestForm.reserveName} onChange={(event) => setRequestForm((current) => ({ ...current, reserveName: event.target.value }))} placeholder="Ein Gedi Nature Reserve" required /></label>
+                <label className="event-form-wide">Requested reserve name<input type="text" list="inactive-reserve-suggestions" value={requestForm.reserveName} onChange={(event) => setRequestForm((current) => ({ ...current, reserveName: event.target.value }))} placeholder="Start typing a reserve name" required /></label>
+                <datalist id="inactive-reserve-suggestions">
+                  {(inactiveReserveSuggestions || []).map((reserve) => <option key={reserve.id || reserve.name} value={reserve.displayName || reserve.name}>{reserve.region ? `${reserve.region}` : ''}</option>)}
+                </datalist>
+                <p className="muted request-suggestion-helper event-form-wide">Suggestions show inactive reserves already in the system, but you can still type a brand-new reserve name.</p>
                 <label className="event-form-wide">Message to admin<textarea value={requestForm.message} onChange={(event) => setRequestForm((current) => ({ ...current, message: event.target.value }))} placeholder="Explain why this reserve should be assigned to you." required /></label>
                 <button type="submit" className="create-button">Send reserve request</button>
               </form>

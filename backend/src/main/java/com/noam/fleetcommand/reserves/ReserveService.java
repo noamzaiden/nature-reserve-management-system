@@ -2,6 +2,7 @@ package com.noam.fleetcommand.reserves;
 
 import com.noam.fleetcommand.common.errors.NotFoundException;
 import com.noam.fleetcommand.reserves.dto.ReserveResponseDto;
+import com.noam.fleetcommand.reserves.dto.ReserveSuggestionDto;
 import com.noam.fleetcommand.reserves.mapper.ReserveMapper;
 import com.noam.fleetcommand.security.CurrentUserService;
 import com.noam.fleetcommand.users.User;
@@ -32,6 +33,18 @@ public class ReserveService {
         return reserveRepository.findByManagerId(currentUser.getId())
                 .stream()
                 .map(reserveMapper::toResponseDto)
+                .toList();
+    }
+
+    public List<ReserveSuggestionDto> getInactiveReserveSuggestions() {
+        currentUserService.getRequiredManager();
+        return reserveRepository.findByManagerIsNullOrderByNameAsc().stream()
+                .map(reserve -> new ReserveSuggestionDto(
+                        reserve.getId(),
+                        reserve.getName(),
+                        reserve.getDisplayName() == null ? reserve.getName() : reserve.getDisplayName(),
+                        reserve.getRegion()
+                ))
                 .toList();
     }
 

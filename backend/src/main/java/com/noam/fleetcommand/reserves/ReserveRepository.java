@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface ReserveRepository extends JpaRepository<Reserve, Long> {
     List<Reserve> findByManagerId(Long managerId);
+    List<Reserve> findByManagerIsNullOrderByNameAsc();
     List<Reserve> findByManagerIsNotNullOrderByNameAsc();
     Optional<Reserve> findByName(String name);
     Optional<Reserve> findByNameIgnoreCase(String name);

@@ -561,6 +561,11 @@ button:disabled {
   font-size: 0.92rem;
 }
 
+.request-suggestion-helper {
+  margin: -0.35rem 0 0;
+  font-size: 0.92rem;
+}
+
 .polygon-details {
   margin-top: 1rem;
 }
@@ -760,6 +765,7 @@ button:disabled {
 
 .metric-grid,
 .overview-reserve-grid,
+.overview-reserve-list,
 .reserve-dashboard-grid {
   display: grid;
   gap: 1rem;
@@ -784,8 +790,13 @@ button:disabled {
 }
 
 .overview-reserve-grid,
+.overview-reserve-list,
 .reserve-dashboard-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.overview-reserve-list {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .overview-reserve-card,
@@ -814,6 +825,42 @@ button:disabled {
 
 .overview-reserve-header span {
   color: #5d564c;
+}
+
+.overview-empty-state {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-radius: 22px;
+  background: rgba(255, 252, 246, 0.95);
+  border: 1px solid rgba(31, 31, 28, 0.08);
+}
+
+.overview-empty-state-image {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.overview-empty-state-copy {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.overview-empty-state-copy p {
+  margin: 0;
+}
+
+.overview-community-button {
+  background: #218746;
+  color: #fff8ef;
+  font-weight: 700;
+}
+
+.overview-community-button:hover {
+  background: #176636;
 }
 
 .priority-breakdown {
@@ -1075,25 +1122,25 @@ button:disabled {
 /* Visual refresh overrides */
 
 :root {
-  --ui-bg-top: #f7f4ea;
-  --ui-bg-bottom: #e9f1f1;
-  --ui-surface: rgba(255, 255, 255, 0.94);
-  --ui-surface-strong: rgba(255, 255, 255, 0.985);
-  --ui-surface-soft: rgba(242, 248, 247, 0.94);
-  --ui-border: rgba(16, 71, 77, 0.14);
-  --ui-border-strong: rgba(16, 71, 77, 0.22);
-  --ui-text: #143338;
-  --ui-text-soft: #52686d;
-  --ui-brand: #0f6a72;
-  --ui-brand-strong: #0a5057;
-  --ui-brand-soft: #d7f0ee;
-  --ui-accent: #ef7d32;
-  --ui-accent-soft: #ffe4cf;
-  --ui-shadow: 0 18px 45px rgba(15, 55, 61, 0.12);
+  --ui-bg-top: #edf7f0;
+  --ui-bg-bottom: #dcefe3;
+  --ui-surface: rgba(248, 253, 249, 0.95);
+  --ui-surface-strong: rgba(252, 255, 253, 0.99);
+  --ui-surface-soft: rgba(238, 247, 241, 0.96);
+  --ui-border: rgba(24, 92, 54, 0.14);
+  --ui-border-strong: rgba(24, 92, 54, 0.24);
+  --ui-text: #173626;
+  --ui-text-soft: #567060;
+  --ui-brand: #1b7a46;
+  --ui-brand-strong: #125a32;
+  --ui-brand-soft: #dcefdc;
+  --ui-accent: #d76b1d;
+  --ui-accent-soft: #ffe2c8;
+  --ui-shadow: 0 18px 45px rgba(18, 68, 39, 0.12);
   color: var(--ui-text);
   background:
-    radial-gradient(circle at top left, rgba(239, 125, 50, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(15, 106, 114, 0.2), transparent 30%),
+    radial-gradient(circle at top left, rgba(90, 168, 108, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(27, 122, 70, 0.18), transparent 30%),
     linear-gradient(180deg, var(--ui-bg-top) 0%, var(--ui-bg-bottom) 100%);
   font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
 }
@@ -1103,12 +1150,12 @@ body {
 }
 
 button {
-  background: linear-gradient(135deg, var(--ui-brand), #11808a);
+  background: linear-gradient(135deg, var(--ui-brand), #2d9b5b);
   color: #f8fffe;
   padding: 0.9rem 1.3rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  box-shadow: 0 10px 24px rgba(15, 106, 114, 0.18);
+  box-shadow: 0 10px 24px rgba(27, 122, 70, 0.18);
 }
 
 button:hover {
@@ -1129,15 +1176,15 @@ button:hover {
 .auth-tab:hover,
 .manager-nav-button:hover,
 .notification-bell:hover {
-  background: #eef8f7;
+  background: #eef8f0;
 }
 
 .auth-tab-active,
 .manager-nav-button-active {
-  background: linear-gradient(135deg, var(--ui-brand), #1492a0);
+  background: linear-gradient(135deg, var(--ui-brand), #36a25d);
   color: #f7fffe;
   border-color: transparent;
-  box-shadow: 0 14px 26px rgba(15, 106, 114, 0.18);
+  box-shadow: 0 14px 26px rgba(27, 122, 70, 0.18);
 }
 
 .login-card,
@@ -1166,7 +1213,7 @@ button:hover {
 }
 
 .eyebrow {
-  color: var(--ui-accent);
+  color: var(--ui-brand);
   font-weight: 800;
   font-size: 0.78rem;
   letter-spacing: 0.18em;
@@ -1185,9 +1232,9 @@ button:hover {
 }
 
 .summary-pill {
-  background: linear-gradient(180deg, #ffffff, #eef8f7);
+  background: linear-gradient(180deg, #ffffff, #edf8f0);
   border: 1px solid var(--ui-border);
-  box-shadow: 0 12px 24px rgba(14, 65, 71, 0.08);
+  box-shadow: 0 12px 24px rgba(18, 68, 39, 0.08);
 }
 
 .summary-pill span {
@@ -1199,8 +1246,8 @@ button:hover {
 .control-header-card {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 26%),
-    linear-gradient(135deg, #0c5961, #0f7b86 62%, #12a0a4 100%);
-  box-shadow: 0 24px 55px rgba(11, 88, 96, 0.24);
+    linear-gradient(135deg, #145731, #1b7a46 62%, #3ea765 100%);
+  box-shadow: 0 24px 55px rgba(18, 87, 49, 0.24);
 }
 
 .hero-stat,
@@ -1211,7 +1258,7 @@ button:hover {
 .notification-item,
 .timeline-entry {
   border: 1px solid var(--ui-border);
-  box-shadow: 0 10px 22px rgba(14, 65, 71, 0.06);
+  box-shadow: 0 10px 22px rgba(18, 68, 39, 0.06);
 }
 
 .metric-card,
@@ -1225,7 +1272,7 @@ button:hover {
 
 .reserve-dashboard-card-active,
 .overview-reserve-card {
-  border-color: rgba(15, 106, 114, 0.2);
+  border-color: rgba(27, 122, 70, 0.2);
 }
 
 .notification-item-unread {
@@ -1260,8 +1307,8 @@ button:hover {
 .map-popup-form input:focus,
 .map-popup-form select:focus,
 .map-popup-form textarea:focus {
-  outline: 3px solid rgba(18, 160, 164, 0.18);
-  border-color: rgba(15, 106, 114, 0.45);
+  outline: 3px solid rgba(62, 167, 101, 0.18);
+  border-color: rgba(27, 122, 70, 0.45);
 }
 
 .event-card {
@@ -1339,12 +1386,12 @@ button:hover {
 }
 
 .reserve-row-active {
-  background: rgba(15, 106, 114, 0.1);
+  background: rgba(27, 122, 70, 0.1);
 }
 
 .map-wrap {
   border: 1px solid var(--ui-border);
-  box-shadow: 0 16px 32px rgba(14, 65, 71, 0.09);
+  box-shadow: 0 16px 32px rgba(18, 68, 39, 0.09);
 }
 
 .control-operation-card,
@@ -1436,8 +1483,8 @@ button:hover {
 }
 
 .save-button {
-  background: linear-gradient(135deg, #0f6a72, #13a0a6);
-  box-shadow: 0 12px 24px rgba(15, 106, 114, 0.2);
+  background: linear-gradient(135deg, #18653c, #2f9654);
+  box-shadow: 0 12px 24px rgba(24, 101, 60, 0.2);
 }
 
 .save-button::before {
@@ -1448,8 +1495,8 @@ button:hover {
 .edit-button,
 .info-button,
 .map-action-button {
-  background: linear-gradient(135deg, #1d65b7, #3192e6);
-  box-shadow: 0 12px 24px rgba(29, 101, 183, 0.2);
+  background: linear-gradient(135deg, #1d7a4c, #43aa68);
+  box-shadow: 0 12px 24px rgba(29, 122, 76, 0.2);
 }
 
 .edit-button::before {
@@ -1519,7 +1566,7 @@ button:hover {
 .reserve-dashboard-card .event-meta {
   padding: 0.7rem 0.8rem;
   border-radius: 16px;
-  background: rgba(15, 106, 114, 0.06);
+  background: rgba(27, 122, 70, 0.06);
 }
 
 .metric-card {
@@ -1535,11 +1582,11 @@ button:hover {
   width: 5rem;
   height: 5rem;
   border-radius: 999px;
-  background: rgba(15, 106, 114, 0.08);
+  background: rgba(27, 122, 70, 0.08);
 }
 
 .event-actions select {
-  border-color: rgba(15, 106, 114, 0.24);
+  border-color: rgba(27, 122, 70, 0.24);
   background: #f9fefd;
   color: var(--ui-text);
   font-weight: 700;

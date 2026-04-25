@@ -1,6 +1,7 @@
 package com.noam.fleetcommand.reserves;
 
 import com.noam.fleetcommand.reserves.dto.ReserveResponseDto;
+import com.noam.fleetcommand.reserves.dto.ReserveSuggestionDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,11 @@ public class ReserveController {
     @GetMapping
     public List<ReserveResponseDto> getAllReserves() {
         return reserveService.getAllReserves();
+    }
+
+    @GetMapping("/inactive-suggestions")
+    public List<ReserveSuggestionDto> getInactiveReserveSuggestions() {
+        return reserveService.getInactiveReserveSuggestions();
     }
 
     @GetMapping("/{id:\\d+}")

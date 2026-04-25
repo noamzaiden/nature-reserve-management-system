@@ -46,6 +46,7 @@ export default function App() {
   const [reservePoisByReserveId, setReservePoisByReserveId] = useState({})
   const [reservePoiTypesByReserveId, setReservePoiTypesByReserveId] = useState({})
   const [reserveRequests, setReserveRequests] = useState([])
+  const [inactiveReserveSuggestions, setInactiveReserveSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -74,16 +75,18 @@ export default function App() {
   }
 
   async function loadManagerDashboard(activeToken) {
-    const [profileResponse, reservesResponse, eventsResponse, requestsResponse] = await Promise.all([
+    const [profileResponse, reservesResponse, eventsResponse, requestsResponse, inactiveSuggestionsResponse] = await Promise.all([
       axios.get(`${API_BASE}/api/auth/me`, authConfig(activeToken)),
       axios.get(`${API_BASE}/api/reserves`, authConfig(activeToken)),
       axios.get(`${API_BASE}/api/events`, authConfig(activeToken)),
-      axios.get(`${API_BASE}/api/reserve-requests/mine`, authConfig(activeToken))
+      axios.get(`${API_BASE}/api/reserve-requests/mine`, authConfig(activeToken)),
+      axios.get(`${API_BASE}/api/reserves/inactive-suggestions`, authConfig(activeToken))
     ])
     setProfile(profileResponse.data)
     setReserves(reservesResponse.data)
     setEvents(eventsResponse.data)
     setReserveRequests(requestsResponse.data)
+    setInactiveReserveSuggestions(inactiveSuggestionsResponse.data)
     await loadManagerPoiData(activeToken, reservesResponse.data)
   }
 
@@ -117,6 +120,7 @@ export default function App() {
       setReservePoisByReserveId({})
       setReservePoiTypesByReserveId({})
       setReserveRequests([])
+      setInactiveReserveSuggestions([])
       setAdminUsers([])
       setAdminReserves([])
       setAdminReserveRequests([])
@@ -333,6 +337,7 @@ export default function App() {
         reservePoisByReserveId={reservePoisByReserveId}
         reservePoiTypesByReserveId={reservePoiTypesByReserveId}
         reserveRequests={reserveRequests}
+        inactiveReserveSuggestions={inactiveReserveSuggestions}
         onClearError={() => setError('')}
         onClearNotice={() => setNotice('')}
         onLogout={handleLogout}
