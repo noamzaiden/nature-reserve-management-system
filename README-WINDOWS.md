@@ -1,25 +1,26 @@
-# Windows Setup Guide
+# Run This Project On Windows
 
-Use this guide to run the full project on Windows:
+This guide is the easiest way to get the project running on Windows.
+
+The project has 4 parts:
 
 - PostgreSQL in Docker
 - Spring Boot backend
 - React web app
-- Android app in Android Studio
+- Android app in Android Studio (optional)
 
 ## What You Need
 
-Install these first:
+Please install these first:
 
 - Java 17
 - Node.js and npm
 - Docker Desktop
-- Android Studio
-- An Android emulator
+- Android Studio and an emulator if you want to run the mobile app
 
-## One-Time Setup
+## First-Time Setup
 
-Install web dependencies:
+Open PowerShell in the project root and install the web app dependencies:
 
 ```powershell
 cd web-app
@@ -27,71 +28,69 @@ npm install
 cd ..
 ```
 
-Add the Android keys:
+If you only want to run the backend and web app, you can stop here.
+
+If you also want to run the Android app, set up the mobile API keys:
 
 ```cmd
 .\setup-android-keys.cmd
 ```
 
-This writes the Android app values to `mobile-app\.gradle-user\gradle.properties` relative to the script, so it targets the Android project inside `mobile-app`.
-The mobile app wrapper now defaults `GRADLE_USER_HOME` to `mobile-app\.gradle-user`, so local Gradle builds use that same folder for both wrapper files and personal properties.
+The script will ask for:
 
-If you want to pass the keys directly:
+- Google Maps API key
+- OpenWeather API key
 
-```cmd
-.\setup-android-keys.cmd -MapsApiKey "YOUR_GOOGLE_MAPS_API_KEY" -OpenWeatherApiKey "YOUR_OPENWEATHER_API_KEY"
-```
+It saves them to `mobile-app\.gradle-user\gradle.properties`.
 
-## Run The Project
+## Start The Backend And Web App
 
 1. Start Docker Desktop.
-2. From the repository root, run:
+2. In the project root, run:
 
 ```powershell
 .\run-backend.cmd
 ```
 
-This starts PostgreSQL and opens the backend and web app in separate windows.
+This script will:
 
-3. Open Android Studio.
-4. Open the `mobile-app` folder.
+- start PostgreSQL
+- open the Spring Boot backend in a new terminal window
+- open the React web app in a new terminal window
 
-> Screenshot placeholder: Android Studio open-project screen with the `mobile-app` folder selected.
-> Suggested image path: `docs/images/windows/android-studio-open-project.png`
-
-5. Wait for Gradle sync.
-6. Open `Device Manager` and start an emulator.
-
-> Screenshot placeholder: Android Studio Device Manager with the emulator start button visible.
-> Suggested image path: `docs/images/windows/android-studio-device-manager.png`
-
-7. Run the `app` configuration.
-
-> Screenshot placeholder: Android Studio toolbar showing the selected emulator and the `app` run configuration.
-> Suggested image path: `docs/images/windows/android-studio-run-app.png`
-
-## Default Local Addresses
+When everything is ready, use these local addresses:
 
 - Backend API: `http://localhost:8080`
 - Web app: `http://localhost:5173`
-- Android emulator to backend: `http://10.0.2.2:8080/api/public`
 
-Admin login:
+You can quickly test the backend here:
+
+`http://localhost:8080/api/public/reserves`
+
+## Default Admin Login
 
 - Email: `admin@reserve.local`
 - Password: `ChangeMe123!`
 
-## Quick Check
+## Start The Android App
 
-- Open `http://localhost:8080/api/public/reserves` and confirm you get JSON.
-- Open `http://localhost:5173` and confirm the web app loads.
-- In the emulator, confirm the Android app loads reserve data.
+This part is optional.
+
+1. Open Android Studio.
+2. Open the `mobile-app` folder.
+3. Wait for Gradle sync to finish.
+4. Start an emulator from Device Manager.
+5. Run the `app` configuration.
+
+The Android app is already set up to call the backend at:
+
+`http://10.0.2.2:8080/api/public`
 
 ## Stop Everything
 
-- Close the backend and web-app windows opened by `run-backend.cmd`
-- Stop the Android app or emulator in Android Studio
-- Stop PostgreSQL:
+To stop the backend and web app, close the terminal windows opened by `run-backend.cmd`.
+
+To stop PostgreSQL, run:
 
 ```powershell
 cd backend
@@ -99,7 +98,9 @@ docker compose down
 cd ..
 ```
 
-## Notes
+## If Something Does Not Start
 
-- If `run-backend.cmd` fails, make sure `java`, `npm`, and `docker` are available in `PATH`.
-- If Android Studio asks to install missing SDK components, install them and run again.
+- Make sure Docker Desktop is running before you run `.\run-backend.cmd`.
+- If the script says web dependencies are missing, run `npm install` inside `web-app`.
+- If Windows cannot find `java`, `npm`, or `docker`, make sure they are installed and available in your `PATH`.
+- If Android Studio asks to install missing SDK components, let it install them and then run the app again.

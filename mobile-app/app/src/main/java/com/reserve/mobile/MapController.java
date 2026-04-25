@@ -197,18 +197,20 @@ public class MapController {
     }
 
     private BitmapDescriptor hazardIconDescriptor(Event hazard) {
-        if (!hazard.isFire()) {
+        String normalizedType = normalizeType(hazard.getType());
+        int iconSizePx = currentPoiIconSizePx();
+        int resourceId = hazardIconResourceId(normalizedType);
+        if (resourceId == 0) {
             return BitmapDescriptorFactory.defaultMarker(priorityHue(hazard.getPriority()));
         }
 
-        int iconSizePx = currentPoiIconSizePx();
-        String cacheKey = "hazard-fire:" + iconSizePx;
+        String cacheKey = "hazard:" + normalizedType + ":" + iconSizePx;
         BitmapDescriptor cached = poiIconCache.get(cacheKey);
         if (cached != null) {
             return cached;
         }
 
-        BitmapDescriptor descriptor = createPoiIconDescriptor(R.drawable.poi_fire, iconSizePx);
+        BitmapDescriptor descriptor = createPoiIconDescriptor(resourceId, iconSizePx);
         if (descriptor == null) {
             return BitmapDescriptorFactory.defaultMarker(priorityHue(hazard.getPriority()));
         }
@@ -217,8 +219,21 @@ public class MapController {
         return descriptor;
     }
 
+    private int hazardIconResourceId(String normalizedType) {
+        if ("fire".equals(normalizedType)) {
+            return R.drawable.poi_fire;
+        }
+        if ("blockage".equals(normalizedType)) {
+            return R.drawable.hazard_blockage;
+        }
+        if ("other".equals(normalizedType)) {
+            return R.drawable.hazard_other;
+        }
+        return 0;
+    }
+
     private BitmapDescriptor poiIconDescriptor(String type) {
-        String normalizedType = normalizePoiType(type);
+        String normalizedType = normalizeType(type);
         int iconSizePx = currentPoiIconSizePx();
         String cacheKey = normalizedType + ":" + iconSizePx;
         int resourceId = poiIconResourceId(normalizedType);
@@ -286,7 +301,21 @@ public class MapController {
                 Bitmap.Config.ARGB_8888
         );
         Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, iconSizePx, iconSizePx);
+        int intrinsicWidth = drawable.getIntrinsicWidth();
+        int intrinsicHeight = drawable.getIntrinsicHeight();
+        if (intrinsicWidth > 0 && intrinsicHeight > 0) {
+            float scale = Math.min(
+                    (float) iconSizePx / intrinsicWidth,
+                    (float) iconSizePx / intrinsicHeight
+            );
+            int scaledWidth = Math.max(1, Math.round(intrinsicWidth * scale));
+            int scaledHeight = Math.max(1, Math.round(intrinsicHeight * scale));
+            int left = (iconSizePx - scaledWidth) / 2;
+            int top = (iconSizePx - scaledHeight) / 2;
+            drawable.setBounds(left, top, left + scaledWidth, top + scaledHeight);
+        } else {
+            drawable.setBounds(0, 0, iconSizePx, iconSizePx);
+        }
         drawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
@@ -312,7 +341,7 @@ public class MapController {
         return POI_ICON_SIZE_MAX_PX;
     }
 
-    private String normalizePoiType(String type) {
+    private String normalizeType(String type) {
         return type == null ? "" : type.trim().toLowerCase(Locale.US);
     }
 }
