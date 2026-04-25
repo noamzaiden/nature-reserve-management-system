@@ -1,5 +1,33 @@
+import java.util.Properties
+
 plugins {
     id 'com.android.application'
+}
+
+def repoLocalProperties = new Properties()
+def repoLocalPropertiesFile = new File(rootProject.projectDir, '.gradle-user/gradle.properties')
+
+if (repoLocalPropertiesFile.exists()) {
+    repoLocalPropertiesFile.withInputStream { inputStream ->
+        repoLocalProperties.load(inputStream)
+    }
+}
+
+def readConfigValue = { String name, String defaultValue = null ->
+    def repoLocalValue = repoLocalProperties.getProperty(name)
+    if (repoLocalValue != null && !repoLocalValue.trim().isEmpty()) {
+        return repoLocalValue
+    }
+
+    def gradleValue = project.findProperty(name)
+    if (gradleValue != null) {
+        String textValue = gradleValue.toString()
+        if (!textValue.trim().isEmpty()) {
+            return textValue
+        }
+    }
+
+    return defaultValue
 }
 
 android {
@@ -7,10 +35,10 @@ android {
     compileSdk 34
 
     defaultConfig {
-        def mapsApiKey = project.findProperty('MAPS_API_KEY') ?: 'YOUR_GOOGLE_MAPS_API_KEY'
-        def openWeatherApiKey = project.findProperty('OPEN_WEATHER_API_KEY') ?: ''
-        def backendApiBase = project.findProperty('BACKEND_API_BASE') ?: 'http://10.0.2.2:8080/api/public'
-        def openWeatherApiBase = project.findProperty('OPEN_WEATHER_API_BASE') ?: 'https://api.openweathermap.org/data/2.5/weather'
+        def mapsApiKey = readConfigValue('MAPS_API_KEY', 'YOUR_GOOGLE_MAPS_API_KEY')
+        def openWeatherApiKey = readConfigValue('OPEN_WEATHER_API_KEY', '')
+        def backendApiBase = readConfigValue('BACKEND_API_BASE', 'http://10.0.2.2:8080/api/public')
+        def openWeatherApiBase = readConfigValue('OPEN_WEATHER_API_BASE', 'https://api.openweathermap.org/data/2.5/weather')
 
         applicationId 'com.reserve.mobile'
         minSdk 24

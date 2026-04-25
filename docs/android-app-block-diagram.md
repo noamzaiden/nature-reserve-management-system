@@ -18,7 +18,7 @@ Related docs:
 ## High-Level Block Diagram
 
 ```mermaid
-flowchart LR
+flowchart TB
     Traveler[Traveler]
     MainScreen[MainActivity + activity_main.xml]
     Controllers[Controllers and workflow helpers<br/>MapController<br/>MapToggleUiController<br/>LocationController<br/>ReserveStateResolver<br/>WeatherUiController<br/>EventPollingController<br/>EventReportUiController<br/>ReportMediaController<br/>ReportSubmissionController]

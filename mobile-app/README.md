@@ -35,16 +35,21 @@ Helpful docs:
 ## Run
 
 1. Open `mobile-app` in Android Studio.
-2. Add your local API values in your user Gradle properties (`%USERPROFILE%\\.gradle\\gradle.properties`) so they stay out of Git:
-   - `MAPS_API_KEY=...`
-   - `OPEN_WEATHER_API_KEY=...`
-   - Optional overrides:
-     `BACKEND_API_BASE=...`
-     `OPEN_WEATHER_API_BASE=...`
+2. Add your local API values in `mobile-app/.gradle-user/gradle.properties`, which stays out of Git.
+   On Windows, from the repository root you can run `.\\setup-android-keys.cmd` to create or update that file.
+   The wrapper now defaults `GRADLE_USER_HOME` to `mobile-app/.gradle-user`, so Gradle builds and the local properties file use the same project-local folder.
+3. Make sure these keys exist:
+   ```properties
+   MAPS_API_KEY=...
+   OPEN_WEATHER_API_KEY=...
+   # Optional overrides
+   BACKEND_API_BASE=...
+   OPEN_WEATHER_API_BASE=...
+   ```
    See `mobile-app/gradle.properties.example` for the expected keys.
-3. Start an emulator.
-4. Run the `app` configuration.
+4. Start an emulator.
+5. Run the `app` configuration.
 
-`mobile-app/gradle.properties` keeps shared non-secret Gradle settings. Put personal API values in your user Gradle properties so they do not get committed.
+`mobile-app/gradle.properties` keeps shared non-secret Gradle settings. `mobile-app/.gradle-user/gradle.properties` is the project-local Gradle user home file for personal values that should not get committed.
 
 The app targets `http://localhost:8080` through `10.0.2.2` on the Android emulator. If the backend starts after the app, the mobile client now retries automatically and reconnects when the server becomes available.
