@@ -4,13 +4,14 @@
     <string name="map_heading">Reserve map</string>
     <string name="map_subheading">The map follows your position and checks whether you are inside a known reserve.</string>
     <string name="status_loading_map">Loading reserve map...</string>
+    <string name="status_map_unavailable">Map unavailable. Add a valid MAPS_API_KEY to gradle.properties and rebuild the app.</string>
     <string name="status_loading_reserves">Loading reserve boundaries...</string>
     <string name="status_loading_hazards">Loading hazards...</string>
     <string name="status_poi_load_failed">Could not load points of interest.</string>
     <string name="status_location_permission_needed">Location permission is needed so the app can tell which reserve you are in.</string>
     <string name="status_location_waiting">Waiting for your live location...</string>
     <string name="status_map_ready">Map ready.</string>
-    <string name="status_reserve_load_failed">Could not load reserve boundaries. Make sure the backend is running. Retrying automatically...</string>
+    <string name="status_reserve_load_failed">Could not reach the server. Reserve data is unavailable right now. Retrying automatically...</string>
     <string name="status_hazard_load_failed">Could not refresh hazards. Retrying automatically...</string>
     <string name="status_report_sending">Sending your report...</string>
     <string name="status_report_sent">Report sent for review.</string>

@@ -41,11 +41,13 @@ web-app/dist/
 *.live.log
 .tmp-*.png
 docs/.$*.dtmp
+delivery/
 
 # Mobile app local/generated files
 mobile-app/local.properties
 mobile-app/.gradle/
 mobile-app/.gradle-user/
+mobile-app/.gradle-user-home/
 mobile-app/.android/
 mobile-app/icons/
 mobile-app/captures/

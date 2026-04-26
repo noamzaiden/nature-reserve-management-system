@@ -197,18 +197,20 @@ public class MapController {
     }
 
     private BitmapDescriptor hazardIconDescriptor(Event hazard) {
-        if (!hazard.isFire()) {
+        String normalizedType = normalizeType(hazard.getType());
+        int iconSizePx = currentPoiIconSizePx();
+        int resourceId = hazardIconResourceId(normalizedType);
+        if (resourceId == 0) {
             return BitmapDescriptorFactory.defaultMarker(priorityHue(hazard.getPriority()));
         }
 
-        int iconSizePx = currentPoiIconSizePx();
-        String cacheKey = "hazard-fire:" + iconSizePx;
+        String cacheKey = "hazard:" + normalizedType + ":" + iconSizePx;
         BitmapDescriptor cached = poiIconCache.get(cacheKey);
         if (cached != null) {
             return cached;
         }
 
-        BitmapDescriptor descriptor = createPoiIconDescriptor(R.drawable.poi_fire, iconSizePx);
+        BitmapDescriptor descriptor = createPoiIconDescriptor(resourceId, iconSizePx);
         if (descriptor == null) {
             return BitmapDescriptorFactory.defaultMarker(priorityHue(hazard.getPriority()));
         }
@@ -218,7 +220,7 @@ public class MapController {
     }
 
     private BitmapDescriptor poiIconDescriptor(String type) {
-        String normalizedType = normalizePoiType(type);
+        String normalizedType = normalizeType(type);
         int iconSizePx = currentPoiIconSizePx();
         String cacheKey = normalizedType + ":" + iconSizePx;
         int resourceId = poiIconResourceId(normalizedType);
@@ -238,6 +240,19 @@ public class MapController {
 
         poiIconCache.put(cacheKey, descriptor);
         return descriptor;
+    }
+
+    private int hazardIconResourceId(String normalizedType) {
+        if ("fire".equals(normalizedType)) {
+            return R.drawable.poi_fire;
+        }
+        if ("blockage".equals(normalizedType) || "roadblock".equals(normalizedType)) {
+            return R.drawable.hazard_blockage;
+        }
+        if ("other".equals(normalizedType)) {
+            return R.drawable.hazard_other;
+        }
+        return 0;
     }
 
     private int poiIconResourceId(String normalizedType) {
@@ -312,7 +327,7 @@ public class MapController {
         return POI_ICON_SIZE_MAX_PX;
     }
 
-    private String normalizePoiType(String type) {
+    private String normalizeType(String type) {
         return type == null ? "" : type.trim().toLowerCase(Locale.US);
     }
 }
