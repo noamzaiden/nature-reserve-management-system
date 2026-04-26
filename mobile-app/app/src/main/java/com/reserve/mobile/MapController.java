@@ -219,19 +219,6 @@ public class MapController {
         return descriptor;
     }
 
-    private int hazardIconResourceId(String normalizedType) {
-        if ("fire".equals(normalizedType)) {
-            return R.drawable.poi_fire;
-        }
-        if ("blockage".equals(normalizedType)) {
-            return R.drawable.hazard_blockage;
-        }
-        if ("other".equals(normalizedType)) {
-            return R.drawable.hazard_other;
-        }
-        return 0;
-    }
-
     private BitmapDescriptor poiIconDescriptor(String type) {
         String normalizedType = normalizeType(type);
         int iconSizePx = currentPoiIconSizePx();
