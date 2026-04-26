@@ -128,6 +128,7 @@ export default function ManagerWorkspace({
   onClearError,
   onClearNotice,
   onLogout,
+  onRefresh,
   onCreateReserveRequest,
   onCreateEvent,
   onUpdateEventStatus,
@@ -481,6 +482,9 @@ export default function ManagerWorkspace({
     <main className="shell">
       <header className="topbar topbar-manager">
         <div><p className="eyebrow">Manager Console</p><h1>Reserve operations center</h1><p className="muted">Signed in as <strong>{profile?.name}</strong> ({profile?.email})</p></div>
+        <div className="topbar-center-action">
+          <button className="refresh-button" type="button" onClick={onRefresh}>Refresh</button>
+        </div>
         <div className="topbar-actions">
           <div className="summary-pill"><span>{reserveSummaries.length}</span><small>Managed reserves</small></div>
           <div className="summary-pill"><span>{events.filter((event) => event.status !== 'CLOSED').length}</span><small>Active events</small></div>
@@ -543,35 +547,34 @@ export default function ManagerWorkspace({
             </article>
             {controlTab === 'map' ? (
               <div className="reserve-map-workspace">
-                <aside className="panel map-filter-sidebar stack">
-                  <section>
-                    <div className="panel-heading"><div><p className="eyebrow">Map view</p><h2>Focus controls</h2></div></div>
+                <aside className="map-filter-sidebar">
+                  <section className="map-control-card">
+                    <div className="panel-heading"><div><p className="eyebrow">Map</p><h2>Focus</h2></div></div>
                     <button type="button" className={mapLocked ? 'danger-button' : 'info-button'} onClick={() => setMapLocked((current) => !current)}>{mapLocked ? 'Unlock map' : 'Lock map'}</button>
-                    <p className="muted">{mapLocked ? 'Map movement is locked. Unlock when you need to inspect another part of the reserve.' : 'You can move and zoom the map, but it stays inside this reserve.'}</p>
+                    <p className="muted">{mapLocked ? 'Locked to the current view.' : 'Move and zoom inside the reserve.'}</p>
                   </section>
-                  <section>
-                    <div className="panel-heading"><div><p className="eyebrow">Map layers</p><h2>Choose what appears</h2></div></div>
+                  <section className="map-control-card">
+                    <div className="panel-heading"><div><p className="eyebrow">Layers</p><h2>Visible</h2></div></div>
                     <div className="map-filter-buttons">
-                      <button type="button" className={mapDisplay.showEvents ? 'auth-tab auth-tab-active' : 'auth-tab'} onClick={() => setMapDisplay((current) => ({ ...current, showEvents: !current.showEvents }))}>{mapDisplay.showEvents ? 'Hide events' : 'Show events'}</button>
-                      <button type="button" className={mapDisplay.showPois ? 'auth-tab auth-tab-active' : 'auth-tab'} onClick={() => setMapDisplay((current) => ({ ...current, showPois: !current.showPois }))}>{mapDisplay.showPois ? 'Hide POIs' : 'Show POIs'}</button>
+                      <button type="button" className={mapDisplay.showEvents ? 'auth-tab auth-tab-active' : 'auth-tab'} onClick={() => setMapDisplay((current) => ({ ...current, showEvents: !current.showEvents }))}>Events</button>
+                      <button type="button" className={mapDisplay.showPois ? 'auth-tab auth-tab-active' : 'auth-tab'} onClick={() => setMapDisplay((current) => ({ ...current, showPois: !current.showPois }))}>POIs</button>
                     </div>
                   </section>
-                  <section>
-                    <div className="panel-heading"><div><p className="eyebrow">Event filters</p><h2>Visible events</h2></div></div>
+                  <section className="map-control-card">
+                    <div className="panel-heading"><div><p className="eyebrow">Filters</p><h2>Events</h2></div></div>
                     <form className="event-form control-filter-form" onSubmit={(event) => event.preventDefault()}>
                       <label>Status<select value={controlFilters.status} onChange={(event) => setControlFilters((current) => ({ ...current, status: event.target.value }))}><option value="ACTIVE">Active only</option><option value="">All statuses</option><option value="OPEN">Open</option><option value="IN_PROGRESS">In progress</option><option value="CLOSED">Closed</option></select></label>
                       <label>Priority<select value={controlFilters.priority} onChange={(event) => setControlFilters((current) => ({ ...current, priority: event.target.value }))}><option value="">All priorities</option><option value="HIGH">High</option><option value="MEDIUM">Medium</option><option value="LOW">Low</option></select></label>
                     </form>
                   </section>
-                  <section>
-                    <div className="panel-heading"><div><p className="eyebrow">Map actions</p><h2>Pick a location</h2></div></div>
-                    <p className="muted">The map is locked to this reserve only. Choose what you want to create, then click a point on the map to open a small creation form right there.</p>
+                  <section className="map-control-card">
+                    <div className="panel-heading"><div><p className="eyebrow">Create</p><h2>Map point</h2></div></div>
                     <div className="map-filter-buttons">
-                      <button type="button" className={mapCreateMode === 'event' ? 'create-button auth-tab-active' : 'create-button'} onClick={() => { setMapCreateMode((current) => current === 'event' ? '' : 'event'); setMapPopup(null); setMapPopupMessage('') }}>{mapCreateMode === 'event' ? 'Cancel create event' : 'Create event'}</button>
-                      <button type="button" className={mapCreateMode === 'poi' ? 'map-action-button auth-tab-active' : 'map-action-button'} onClick={() => { setMapCreateMode((current) => current === 'poi' ? '' : 'poi'); setMapPopup(null); setMapPopupMessage('') }}>{mapCreateMode === 'poi' ? 'Cancel create POI' : 'Create POI'}</button>
+                      <button type="button" className={mapCreateMode === 'event' ? 'create-button auth-tab-active' : 'create-button'} onClick={() => { setMapCreateMode((current) => current === 'event' ? '' : 'event'); setMapPopup(null); setMapPopupMessage('') }}>{mapCreateMode === 'event' ? 'Cancel event' : 'Event'}</button>
+                      <button type="button" className={mapCreateMode === 'poi' ? 'map-action-button auth-tab-active' : 'map-action-button'} onClick={() => { setMapCreateMode((current) => current === 'poi' ? '' : 'poi'); setMapPopup(null); setMapPopupMessage('') }}>{mapCreateMode === 'poi' ? 'Cancel POI' : 'POI'}</button>
                     </div>
                   </section>
-                  <section className="map-filter-summary">
+                  <section className="map-control-card map-filter-summary">
                     <div className="summary-pill"><span>{filteredControlEvents.length}</span><small>Matching events</small></div>
                     <div className="summary-pill"><span>{selectedReservePois.length}</span><small>Known POIs</small></div>
                   </section>

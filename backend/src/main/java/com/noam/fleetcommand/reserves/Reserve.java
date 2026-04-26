@@ -37,9 +37,6 @@ public class Reserve {
     @Column(name = "center_longitude")
     private Double centerLongitude;
 
-    @Column(name = "polygon_geojson", columnDefinition = "TEXT")
-    private String polygonGeoJson;
-
     @Embedded
     private Area area;
 
@@ -123,14 +120,6 @@ public class Reserve {
 
     public void setCenterLongitude(Double centerLongitude) {
         this.centerLongitude = centerLongitude;
-    }
-
-    public String getPolygonGeoJson() {
-        return polygonGeoJson;
-    }
-
-    public void setPolygonGeoJson(String polygonGeoJson) {
-        this.polygonGeoJson = polygonGeoJson;
     }
 
     public Area getArea() {
