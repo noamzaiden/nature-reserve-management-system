@@ -33,7 +33,9 @@ The app is intentionally traveler-only. It does not expose admin or manager work
 - `mobile-app/gradle.properties.example`
   Local configuration template for API keys, backend base URL, and AndroidX support.
 - `mobile-app/gradle.properties`
-  Local, developer-specific overrides used at build time. This file should stay ignored by git.
+  Shared non-secret Gradle settings committed with the project.
+- `mobile-app/.gradle-user/gradle.properties`
+  Ignored developer-specific API keys and local overrides loaded at build time.
 - `mobile-app/README.md`
   Module-level quick start and doc index.
 
@@ -192,7 +194,7 @@ This layer holds data and exposes simple helper methods.
 ### High-level dependency map
 
 ```mermaid
-flowchart LR
+flowchart TB
     MainActivity --> MapController
     MainActivity --> MapToggleUiController
     MainActivity --> LocationController
@@ -288,7 +290,9 @@ flowchart LR
 - `mobile-app/gradle.properties.example`
   Copyable template for local keys and URLs.
 - `mobile-app/gradle.properties`
-  Local developer config used by Gradle.
+  Shared non-secret Gradle settings such as AndroidX support.
+- `mobile-app/.gradle-user/gradle.properties`
+  Ignored developer-specific API keys and local URL overrides.
 - `mobile-app/app/src/main/AndroidManifest.xml`
   Permissions, launcher activity, Maps API key, and `FileProvider`.
 

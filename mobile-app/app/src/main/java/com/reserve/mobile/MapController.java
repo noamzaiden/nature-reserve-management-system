@@ -219,6 +219,19 @@ public class MapController {
         return descriptor;
     }
 
+    private int hazardIconResourceId(String normalizedType) {
+        if ("fire".equals(normalizedType)) {
+            return R.drawable.poi_fire;
+        }
+        if ("blockage".equals(normalizedType)) {
+            return R.drawable.hazard_blockage;
+        }
+        if ("other".equals(normalizedType)) {
+            return R.drawable.hazard_other;
+        }
+        return 0;
+    }
+
     private BitmapDescriptor poiIconDescriptor(String type) {
         String normalizedType = normalizeType(type);
         int iconSizePx = currentPoiIconSizePx();
@@ -301,7 +314,21 @@ public class MapController {
                 Bitmap.Config.ARGB_8888
         );
         Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, iconSizePx, iconSizePx);
+        int intrinsicWidth = drawable.getIntrinsicWidth();
+        int intrinsicHeight = drawable.getIntrinsicHeight();
+        if (intrinsicWidth > 0 && intrinsicHeight > 0) {
+            float scale = Math.min(
+                    (float) iconSizePx / intrinsicWidth,
+                    (float) iconSizePx / intrinsicHeight
+            );
+            int scaledWidth = Math.max(1, Math.round(intrinsicWidth * scale));
+            int scaledHeight = Math.max(1, Math.round(intrinsicHeight * scale));
+            int left = (iconSizePx - scaledWidth) / 2;
+            int top = (iconSizePx - scaledHeight) / 2;
+            drawable.setBounds(left, top, left + scaledWidth, top + scaledHeight);
+        } else {
+            drawable.setBounds(0, 0, iconSizePx, iconSizePx);
+        }
         drawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }

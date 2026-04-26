@@ -38,7 +38,7 @@
     <string name="weather_hourly_loading">Loading hourly weather...</string>
     <string name="weather_hourly_waiting_location">Hourly weather: waiting for location...</string>
     <string name="weather_hourly_unavailable">Hourly weather: unavailable right now</string>
-    <string name="weather_missing_key">Weather unavailable: add OPEN_WEATHER_API_KEY to gradle.properties</string>
+    <string name="weather_missing_key">Weather unavailable: add OPEN_WEATHER_API_KEY to .gradle-user/gradle.properties</string>
     <string name="weather_unavailable">Weather: unavailable right now</string>
     <string name="weather_ready">Weather: %1$.1f&#176;C, %2$s</string>
     <string name="my_location">Back to my location</string>

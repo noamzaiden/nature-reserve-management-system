@@ -1,207 +1,199 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" version="29.6.6">
   <diagram id="mobile-uml" name="Mobile UML">
-    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1400" math="0" shadow="0">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="2550" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-
         <mxCell id="frame-presentation" value="Presentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="360" height="360" as="geometry" />
+          <mxGeometry x="60" y="40" width="1180" height="320" as="geometry" />
         </mxCell>
         <mxCell id="frame-controllers" value="Controllers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
-          <mxGeometry x="430" y="40" width="980" height="620" as="geometry" />
+          <mxGeometry x="60" y="390" width="1180" height="880" as="geometry" />
         </mxCell>
         <mxCell id="frame-api" value="API Clients" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="440" width="360" height="360" as="geometry" />
+          <mxGeometry x="60" y="1300" width="1180" height="300" as="geometry" />
         </mxCell>
         <mxCell id="frame-models" value="Models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
-          <mxGeometry x="1430" y="40" width="920" height="900" as="geometry" />
+          <mxGeometry x="60" y="1630" width="1180" height="840" as="geometry" />
         </mxCell>
-
-        <mxCell id="mainActivity" value="&lt;b&gt;MainActivity&lt;/b&gt;&lt;hr/&gt;- reserves : List&lt;Reserve&gt;&lt;br/&gt;- allPois : List&lt;Poi&gt;&lt;br/&gt;- allHazards : List&lt;Event&gt;&lt;br/&gt;- mapController : MapController&lt;br/&gt;- weatherController : WeatherUiController&lt;br/&gt;- reportSubmissionController : ReportSubmissionController&lt;br/&gt;&lt;hr/&gt;+ onCreate(Bundle)&lt;br/&gt;+ onMapReady(GoogleMap)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="70" y="90" width="300" height="280" as="geometry" />
+        <mxCell id="mainActivity" value="&lt;b&gt;MainActivity&lt;/b&gt;&lt;hr/&gt;- executorService : ExecutorService&lt;br/&gt;- reserves : List&lt;Reserve&gt;&lt;br/&gt;- allPois : List&lt;Poi&gt;&lt;br/&gt;- allHazards : List&lt;Event&gt;&lt;br/&gt;- reserveApiClient : ReserveApiClient&lt;br/&gt;- reportApiClient : ReportApiClient&lt;br/&gt;- weatherApiClient : WeatherApiClient&lt;br/&gt;- mapController : MapController&lt;br/&gt;- weatherController : WeatherUiController&lt;br/&gt;- reportSubmissionController : ReportSubmissionController&lt;hr/&gt;+ onCreate(Bundle)&lt;br/&gt;+ onMapReady(GoogleMap)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="90" width="600" height="240" as="geometry" />
         </mxCell>
-
-        <mxCell id="mapController" value="&lt;b&gt;MapController&lt;/b&gt;&lt;hr/&gt;- showingPois : boolean&lt;br/&gt;- showingHazards : boolean&lt;hr/&gt;+ attachMap(GoogleMap)&lt;br/&gt;+ refresh(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="470" y="90" width="220" height="160" as="geometry" />
+        <mxCell id="mapController" value="&lt;b&gt;MapController&lt;/b&gt;&lt;hr/&gt;- googleMap : GoogleMap&lt;br/&gt;- showingPois : boolean&lt;br/&gt;- showingHazards : boolean&lt;hr/&gt;+ attachMap(GoogleMap)&lt;br/&gt;+ refresh(...)&lt;br/&gt;+ isShowingPois() : boolean&lt;br/&gt;+ isShowingHazards() : boolean" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="450" width="300" height="210" as="geometry" />
         </mxCell>
         <mxCell id="mapToggleUiController" value="&lt;b&gt;MapToggleUiController&lt;/b&gt;&lt;hr/&gt;+ updateLabels(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="710" y="90" width="220" height="90" as="geometry" />
+          <mxGeometry x="430" y="450" width="250" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="locationController" value="&lt;b&gt;LocationController&lt;/b&gt;&lt;hr/&gt;+ startTracking(GoogleMap, Host)&lt;br/&gt;+ stopTracking()&lt;br/&gt;+ onPermissionResult(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="950" y="90" width="220" height="140" as="geometry" />
+        <mxCell id="locationController" value="&lt;b&gt;LocationController&lt;/b&gt;&lt;hr/&gt;- fusedLocationClient : FusedLocationProviderClient&lt;br/&gt;+ startTracking(GoogleMap, Host)&lt;br/&gt;+ stopTracking()&lt;br/&gt;+ onPermissionResult(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="720" y="450" width="250" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="locationHost" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; LocationController.Host&lt;/b&gt;&lt;hr/&gt;+ hasLocationPermission()&lt;br/&gt;+ onLiveLocationAvailable(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="90" width="200" height="120" as="geometry" />
+        <mxCell id="locationHost" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; LocationHost&lt;/b&gt;&lt;hr/&gt;+ hasLocationPermission()&lt;br/&gt;+ requestLocationPermissions()&lt;br/&gt;+ onInitialLocationAvailable(...)&lt;br/&gt;+ onLiveLocationAvailable(...)&lt;br/&gt;+ onLocationUnavailable()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="450" width="200" height="150" as="geometry" />
         </mxCell>
         <mxCell id="reserveStateResolver" value="&lt;b&gt;ReserveStateResolver&lt;/b&gt;&lt;hr/&gt;+ resolve(LatLng, List&lt;Reserve&gt;, List&lt;Event&gt;) : ReserveState" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="470" y="280" width="290" height="110" as="geometry" />
+          <mxGeometry x="90" y="700" width="330" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="weatherUiController" value="&lt;b&gt;WeatherUiController&lt;/b&gt;&lt;hr/&gt;+ toggleExpanded()&lt;br/&gt;+ refreshWeather(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="780" y="280" width="220" height="110" as="geometry" />
+        <mxCell id="weatherUiController" value="&lt;b&gt;WeatherUiController&lt;/b&gt;&lt;hr/&gt;- weatherApiClient : WeatherApiClient&lt;br/&gt;+ toggleExpanded()&lt;br/&gt;+ refreshWeather(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="460" y="700" width="260" height="130" as="geometry" />
         </mxCell>
         <mxCell id="eventPollingController" value="&lt;b&gt;EventPollingController&lt;/b&gt;&lt;hr/&gt;+ start()&lt;br/&gt;+ stop()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1020" y="280" width="180" height="90" as="geometry" />
+          <mxGeometry x="760" y="700" width="200" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="eventReportUiController" value="&lt;b&gt;EventReportUiController&lt;/b&gt;&lt;hr/&gt;- manualReportLatLng : LatLng&lt;br/&gt;+ toggleReportPanel(...)&lt;br/&gt;+ saveManualLocation(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="280" width="180" height="140" as="geometry" />
+        <mxCell id="eventReportUiController" value="&lt;b&gt;EventReportUiController&lt;/b&gt;&lt;hr/&gt;- manualReportLatLng : LatLng&lt;br/&gt;+ toggleReportPanel(...)&lt;br/&gt;+ saveManualLocation(...)&lt;br/&gt;+ clearManualLocation(...)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="700" width="200" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="reportMediaController" value="&lt;b&gt;ReportMediaController&lt;/b&gt;&lt;hr/&gt;- selectedMediaUris : List&lt;Uri&gt;&lt;br/&gt;+ onMediaPicked(...)&lt;br/&gt;+ prepareCameraCapture() : Uri" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="470" y="430" width="260" height="140" as="geometry" />
+        <mxCell id="reportMediaController" value="&lt;b&gt;ReportMediaController&lt;/b&gt;&lt;hr/&gt;- selectedMediaUris : List&lt;Uri&gt;&lt;br/&gt;+ openMediaPicker(...)&lt;br/&gt;+ onMediaPicked(...)&lt;br/&gt;+ prepareCameraCapture() : Uri&lt;br/&gt;+ clearSelectedMedia()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="880" width="320" height="170" as="geometry" />
         </mxCell>
-        <mxCell id="reportSubmissionController" value="&lt;b&gt;ReportSubmissionController&lt;/b&gt;&lt;hr/&gt;+ submitReport(Reserve, String, String, String, LatLng, List&lt;Uri&gt;, boolean, Host)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="750" y="430" width="360" height="110" as="geometry" />
+        <mxCell id="reportSubmissionController" value="&lt;b&gt;ReportSubmissionController&lt;/b&gt;&lt;hr/&gt;- reportApiClient : ReportApiClient&lt;br/&gt;+ submitReport(Reserve, String, String, String, LatLng, List&lt;Uri&gt;, boolean, Host)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="450" y="880" width="420" height="130" as="geometry" />
         </mxCell>
-        <mxCell id="reportSubmissionHost" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; ReportSubmissionController.Host&lt;/b&gt;&lt;hr/&gt;+ onReportSubmitted()&lt;br/&gt;+ reloadHazards()&lt;br/&gt;+ updateServerStatus(boolean)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1130" y="430" width="270" height="130" as="geometry" />
+        <mxCell id="reportSubmissionHost" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; ReportSubmissionHost&lt;/b&gt;&lt;hr/&gt;+ setBusyState(...)&lt;br/&gt;+ requestLocationTracking()&lt;br/&gt;+ onReportLocationResolved(...)&lt;br/&gt;+ onReportSubmitted()&lt;br/&gt;+ reloadHazards()&lt;br/&gt;+ updateServerStatus(boolean)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="910" y="880" width="290" height="160" as="geometry" />
         </mxCell>
-
         <mxCell id="reserveApiClient" value="&lt;b&gt;ReserveApiClient&lt;/b&gt;&lt;hr/&gt;+ loadReserves() : List&lt;Reserve&gt;&lt;br/&gt;+ loadPublishedHazards(...) : List&lt;Event&gt;&lt;br/&gt;+ loadPois(...) : List&lt;Poi&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="70" y="490" width="300" height="140" as="geometry" />
+          <mxGeometry x="90" y="1360" width="320" height="150" as="geometry" />
         </mxCell>
         <mxCell id="reportApiClient" value="&lt;b&gt;ReportApiClient&lt;/b&gt;&lt;hr/&gt;+ submitTravelerReport(ContentResolver, TravelerReportData)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="70" y="650" width="300" height="90" as="geometry" />
+          <mxGeometry x="460" y="1360" width="320" height="100" as="geometry" />
         </mxCell>
         <mxCell id="weatherApiClient" value="&lt;b&gt;WeatherApiClient&lt;/b&gt;&lt;hr/&gt;+ hasApiKey() : boolean&lt;br/&gt;+ loadCurrentWeather(...) : WeatherCurrent&lt;br/&gt;+ loadHourlyWeather(...) : List&lt;WeatherHourlyForecast&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="70" y="760" width="300" height="130" as="geometry" />
+          <mxGeometry x="830" y="1360" width="330" height="140" as="geometry" />
         </mxCell>
-
-        <mxCell id="reserve" value="&lt;b&gt;Reserve&lt;/b&gt;&lt;hr/&gt;- id : long&lt;br/&gt;- displayName : String&lt;br/&gt;- areaBounds : AreaBounds" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1460" y="90" width="220" height="120" as="geometry" />
+        <mxCell id="reserve" value="&lt;b&gt;Reserve&lt;/b&gt;&lt;hr/&gt;- id : long&lt;br/&gt;- displayName : String&lt;br/&gt;- centerLatitude : double&lt;br/&gt;- centerLongitude : double&lt;br/&gt;- areaBounds : AreaBounds" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1690" width="260" height="150" as="geometry" />
         </mxCell>
-        <mxCell id="areaBounds" value="&lt;b&gt;AreaBounds&lt;/b&gt;&lt;hr/&gt;- minLatitude : double&lt;br/&gt;- maxLatitude : double&lt;br/&gt;+ contains(double, double) : boolean" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1700" y="90" width="250" height="130" as="geometry" />
+        <mxCell id="areaBounds" value="&lt;b&gt;AreaBounds&lt;/b&gt;&lt;hr/&gt;- minLatitude : double&lt;br/&gt;- maxLatitude : double&lt;br/&gt;- minLongitude : double&lt;br/&gt;- maxLongitude : double&lt;br/&gt;+ contains(double, double) : boolean" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1690" width="280" height="150" as="geometry" />
         </mxCell>
-        <mxCell id="event" value="&lt;b&gt;Event&lt;/b&gt;&lt;hr/&gt;- reserveId : long&lt;br/&gt;- type : String&lt;br/&gt;- priority : String&lt;br/&gt;+ isFire() : boolean&lt;br/&gt;+ latLng() : LatLng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1460" y="250" width="220" height="150" as="geometry" />
+        <mxCell id="reserveState" value="&lt;b&gt;ReserveState&lt;/b&gt;&lt;hr/&gt;- kind : Kind&lt;br/&gt;- activeReserve : Reserve&lt;br/&gt;- visibleHazardCount : int&lt;br/&gt;- activeReserveHasFireHazard : boolean&lt;br/&gt;+ insideReserve(...) : ReserveState" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="710" y="1690" width="420" height="150" as="geometry" />
         </mxCell>
-        <mxCell id="poi" value="&lt;b&gt;Poi&lt;/b&gt;&lt;hr/&gt;- reserveId : long&lt;br/&gt;- type : String&lt;br/&gt;- name : String&lt;br/&gt;+ latLng() : LatLng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1700" y="250" width="250" height="130" as="geometry" />
+        <mxCell id="event" value="&lt;b&gt;Event&lt;/b&gt;&lt;hr/&gt;- reserveId : long&lt;br/&gt;- type : String&lt;br/&gt;- priority : String&lt;br/&gt;- description : String&lt;br/&gt;+ isFire() : boolean&lt;br/&gt;+ latLng() : LatLng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1880" width="260" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="reserveState" value="&lt;b&gt;ReserveState&lt;/b&gt;&lt;hr/&gt;- kind : Kind&lt;br/&gt;- activeReserve : Reserve&lt;br/&gt;- visibleHazardCount : int&lt;br/&gt;+ insideReserve(...) : ReserveState" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1980" y="90" width="320" height="140" as="geometry" />
+        <mxCell id="poi" value="&lt;b&gt;Poi&lt;/b&gt;&lt;hr/&gt;- reserveId : long&lt;br/&gt;- type : String&lt;br/&gt;- name : String&lt;br/&gt;- description : String&lt;br/&gt;+ latLng() : LatLng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1880" width="280" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="travelerReportData" value="&lt;b&gt;TravelerReportData&lt;/b&gt;&lt;hr/&gt;- reserveId : long&lt;br/&gt;- type : String&lt;br/&gt;- description : String&lt;br/&gt;- attachmentUris : List&lt;Uri&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1980" y="260" width="320" height="130" as="geometry" />
+        <mxCell id="travelerReportData" value="&lt;b&gt;TravelerReportData&lt;/b&gt;&lt;hr/&gt;- reserveId : long&lt;br/&gt;- type : String&lt;br/&gt;- reporterName : String&lt;br/&gt;- description : String&lt;br/&gt;- attachmentUris : List&lt;Uri&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="710" y="1880" width="420" height="150" as="geometry" />
         </mxCell>
         <mxCell id="weatherCurrent" value="&lt;b&gt;WeatherCurrent&lt;/b&gt;&lt;hr/&gt;- temperatureCelsius : double&lt;br/&gt;- condition : String" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1460" y="440" width="220" height="100" as="geometry" />
+          <mxGeometry x="90" y="2100" width="260" height="120" as="geometry" />
         </mxCell>
         <mxCell id="weatherHourlyForecast" value="&lt;b&gt;WeatherHourlyForecast&lt;/b&gt;&lt;hr/&gt;- hourLabel : String&lt;br/&gt;- temperatureCelsius : double&lt;br/&gt;- condition : String" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="1700" y="430" width="280" height="120" as="geometry" />
+          <mxGeometry x="390" y="2100" width="340" height="140" as="geometry" />
         </mxCell>
-
-        <mxCell id="e1" edge="1" parent="1" source="mainActivity" target="mapController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e1" edge="1" parent="1" source="mainActivity" target="mapController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="mainActivity" target="mapToggleUiController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e2" edge="1" parent="1" source="mainActivity" target="mapToggleUiController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="mainActivity" target="locationController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e3" edge="1" parent="1" source="mainActivity" target="locationController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e4" edge="1" parent="1" source="mainActivity" target="reserveStateResolver" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e4" edge="1" parent="1" source="mainActivity" target="reserveStateResolver" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="mainActivity" target="weatherUiController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e5" edge="1" parent="1" source="mainActivity" target="weatherUiController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e6" edge="1" parent="1" source="mainActivity" target="eventPollingController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e6" edge="1" parent="1" source="mainActivity" target="eventPollingController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e7" edge="1" parent="1" source="mainActivity" target="eventReportUiController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e7" edge="1" parent="1" source="mainActivity" target="eventReportUiController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="mainActivity" target="reportMediaController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e8" edge="1" parent="1" source="mainActivity" target="reportMediaController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e9" edge="1" parent="1" source="mainActivity" target="reportSubmissionController" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e9" edge="1" parent="1" source="mainActivity" target="reportSubmissionController" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e10" edge="1" parent="1" source="mainActivity" target="reserveApiClient" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e10" edge="1" parent="1" source="mainActivity" target="reserveApiClient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e11" edge="1" parent="1" source="mainActivity" target="reportApiClient" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e11" edge="1" parent="1" source="mainActivity" target="reportApiClient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e12" edge="1" parent="1" source="mainActivity" target="weatherApiClient" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e12" edge="1" parent="1" source="mainActivity" target="weatherApiClient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e13" edge="1" parent="1" source="locationController" target="locationHost" style="endArrow=open;endFill=0;html=1;strokeWidth=2;dashed=1;">
+        <mxCell id="e13" edge="1" parent="1" source="locationController" target="locationHost" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;dashed=1;endArrow=open;endFill=0;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e14" edge="1" parent="1" source="mainActivity" target="locationHost" style="endArrow=open;endFill=0;html=1;strokeWidth=2;dashed=1;">
+        <mxCell id="e14" edge="1" parent="1" source="mainActivity" target="locationHost" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;dashed=1;endArrow=open;endFill=0;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e15" edge="1" parent="1" source="reportSubmissionController" target="reportSubmissionHost" style="endArrow=open;endFill=0;html=1;strokeWidth=2;dashed=1;">
+        <mxCell id="e15" edge="1" parent="1" source="reportSubmissionController" target="reportSubmissionHost" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;dashed=1;endArrow=open;endFill=0;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e16" edge="1" parent="1" source="mainActivity" target="reportSubmissionHost" style="endArrow=open;endFill=0;html=1;strokeWidth=2;dashed=1;">
+        <mxCell id="e16" edge="1" parent="1" source="mainActivity" target="reportSubmissionHost" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;dashed=1;endArrow=open;endFill=0;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e17" edge="1" parent="1" source="reserveStateResolver" target="reserveState" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e17" edge="1" parent="1" source="reserveStateResolver" target="reserveState" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e18" edge="1" parent="1" source="reserveStateResolver" target="reserve" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e18" edge="1" parent="1" source="reserveStateResolver" target="reserve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e19" edge="1" parent="1" source="reserveStateResolver" target="event" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e19" edge="1" parent="1" source="reserveStateResolver" target="event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e20" edge="1" parent="1" source="mapController" target="reserve" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e20" edge="1" parent="1" source="mapController" target="reserve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e21" edge="1" parent="1" source="mapController" target="event" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e21" edge="1" parent="1" source="mapController" target="event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e22" edge="1" parent="1" source="mapController" target="poi" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e22" edge="1" parent="1" source="mapController" target="poi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e23" edge="1" parent="1" source="reserveApiClient" target="reserve" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e23" edge="1" parent="1" source="mapController" target="areaBounds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e24" edge="1" parent="1" source="reserveApiClient" target="event" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e24" edge="1" parent="1" source="reserveApiClient" target="reserve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e25" edge="1" parent="1" source="reserveApiClient" target="poi" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e25" edge="1" parent="1" source="reserveApiClient" target="event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e26" edge="1" parent="1" source="reportSubmissionController" target="reportApiClient" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e26" edge="1" parent="1" source="reserveApiClient" target="poi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e27" edge="1" parent="1" source="reportSubmissionController" target="travelerReportData" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e27" edge="1" parent="1" source="reserveApiClient" target="areaBounds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e28" edge="1" parent="1" source="reportApiClient" target="travelerReportData" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e28" edge="1" parent="1" source="reportSubmissionController" target="reportApiClient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e29" edge="1" parent="1" source="weatherUiController" target="weatherApiClient" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e29" edge="1" parent="1" source="reportSubmissionController" target="travelerReportData" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e30" edge="1" parent="1" source="weatherUiController" target="weatherCurrent" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e30" edge="1" parent="1" source="reportApiClient" target="travelerReportData" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e31" edge="1" parent="1" source="weatherUiController" target="weatherHourlyForecast" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e31" edge="1" parent="1" source="weatherUiController" target="weatherApiClient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e32" edge="1" parent="1" source="weatherApiClient" target="weatherCurrent" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e32" edge="1" parent="1" source="weatherUiController" target="weatherCurrent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e33" edge="1" parent="1" source="weatherApiClient" target="weatherHourlyForecast" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e33" edge="1" parent="1" source="weatherUiController" target="weatherHourlyForecast" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="e34" edge="1" parent="1" source="reserve" target="areaBounds" style="endArrow=diamondThin;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e34" edge="1" parent="1" source="weatherApiClient" target="weatherCurrent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e35" edge="1" parent="1" source="reserveState" target="reserve" style="endArrow=block;endFill=1;html=1;strokeWidth=2;">
+        <mxCell id="e35" edge="1" parent="1" source="weatherApiClient" target="weatherHourlyForecast" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e36" edge="1" parent="1" source="reserve" target="areaBounds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=diamondThin;endFill=1;html=1;strokeWidth=2;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e37" edge="1" parent="1" source="reserveState" target="reserve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=block;endFill=1;html=1;strokeWidth=2;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

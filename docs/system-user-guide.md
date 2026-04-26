@@ -92,14 +92,14 @@ VITE_API_BASE_URL=http://localhost:8080
 ### 4. Start the Android app
 
 1. Open `mobile-app` in Android Studio.
-2. Create `mobile-app/gradle.properties` from `mobile-app/gradle.properties.example`.
+2. Create `mobile-app/.gradle-user/gradle.properties` using `mobile-app/gradle.properties.example` as the reference.
 3. Set your local values:
 
 ```properties
 MAPS_API_KEY=...
 OPEN_WEATHER_API_KEY=...
 BACKEND_API_BASE=http://10.0.2.2:8080/api/public
-android.useAndroidX=true
+OPEN_WEATHER_API_BASE=https://api.openweathermap.org/data/2.5/weather
 ```
 
 4. Start an Android emulator.
@@ -229,7 +229,7 @@ Check:
 
 Check:
 
-- `OPEN_WEATHER_API_KEY` is set in `mobile-app/gradle.properties`
+- `OPEN_WEATHER_API_KEY` is set in `mobile-app/.gradle-user/gradle.properties`
 
 ### Camera photo attachment fails
 

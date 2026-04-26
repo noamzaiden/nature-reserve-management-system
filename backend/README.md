@@ -5,11 +5,17 @@ Spring Boot REST backend for reserve events management.
 ## Features
 - Reserves and events management
 - Event geographic validation inside reserve boundaries
-- JWT authentication for Admin/Inspector users
+- JWT authentication for admin and manager users
 - Role-based authorization
-- Admin-to-reserve access restrictions
+- Manager-to-reserve access restrictions
 - Event lifecycle logging (`event_logs`)
 - Flyway migrations with initial seed data
+
+## Related Docs
+
+- [Backend Block Diagram](../docs/backend-block-diagram.md)
+- [Database Block Diagram](../docs/database-block-diagram.md)
+- [System Architecture Planning Document](../docs/system-architecture-planning.md)
 
 ## Run
 ```bash

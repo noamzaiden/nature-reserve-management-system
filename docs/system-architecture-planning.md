@@ -11,6 +11,12 @@ This is the system-level companion to the existing mobile-focused documents:
 - [MainActivity Workflow](./main-activity-workflow.md)
 - [System Architecture Block Diagram](./system_architecture_block_diagram.drawio)
 
+Additional component diagram docs:
+
+- [Database Block Diagram](./database-block-diagram.md)
+- [Backend Block Diagram](./backend-block-diagram.md)
+- [Web App Block Diagram](./web-app-block-diagram.md)
+
 ## System Summary
 
 The project is a full-stack reserve operations system with three main runtime applications:
@@ -116,7 +122,7 @@ The current high-level layers are:
 ## High-Level Block Diagram
 
 ```mermaid
-flowchart LR
+flowchart TB
     Admin[Administrator]
     Manager[Reserve Manager]
     Traveler[Traveler]

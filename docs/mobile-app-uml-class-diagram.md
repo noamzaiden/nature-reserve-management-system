@@ -16,6 +16,7 @@ Related docs:
 
 ```mermaid
 classDiagram
+    direction TB
     class MainActivity {
         -ExecutorService executorService
         -List~Reserve~ reserves

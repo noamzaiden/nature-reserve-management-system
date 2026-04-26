@@ -9,6 +9,12 @@ React and Vite dashboard for the reserve management system.
 - Manager workspace for reserve requests, event creation, event updates, and publishing traveler-facing alerts
 - Map-based reserve views using Leaflet
 
+## Related Docs
+
+- [Web App Block Diagram](../docs/web-app-block-diagram.md)
+- [Backend Block Diagram](../docs/backend-block-diagram.md)
+- [System Architecture Planning Document](../docs/system-architecture-planning.md)
+
 ## Run
 
 ```bash
