@@ -1,8 +1,10 @@
 package com.reserve.mobile;
 
 import android.Manifest;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -21,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -189,12 +192,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         configureMediaPicker();
         configureLocationPermissionLauncher();
         configureButtons();
-        configureMap();
+        boolean mapConfigured = configureMap();
         updateToggleLabels();
         updateServerStatus(null);
         reportMediaController.updateSelectedMediaText();
         updateReportLocationText();
-        statusText.setText(R.string.status_loading_reserves);
+        statusText.setText(mapConfigured
+                ? R.string.status_loading_reserves
+                : R.string.status_map_unavailable);
         loadReserves();
     }
 
@@ -298,11 +303,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void configureMap() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+    private boolean configureMap() {
+        if (!hasConfiguredMapsApiKey()) {
+            startLocationTracking();
+            return false;
         }
+
+        Fragment existingFragment = getSupportFragmentManager().findFragmentById(R.id.map_fragment_container);
+        SupportMapFragment mapFragment;
+        if (existingFragment instanceof SupportMapFragment) {
+            mapFragment = (SupportMapFragment) existingFragment;
+        } else {
+            mapFragment = SupportMapFragment.newInstance();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.map_fragment_container, mapFragment)
+                    .commitNow();
+        }
+        mapFragment.getMapAsync(this);
+        return true;
     }
 
     @Override
@@ -326,7 +345,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapController.attachMap(map);
         refreshMapContent();
         startLocationTracking();
-        statusText.setText("");
     }
 
     @Override
@@ -342,7 +360,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onLocationUnavailable() {
-        statusText.setText(R.string.status_location_waiting);
         updateReportLocationText();
         refreshWeather(false);
     }
@@ -620,7 +637,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onLocationPermissionDenied() {
-        statusText.setText(R.string.status_location_permission_needed);
         updateReserveState();
     }
 
@@ -805,6 +821,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean hasLocationPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean hasConfiguredMapsApiKey() {
+        String mapsApiKey = readMapsApiKeyFromManifest();
+        if (mapsApiKey == null) {
+            return false;
+        }
+
+        String trimmedKey = mapsApiKey.trim();
+        return !trimmedKey.isEmpty()
+                && !trimmedKey.startsWith("YOUR_")
+                && !trimmedKey.contains("${")
+                && trimmedKey.length() > 20;
+    }
+
+    private String readMapsApiKeyFromManifest() {
+        try {
+            ApplicationInfo applicationInfo;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                applicationInfo = getPackageManager().getApplicationInfo(
+                        getPackageName(),
+                        PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA)
+                );
+            } else {
+                applicationInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            }
+
+            Bundle metadata = applicationInfo.metaData;
+            return metadata == null ? null : metadata.getString("com.google.android.geo.API_KEY");
+        } catch (PackageManager.NameNotFoundException exception) {
+            return null;
+        }
     }
 
     @Override

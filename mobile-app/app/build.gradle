@@ -4,27 +4,23 @@ plugins {
     id 'com.android.application'
 }
 
-def repoLocalProperties = new Properties()
-def repoLocalPropertiesFile = new File(rootProject.projectDir, '.gradle-user/gradle.properties')
-
-if (repoLocalPropertiesFile.exists()) {
-    repoLocalPropertiesFile.withInputStream { inputStream ->
-        repoLocalProperties.load(inputStream)
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { inputStream ->
+        localProperties.load(inputStream)
     }
 }
 
-def readConfigValue = { String name, String defaultValue = null ->
-    def repoLocalValue = repoLocalProperties.getProperty(name)
-    if (repoLocalValue != null && !repoLocalValue.trim().isEmpty()) {
-        return repoLocalValue
+def getConfigValue = { key, defaultValue ->
+    def projectValue = project.findProperty(key)
+    if (projectValue != null && !projectValue.toString().trim().isEmpty()) {
+        return projectValue.toString()
     }
 
-    def gradleValue = project.findProperty(name)
-    if (gradleValue != null) {
-        String textValue = gradleValue.toString()
-        if (!textValue.trim().isEmpty()) {
-            return textValue
-        }
+    def localValue = localProperties.getProperty(key)
+    if (localValue != null && !localValue.trim().isEmpty()) {
+        return localValue
     }
 
     return defaultValue
@@ -35,10 +31,10 @@ android {
     compileSdk 34
 
     defaultConfig {
-        def mapsApiKey = readConfigValue('MAPS_API_KEY', 'YOUR_GOOGLE_MAPS_API_KEY')
-        def openWeatherApiKey = readConfigValue('OPEN_WEATHER_API_KEY', '')
-        def backendApiBase = readConfigValue('BACKEND_API_BASE', 'http://10.0.2.2:8080/api/public')
-        def openWeatherApiBase = readConfigValue('OPEN_WEATHER_API_BASE', 'https://api.openweathermap.org/data/2.5/weather')
+        def mapsApiKey = getConfigValue('MAPS_API_KEY', 'YOUR_GOOGLE_MAPS_API_KEY')
+        def openWeatherApiKey = getConfigValue('OPEN_WEATHER_API_KEY', '')
+        def backendApiBase = getConfigValue('BACKEND_API_BASE', 'http://10.0.2.2:8080/api/public')
+        def openWeatherApiBase = getConfigValue('OPEN_WEATHER_API_BASE', 'https://api.openweathermap.org/data/2.5/weather')
 
         applicationId 'com.reserve.mobile'
         minSdk 24

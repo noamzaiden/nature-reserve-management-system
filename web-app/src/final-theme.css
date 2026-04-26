@@ -1,0 +1,538 @@
+/* Final compact theme. Imported after styles.css on purpose. */
+
+:root {
+  --ft-page: #e3efe7;
+  --ft-page-deep: #d4e4da;
+  --ft-card: #fbfffd;
+  --ft-card-soft: #f2faf5;
+  --ft-line: #c9dbd0;
+  --ft-line-strong: #b7cec1;
+  --ft-text: #173626;
+  --ft-muted: #5c7568;
+  --ft-green: #2f8f56;
+  --ft-green-dark: #1f6e41;
+  --ft-green-deep: #164f31;
+  --ft-green-pale: #dceee2;
+  --ft-red: #c54a37;
+  --ft-red-dark: #9e3428;
+  --ft-amber: #b87935;
+  --ft-teal: #2f7772;
+}
+
+html,
+body,
+#root,
+.shell {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.7), transparent 28%),
+    linear-gradient(180deg, var(--ft-page) 0%, var(--ft-page-deep) 100%) !important;
+  color: var(--ft-text) !important;
+  font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", Arial, sans-serif !important;
+}
+
+* {
+  box-sizing: border-box;
+  box-shadow: none !important;
+}
+
+.shell {
+  padding: 0.65rem 0.9rem !important;
+}
+
+.topbar {
+  align-items: flex-start !important;
+  gap: 0.55rem !important;
+  margin-bottom: 0.7rem !important;
+}
+
+.topbar h1,
+.login-card h1 {
+  margin: 0.12rem 0 0 !important;
+  color: var(--ft-text) !important;
+  font-size: clamp(1.35rem, 2vw, 2.1rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+}
+
+.eyebrow {
+  margin: 0 !important;
+  color: var(--ft-green-dark) !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+}
+
+.muted,
+.status-note,
+.empty-state,
+.event-card-header span,
+.event-meta,
+.notification-item-meta,
+.timeline-entry-meta,
+.summary-pill small,
+.manager-nav-button small {
+  color: var(--ft-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+}
+
+.panel,
+.login-card,
+.notification-panel,
+.metric-card,
+.overview-reserve-card,
+.reserve-dashboard-card,
+.event-card,
+.notification-item,
+.timeline-entry,
+.compact-card,
+.reserve-card,
+.map-control-card {
+  background: rgba(251, 255, 253, 0.94) !important;
+  border: 1px solid var(--ft-line) !important;
+  border-radius: 18px !important;
+  color: var(--ft-text) !important;
+}
+
+.panel,
+.login-card {
+  padding: 0.82rem !important;
+}
+
+.metric-card,
+.overview-reserve-card,
+.reserve-dashboard-card,
+.event-card,
+.notification-item,
+.timeline-entry,
+.map-control-card,
+.compact-card {
+  padding: 0.58rem !important;
+  border-radius: 14px !important;
+}
+
+.panel-heading {
+  gap: 0.45rem !important;
+  margin-bottom: 0.45rem !important;
+}
+
+.panel h2 {
+  margin: 0.1rem 0 0 !important;
+  color: var(--ft-text) !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+}
+
+.manager-page,
+.stack,
+.panel.stack,
+.content-grid,
+.content-grid-wide,
+.metric-grid,
+.overview-reserve-grid,
+.overview-reserve-list,
+.reserve-dashboard-grid,
+.control-panel-workspace,
+.control-operations-grid,
+.event-list,
+.notification-list,
+.timeline-list {
+  gap: 0.72rem !important;
+}
+
+.manager-nav {
+  gap: 0.55rem !important;
+  margin-bottom: 1.05rem !important;
+}
+
+.topbar + .status-note,
+.topbar + .error-banner,
+.topbar + .manager-nav,
+.topbar + .admin-nav,
+.status-note + .manager-nav,
+.error-banner + .manager-nav,
+.manager-nav + .manager-page,
+.admin-nav + .content-grid,
+.admin-nav + .manager-page {
+  margin-top: 0.85rem !important;
+}
+
+.manager-page > .panel:first-child,
+.manager-page > .content-grid:first-child,
+.content-grid > .panel,
+.content-grid-wide > .panel {
+  margin-top: 0.35rem !important;
+}
+
+.admin-dashboard-layout,
+.content-grid,
+.content-grid-wide {
+  column-gap: 1rem !important;
+  row-gap: 1rem !important;
+}
+
+.admin-request-card,
+.request-filter-form + .event-list,
+.admin-reserve-filters + .table-shell,
+.admin-reserve-filters + .map-wrap {
+  margin-top: 0.65rem !important;
+}
+
+.manager-nav-button {
+  min-width: 122px !important;
+  padding: 0.55rem 0.68rem !important;
+  border-radius: 14px !important;
+}
+
+.summary-pill {
+  min-width: 78px !important;
+  padding: 0.45rem 0.55rem !important;
+  border-radius: 15px !important;
+  background: rgba(251, 255, 253, 0.94) !important;
+  border: 1px solid var(--ft-line) !important;
+  text-align: center !important;
+}
+
+.summary-pill span {
+  color: var(--ft-green-deep) !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+}
+
+.topbar-center-action {
+  padding-top: 0.15rem !important;
+}
+
+.refresh-button {
+  min-width: 118px !important;
+  background: #cfead7 !important;
+  border: 1px solid #acd2b7 !important;
+  color: var(--ft-text) !important;
+}
+
+.refresh-button:hover {
+  background: #bddfc8 !important;
+  color: var(--ft-text) !important;
+}
+
+button,
+.create-button,
+.save-button,
+.edit-button,
+.info-button,
+.map-action-button,
+.overview-community-button {
+  background: var(--ft-green) !important;
+  border: 1px solid var(--ft-green) !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  padding: 0.55rem 0.85rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+}
+
+button:hover,
+.create-button:hover,
+.save-button:hover,
+.edit-button:hover,
+.info-button:hover,
+.map-action-button:hover,
+.overview-community-button:hover {
+  background: var(--ft-green-dark) !important;
+  border-color: var(--ft-green-dark) !important;
+  color: #ffffff !important;
+  filter: none !important;
+  transform: translateY(-1px);
+}
+
+button:hover * {
+  color: inherit !important;
+}
+
+.secondary-button,
+.auth-tab,
+.manager-nav-button,
+.notification-bell {
+  background: rgba(251, 255, 253, 0.94) !important;
+  border: 1px solid var(--ft-line) !important;
+  color: var(--ft-text) !important;
+}
+
+.secondary-button:hover,
+.auth-tab:hover,
+.manager-nav-button:hover,
+.notification-bell:hover {
+  background: var(--ft-green-pale) !important;
+  color: var(--ft-text) !important;
+}
+
+.auth-tab-active,
+.auth-tab-active:hover,
+.manager-nav-button-active,
+.manager-nav-button-active:hover,
+.reserve-card-active {
+  background: var(--ft-green) !important;
+  border-color: var(--ft-green) !important;
+  color: #ffffff !important;
+}
+
+.auth-tab-active *,
+.manager-nav-button-active *,
+.reserve-card-active * {
+  color: #ffffff !important;
+}
+
+.publish-button {
+  background: var(--ft-amber) !important;
+  border-color: var(--ft-amber) !important;
+  color: #ffffff !important;
+}
+
+.danger-button,
+.danger-button:hover,
+.notification-bell strong,
+.event-attention-badge {
+  background: var(--ft-red) !important;
+  border-color: var(--ft-red) !important;
+  color: #ffffff !important;
+}
+
+.danger-button:hover {
+  background: var(--ft-red-dark) !important;
+}
+
+.hero-panel,
+.control-header-card {
+  background: var(--ft-green-deep) !important;
+  border: 1px solid var(--ft-green-deep) !important;
+  border-radius: 18px !important;
+  padding: 0.7rem 0.85rem !important;
+  gap: 0.65rem !important;
+  color: #ffffff !important;
+}
+
+.hero-panel *,
+.control-header-card * {
+  color: #ffffff !important;
+}
+
+.hero-panel .muted,
+.control-header-card .muted,
+.hero-stat small,
+.control-summary-chips small {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.hero-panel .hero-stat,
+.control-header-card .summary-pill {
+  min-width: 74px !important;
+  padding: 0.36rem 0.45rem !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  border-radius: 12px !important;
+}
+
+.hero-stat span,
+.control-header-card .summary-pill span {
+  color: #ffffff !important;
+  font-size: 0.92rem !important;
+}
+
+.hero-stat small,
+.control-header-card .summary-pill small {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-size: 0.62rem !important;
+}
+
+input,
+select,
+textarea,
+.event-actions select,
+.admin-request-actions select {
+  background: rgba(251, 255, 253, 0.94) !important;
+  border: 1px solid var(--ft-line) !important;
+  color: var(--ft-text) !important;
+  border-radius: 12px !important;
+  padding: 0.45rem 0.58rem !important;
+  font-size: 0.78rem !important;
+}
+
+.event-form,
+.login-form,
+.request-filter-form,
+.control-filter-form,
+.control-create-form {
+  gap: 0.45rem !important;
+}
+
+.event-form label,
+.login-form label {
+  gap: 0.18rem !important;
+  color: var(--ft-text) !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+}
+
+.control-operation-card,
+.reserve-map-stage,
+.table-shell,
+.map-wrap,
+.map-floating-card,
+.map-popup-card,
+.polygon-details pre {
+  background: rgba(242, 250, 245, 0.94) !important;
+  border: 1px solid var(--ft-line) !important;
+}
+
+.reserve-map-workspace {
+  grid-template-columns: 255px minmax(0, 1fr) !important;
+  gap: 0.8rem !important;
+  min-height: calc(100vh - 130px) !important;
+}
+
+.map-filter-sidebar {
+  display: grid !important;
+  align-content: start !important;
+  gap: 0.65rem !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.map-control-card {
+  padding: 0.58rem !important;
+}
+
+.event-card,
+.overview-reserve-card,
+.reserve-dashboard-card,
+.notification-item,
+.timeline-entry,
+.map-control-card,
+.metric-card,
+.compact-card {
+  margin-bottom: 0.12rem !important;
+}
+
+.panel + .panel,
+.hero-panel + .panel,
+.control-header-card + .panel,
+.control-mode-panel + .reserve-map-workspace,
+.control-mode-panel + .control-panel-workspace {
+  margin-top: 0.18rem !important;
+}
+
+.map-filter-sidebar button,
+.map-filter-sidebar select,
+.map-popup-actions button,
+.control-event-list .event-actions button,
+.compact-card-list .event-actions button,
+.control-event-list .event-actions select {
+  padding: 0.36rem 0.48rem !important;
+  font-size: 0.68rem !important;
+}
+
+.map-wrap-full .reserve-map,
+.reserve-map-focus {
+  height: calc(100vh - 235px) !important;
+  min-height: 285px !important;
+}
+
+.reserve-map,
+.reserve-map-tall,
+.map-wrap-tall .reserve-map {
+  height: 220px !important;
+}
+
+.table-shell {
+  overflow: auto;
+}
+
+.reserve-table th,
+.reserve-table td {
+  padding: 0.42rem 0.55rem !important;
+  border-color: var(--ft-line) !important;
+  color: var(--ft-text) !important;
+  font-size: 0.75rem !important;
+}
+
+.reserve-table thead tr,
+.reserve-table th {
+  background: #dcebe2 !important;
+}
+
+.reserve-table tbody tr {
+  background: rgba(251, 255, 253, 0.8) !important;
+}
+
+.reserve-row-active {
+  background: #dcebe2 !important;
+}
+
+.priority-high,
+.status-open,
+.control-event-card-high {
+  background: #f8dfda !important;
+  color: #813026 !important;
+  border-color: #e4b8b1 !important;
+}
+
+.priority-medium,
+.status-in_progress,
+.control-event-card-medium {
+  background: #efe4cf !important;
+  color: #664718 !important;
+  border-color: #d9c49d !important;
+}
+
+.priority-low,
+.control-event-card-low {
+  background: #e4efeb !important;
+  color: #2f5c50 !important;
+  border-color: #bdd0c8 !important;
+}
+
+.status-closed,
+.status-inactive,
+.control-event-card-closed {
+  background: #e6ebe8 !important;
+  color: #56645d !important;
+  border-color: #cbd5cf !important;
+}
+
+.status-active {
+  background: #caead3 !important;
+  color: #215537 !important;
+}
+
+.overview-reserve-card .event-meta,
+.reserve-dashboard-card .event-meta {
+  background: #edf7f0 !important;
+}
+
+.poi-map-pin {
+  background: var(--ft-teal) !important;
+  color: #ffffff !important;
+}
+
+.poi-map-pin * {
+  color: #ffffff !important;
+}
+
+.metric-card::after {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .reserve-map-workspace,
+  .control-operations-grid,
+  .content-grid,
+  .content-grid-wide,
+  .metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

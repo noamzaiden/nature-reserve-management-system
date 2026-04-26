@@ -109,7 +109,6 @@ public class AdminService {
                 manager == null ? null : manager.getEmail(),
                 reserve.getCenterLatitude(),
                 reserve.getCenterLongitude(),
-                reserve.getPolygonGeoJson(),
                 manager != null,
                 reserve.getCreatedAt(),
                 reserveEvents.stream().map(eventMapper::toDto).toList()

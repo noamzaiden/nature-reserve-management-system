@@ -17,7 +17,6 @@ public record AdminReserveDetailDto(
         String managerEmail,
         Double centerLatitude,
         Double centerLongitude,
-        String polygonGeoJson,
         boolean active,
         LocalDateTime createdAt,
         List<EventResponseDto> events
