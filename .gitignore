@@ -44,6 +44,7 @@ docs/.$*.dtmp
 delivery/
 
 # Mobile app local/generated files
+mobile-app/gradle.properties
 mobile-app/local.properties
 mobile-app/.gradle/
 mobile-app/.gradle-user/
